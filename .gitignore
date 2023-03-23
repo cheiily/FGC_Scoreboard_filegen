@@ -1,0 +1,12 @@
+#intellij
+.idea
+target
+out
+
+#maven
+.mvn
+mvnw
+mvnw.cmd
+
+#additional resources
+flags
