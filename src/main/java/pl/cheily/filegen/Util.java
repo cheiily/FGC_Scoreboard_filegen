@@ -17,24 +17,26 @@ public class Util {
     public static Path flags = Path.of("flags").toAbsolutePath();
 
 
-    public static void saveFile(String text, ResourcePath rPath) throws FileSaveException {
+    public static String saveFile(String text, ResourcePath rPath) {
         try (OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(path.toString() + '/' + rPath.fileName), StandardCharsets.UTF_8)) {
             if (text == null) text = "";
             fw.write(text);
 
         } catch (Exception e) {
-            throw new FileSaveException(rPath);
+            return rPath.toString();
         }
+        return null;
     }
 
-    public static void saveImg(Path source_name, ResourcePath rPath) throws FileSaveException {
+    public static String saveImg(Path source_name, ResourcePath rPath) {
         try {
             Files.copy(Path.of(flags + "/" + source_name),
                     Path.of(path + "/" + rPath),
                     StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            throw new FileSaveException(rPath);
+            return rPath.toString();
         }
+        return null;
     }
 
     public static void makeScrollable(ComboBox<String> comboBox) {
@@ -72,7 +74,7 @@ public class Util {
         return value;
     }
 
-    enum ResourcePath {
+    public enum ResourcePath {
         ROUND("round.txt"),
         P1_NAME("p1_name.txt"),
         P1_FLAG("p1_flag.png"),

@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class UiController {
@@ -36,6 +37,11 @@ public class UiController {
     public ComboBox<String> combo_comm1;
     public ComboBox<String> combo_comm2;
     public ComboBox<String> combo_host;
+    public RadioButton radio_p1_W;
+    public RadioButton radio_p1_L;
+    public RadioButton radio_reset;
+    public RadioButton radio_p2_L;
+    public RadioButton radio_p2_W;
 
     public void initialize() {
         ObservableList<String> r_opts = combo_round.getItems();
@@ -87,39 +93,44 @@ public class UiController {
         }
 
         List<String> failedSaves = new ArrayList<>();
-        try {
-            Util.saveFile(combo_round.getValue(), ResourcePath.ROUND);
-            
-            String temp = txt_p1_tag.getText().isEmpty()
-                    ? combo_p1_name.getValue()
-                    : txt_p1_tag.getText() + " | " + combo_p1_name.getValue();
-            Util.saveFile(temp, ResourcePath.P1_NAME);
 
-            temp = combo_p1_flag.getValue().toLowerCase() + ".png";
-            Util.saveImg(Path.of(temp), ResourcePath.P1_FLAG);
-            Util.saveFile(combo_p1_flag.getValue().toLowerCase(), ResourcePath.P1_NATION);
-            Util.saveFile(txt_p1_score.getText(), ResourcePath.P1_SCORE);
-            
-            temp = txt_p2_tag.getText().isEmpty()
-                    ? combo_p2_name.getValue()
-                    : txt_p2_tag.getText() + " | " + combo_p2_name.getValue();
-            Util.saveFile(temp, ResourcePath.P2_NAME);
+        failedSaves.add(Util.saveFile(combo_round.getValue(), ResourcePath.ROUND));
 
-            temp = combo_p2_flag.getValue().toLowerCase() + ".png";
-            Util.saveImg(Path.of(temp), ResourcePath.P2_FLAG);
-            Util.saveFile(combo_p2_flag.getValue().toLowerCase(), ResourcePath.P2_NATION);
-            Util.saveFile(txt_p2_score.getText(), ResourcePath.P2_SCORE);
-
-            temp = ""
-                    + (combo_host.getValue().isEmpty() ? "" : "\uD83C\uDFE0 " + combo_host.getValue() + " \uD83C\uDFE0\n")
-                    + (combo_comm1.getValue().isEmpty() ? "" : "\uD83C\uDF99️ " + combo_comm1.getValue() + "  ")
-                    + (combo_comm2.getValue().isEmpty() ? "" : "\uD83C\uDF99️ " + combo_comm2.getValue());
-            Util.saveFile(temp, ResourcePath.COMMS);
-            
-        } catch (FileSaveException e) {
-            failedSaves.add(e.getResourcePath().toString());
+        String temp = txt_p1_tag.getText().isEmpty()
+                ? combo_p1_name.getValue()
+                : txt_p1_tag.getText() + " | " + combo_p1_name.getValue();
+        if (!radio_reset.isDisabled()) {
+            if (radio_p1_W.isSelected()) temp += " [W]";
+            else if (radio_p1_L.isSelected()) temp += " [L]";
         }
-        
+        failedSaves.add(Util.saveFile(temp, ResourcePath.P1_NAME));
+
+        temp = combo_p1_flag.getValue().toLowerCase() + ".png";
+        failedSaves.add(Util.saveImg(Path.of(temp), ResourcePath.P1_FLAG));
+        failedSaves.add(Util.saveFile(combo_p1_flag.getValue().toLowerCase(), ResourcePath.P1_NATION));
+        failedSaves.add(Util.saveFile(txt_p1_score.getText(), ResourcePath.P1_SCORE));
+
+        temp = txt_p2_tag.getText().isEmpty()
+                ? combo_p2_name.getValue()
+                : txt_p2_tag.getText() + " | " + combo_p2_name.getValue();
+        if (!radio_reset.isDisabled()) {
+            if (radio_p2_W.isSelected()) temp += " [W]";
+            else if (radio_p2_L.isSelected()) temp += " [L]";
+        }
+        failedSaves.add(Util.saveFile(temp, ResourcePath.P2_NAME));
+
+        temp = combo_p2_flag.getValue().toLowerCase() + ".png";
+        failedSaves.add(Util.saveImg(Path.of(temp), ResourcePath.P2_FLAG));
+        failedSaves.add(Util.saveFile(combo_p2_flag.getValue().toLowerCase(), ResourcePath.P2_NATION));
+        failedSaves.add(Util.saveFile(txt_p2_score.getText(), ResourcePath.P2_SCORE));
+
+        temp = ""
+                + (combo_host.getValue().isEmpty() ? "" : "\uD83C\uDFE0 " + combo_host.getValue() + " \uD83C\uDFE0\n")
+                + (combo_comm1.getValue().isEmpty() ? "" : "\uD83C\uDF99️ " + combo_comm1.getValue() + "  ")
+                + (combo_comm2.getValue().isEmpty() ? "" : "\uD83C\uDF99️ " + combo_comm2.getValue());
+        failedSaves.add(Util.saveFile(temp, ResourcePath.COMMS));
+
+        failedSaves = failedSaves.stream().filter(Objects::nonNull).toList();
         if (!failedSaves.isEmpty())
             new Alert(Alert.AlertType.ERROR, "Failed saving files: " + failedSaves, ButtonType.OK).show();
     }
@@ -184,9 +195,10 @@ public class UiController {
             temp_arr = temp.split("\\|");
             if (temp_arr.length > 1) {
                 txt_p1_tag.setText(temp_arr[0].trim());
-                combo_p1_name.setValue(temp_arr[1].trim());
+                //additional split to filter out grand finals tag
+                combo_p1_name.setValue(temp_arr[1].trim().split(" ")[0]);
             } else
-                combo_p1_name.setValue(temp);
+                combo_p1_name.setValue(temp.split(" ")[0]);
         } catch (IOException ignored) {}
 
         try (BufferedReader p1_nation_file = new BufferedReader(new FileReader(dir.getAbsolutePath() + '/' + ResourcePath.P1_NATION))) {
@@ -202,9 +214,9 @@ public class UiController {
             temp_arr = temp.split("\\|");
             if (temp_arr.length > 1) {
                 txt_p2_tag.setText(temp_arr[0].trim());
-                combo_p2_name.setValue(temp_arr[1].trim());
+                combo_p2_name.setValue(temp_arr[1].trim().split(" ")[0]);
             } else
-                combo_p2_name.setValue(temp);
+                combo_p2_name.setValue(temp.split(" ")[0]);
         } catch (IOException ignored) {}
 
         try (BufferedReader p2_nation_file = new BufferedReader(new FileReader(dir.getAbsolutePath() + '/' + ResourcePath.P2_NATION))) {
@@ -365,8 +377,60 @@ public class UiController {
         Util.scrollOpt(combo_round, scrollEvent);
     }
 
+    public void on_round_select(ActionEvent actionEvent) {
+        if (combo_round.getValue().toLowerCase().contains("gran")) {
+            radio_reset.setDisable(false);
+            radio_p1_L.setDisable(false);
+            radio_p1_W.setDisable(false);
+            radio_p2_L.setDisable(false);
+            radio_p2_W.setDisable(false);
+        } else {
+            radio_reset.setDisable(true);
+            radio_p1_L.setDisable(true);
+            radio_p1_W.setDisable(true);
+            radio_p2_L.setDisable(true);
+            radio_p2_W.setDisable(true);
+        }
+    }
 
 
+    public void on_radio_W1(ActionEvent actionEvent) {
+        radio_p1_W.setSelected(true);
+        radio_p1_L.setSelected(false);
+        radio_p2_W.setSelected(false);
+        radio_p2_L.setSelected(true);
+        radio_reset.setSelected(false);
+    }
 
+    public void on_radio_L1(ActionEvent actionEvent) {
+        radio_p1_W.setSelected(false);
+        radio_p1_L.setSelected(true);
+        radio_p2_W.setSelected(true);
+        radio_p2_L.setSelected(false);
+        radio_reset.setSelected(false);
+    }
 
+    public void on_radio_reset(ActionEvent actionEvent) {
+        radio_p1_W.setSelected(false);
+        radio_p1_L.setSelected(true);
+        radio_p2_W.setSelected(false);
+        radio_p2_L.setSelected(true);
+        radio_reset.setSelected(true);
+    }
+
+    public void on_radio_L2(ActionEvent actionEvent) {
+        radio_p1_W.setSelected(true);
+        radio_p1_L.setSelected(false);
+        radio_p2_W.setSelected(false);
+        radio_p2_L.setSelected(true);
+        radio_reset.setSelected(false);
+    }
+
+    public void on_radio_W2(ActionEvent actionEvent) {
+        radio_p1_W.setSelected(false);
+        radio_p1_L.setSelected(true);
+        radio_p2_W.setSelected(true);
+        radio_p2_L.setSelected(false);
+        radio_reset.setSelected(false);
+    }
 }
