@@ -61,8 +61,10 @@ public class UiController {
         ObservableList<String> f1_opts = combo_p1_flag.getItems();
         ObservableList<String> f2_opts = combo_p2_flag.getItems();
         try (Stream<Path> flags = Files.walk(Util.flags)) {
-            flags.filter(path -> path.toString().contains("."))
-                    .filter(path -> !path.getFileName().toString().equals("flags"))
+            flags.filter(path -> path.toString().endsWith(".png"))
+                    .filter(path ->
+                            !path.getFileName().toString().equals(ResourcePath.P1_FLAG.toString())
+                            && !path.getFileName().toString().equals(ResourcePath.P2_FLAG.toString()))
                     .map(path -> path.getFileName().toString().split("\\.")[0])
                     .forEach(path -> {
                         f1_opts.add(path.toUpperCase());

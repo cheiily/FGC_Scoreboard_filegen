@@ -48,7 +48,7 @@ public class Util {
     public static void scrollOpt(ComboBox<String> content_to_scroll, ScrollEvent evt) {
         ObservableList<String> opts = content_to_scroll.getItems();
         int old_index = opts.indexOf(content_to_scroll.getValue());
-        int delta_move = Integer.signum((int) evt.getTextDeltaY());
+        int delta_move = -Integer.signum((int) evt.getTextDeltaY());
 
         if (opts.isEmpty()) {
             content_to_scroll.setValue("");
