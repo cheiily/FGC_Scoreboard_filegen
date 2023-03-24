@@ -2,7 +2,7 @@
 The sources are generated into separate files which means they need to all be imported and manually placed into a scene in your streaming software. They're `.txt` and `.png` files with quite self-descriptive names.
 They're also made so that OBS (or any software which polls the modification timestamp) can discover changes and re-load them automatically.
 
-To run the attached jar, you need a JRE of version 17 or higher. For it to be compiled correctly, in the same directory there needs to be present a directory named "flags" with only one file inside - a "null.png" for people of unknown / unspecified origin. Any additional flag images to be put inside should be of .png format. It does not matter how they are named but the filenames will be displayed as selection options so it would be smart for them to bear either full country names or their short codes.
+To run the jar, you need a JRE of version 17 or higher. For it to be compiled correctly, in the same directory there needs to be present a directory named "flags" with only one file inside - a "null.png" for people of unknown / unspecified origin. Any additional flag images to be put inside should be of .png format. It does not matter how they are named but the filenames will be displayed as selection options so it would be smart for them to bear either full country names or their short codes.
 There is no attached flag collection, you need to download one on your own, personally I got them from `https://flagpedia.net/`.
 
 To run the app open any terminal and type `java -jar filegen.jar`.
