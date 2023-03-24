@@ -1,4 +1,4 @@
-This is a small GUI project made to easily generate FGC scoreboard source files.
+### This is a small GUI project made to easily generate FGC scoreboard source files.
 The sources are generated into separate files which means they need to all be imported and manually placed into a scene in your streaming software. They're `.txt` and `.png` files with quite self-descriptive names.
 They're also made so that OBS (or any software which polls the modification timestamp) can discover changes and re-load them automatically.
 
@@ -36,7 +36,7 @@ Most of the GUI elements should feel quite natural in usage, additionally for co
 
 
 
-TODO:
-[ ] Combobox autocomplete / suggestions
-[ ] Attach a sample OBS scene
+### TODO:
+- [ ] Combobox autocomplete / suggestions
+- [ ] Attach a sample OBS scene
 
