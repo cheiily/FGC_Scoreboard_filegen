@@ -108,7 +108,7 @@ public class UiController {
         failedSaves.add(Util.saveFile(temp, ResourcePath.P1_NAME));
 
         temp = combo_p1_natio.getValue();
-        if (temp == null) temp = "null.png";
+        if (temp == null || temp.isEmpty()) temp = "null.png";
         else temp = temp.toLowerCase() + ".png";
         failedSaves.add(Util.saveImg(Path.of(temp), ResourcePath.P1_FLAG));
         temp = combo_p1_natio.getValue() == null ? "" : combo_p1_natio.getValue();
@@ -125,7 +125,7 @@ public class UiController {
         failedSaves.add(Util.saveFile(temp, ResourcePath.P2_NAME));
 
         temp = combo_p2_natio.getValue();
-        if (temp == null) temp = "null.png";
+        if (temp == null || temp.isEmpty()) temp = "null.png";
         else temp = temp.toLowerCase() + ".png";
         if (temp.equals(".png")) temp = "null.png";
         failedSaves.add(Util.saveImg(Path.of(temp), ResourcePath.P2_FLAG));

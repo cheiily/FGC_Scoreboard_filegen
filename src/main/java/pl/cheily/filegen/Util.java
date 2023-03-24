@@ -11,6 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class Util {
     public static Path path;
@@ -43,6 +47,7 @@ public class Util {
             Files.copy(Path.of(flags + "/" + source_name),
                     Path.of(path + "/" + rPath),
                     StandardCopyOption.REPLACE_EXISTING);
+            Files.setLastModifiedTime(Path.of(path + "/" + rPath), FileTime.from(Instant.now()));
         } catch (Exception e) {
             return rPath.toString();
         }
