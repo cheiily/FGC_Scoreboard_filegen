@@ -18,7 +18,17 @@ public class Util {
 
 
     public static String saveFile(String text, ResourcePath rPath) {
-        try (OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(path.toString() + '/' + rPath.fileName), StandardCharsets.UTF_8)) {
+        if (rPath.toString().contains("/")) {
+            try {
+                Files.createDirectories(Path.of(
+                        path + "/" + rPath.toString().split("/")[0]
+                ));
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
+        try (OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(path.toString() + '/' + rPath.toString()), StandardCharsets.UTF_8)) {
             if (text == null) text = "";
             fw.write(text);
 
@@ -78,15 +88,15 @@ public class Util {
         ROUND("round.txt"),
         P1_NAME("p1_name.txt"),
         P1_FLAG("p1_flag.png"),
-        P1_NATION("p1_nation.txt"),
+        P1_NATION("fgen/p1_nation.txt"),
         P1_SCORE("p1_score.txt"),
         P2_NAME("p2_name.txt"),
         P2_FLAG("p2_flag.png"),
-        P2_NATION("p2_nation.txt"),
+        P2_NATION("fgen/p2_nation.txt"),
         P2_SCORE("p2_score.txt"),
         COMMS("comms.txt"),
-        PLAYER_LIST("player_list.txt"),
-        COMMS_LIST("comms_list.txt");
+        PLAYER_LIST("fgen/player_list.txt"),
+        COMMS_LIST("fgen/comms_list.txt");
 
 
         private final String fileName;

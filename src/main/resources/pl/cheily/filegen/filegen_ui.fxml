@@ -18,7 +18,7 @@
       <Text layoutX="172.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Player 1 (left)" />
       <Text layoutX="430.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Player 2 (right)" />
       <TextField fx:id="txt_p1_tag" alignment="CENTER" layoutX="106.0" layoutY="116.0" prefHeight="25.0" prefWidth="202.0" />
-      <ComboBox fx:id="combo_p1_flag" editable="true" layoutX="158.0" layoutY="178.0" onAction="#on_p1_flag_selection" onScroll="#on_p1_natio_scroll" prefWidth="150.0" />
+      <ComboBox fx:id="combo_p1_natio" editable="true" layoutX="158.0" layoutY="178.0" onAction="#on_p1_natio_selection" onScroll="#on_p1_natio_scroll" prefWidth="150.0" />
       <ImageView fx:id="img_p1_flag" fitHeight="25.0" fitWidth="39.0" layoutX="106.0" layoutY="178.0" onScroll="#on_p1_flag_scroll" pickOnBounds="true" preserveRatio="true" />
       <TextField fx:id="txt_p1_score" alignment="CENTER" editable="false" layoutX="106.0" layoutY="221.0" onScroll="#on_p1_score_scroll" pickOnBounds="false" prefHeight="57.0" prefWidth="149.0" style="-fx-font-weight: bold;" text="0">
          <font>
@@ -27,7 +27,7 @@
       <Button layoutX="277.0" layoutY="224.0" mnemonicParsing="false" onMouseClicked="#on_p1_score_up" prefHeight="25.0" prefWidth="31.0" text="+" />
       <Button layoutX="277.0" layoutY="249.0" mnemonicParsing="false" onMouseClicked="#on_p1_score_down" prefHeight="25.0" prefWidth="31.0" text="-" />
       <TextField fx:id="txt_p2_tag" alignment="CENTER" layoutX="368.0" layoutY="116.0" prefHeight="25.0" prefWidth="202.0" />
-      <ComboBox fx:id="combo_p2_flag" editable="true" layoutX="420.0" layoutY="178.0" onAction="#on_p2_flag_selection" onScroll="#on_p2_natio_scroll" prefWidth="150.0" />
+      <ComboBox fx:id="combo_p2_natio" editable="true" layoutX="420.0" layoutY="178.0" onAction="#on_p2_natio_selection" onScroll="#on_p2_natio_scroll" prefWidth="150.0" />
       <ImageView fx:id="img_p2_flag" fitHeight="25.0" fitWidth="39.0" layoutX="368.0" layoutY="178.0" onScroll="#on_p2_flag_scroll" pickOnBounds="true" preserveRatio="true" />
       <TextField fx:id="txt_p2_score" alignment="CENTER" editable="false" layoutX="368.0" layoutY="221.0" onScroll="#on_p2_score_scroll" pickOnBounds="false" prefHeight="57.0" prefWidth="149.0" style="-fx-font-weight: bold;" text="0">
          <font>
