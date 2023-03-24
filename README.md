@@ -39,4 +39,8 @@ Most of the GUI elements should feel quite natural in usage, additionally for co
 ### TODO:
 - [ ] Combobox autocomplete / suggestions
 - [ ] Attach a sample OBS scene
+- [ ] Allow round names list file, if none is found - add the default opts
+- [ ] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning (not error)
+- [ ] Set radio buttons on load if it's a grand final round
+- [ ] (maybe) Config for splitting up the commentary file into separate files. 
 

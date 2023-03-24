@@ -12,7 +12,7 @@ public class ScoreboardApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ScoreboardApplication.class.getResource("filegen_ui.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Scoreboard editor");
+        stage.setTitle("Scoreboard controller");
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
