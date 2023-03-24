@@ -8,5 +8,9 @@ out
 mvnw
 mvnw.cmd
 
+#git
+.mailmap
+
 #additional resources
 flags
+
