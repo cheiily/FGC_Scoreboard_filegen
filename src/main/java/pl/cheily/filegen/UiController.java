@@ -301,7 +301,8 @@ public class UiController {
                 if (temp.isEmpty()) continue;
 
                 //same as with player name
-                temp_arr = temp.split(" ");
+                //account for possible tabs for nationality separation
+                temp_arr = temp.split("[ \\t]+");
                 temp_arr = temp_arr[0].split("\\|");
                 if (temp_arr.length > 1) {
                     p1_opts.add(temp_arr[1]);

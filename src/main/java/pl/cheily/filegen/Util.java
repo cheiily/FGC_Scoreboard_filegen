@@ -175,7 +175,7 @@ public class Util {
             String line, tag, name, natio;
             String[] words;
             while ((line = player_list.readLine()) != null) {
-                words = line.split(" ");
+                words = line.split("[ \\t]+");
                 if (words.length > 1)
                     natio = words[1].toUpperCase();
                 else natio = "";
