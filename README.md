@@ -45,4 +45,5 @@ Most of the GUI elements should feel quite natural in usage, additionally for co
 - [ ] (maybe) Config for splitting up the commentary file into separate files. 
 - [ ] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
 - [ ] Make html output
+- [ ] Quick player switch button
 
