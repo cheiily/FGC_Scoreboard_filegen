@@ -237,6 +237,10 @@ public class UiController {
         String temp;
         String[] temp_arr;
 
+        //radio load aids
+        boolean p1L = false,
+                p2L = false;
+
 
         try (BufferedReader round_file = new BufferedReader(new FileReader(dir.getAbsolutePath() + '/' + ResourcePath.ROUND))) {
             combo_round.setValue(round_file.readLine());
@@ -254,6 +258,11 @@ public class UiController {
                 combo_p1_name.setValue(temp_arr[1].trim().split(" ")[0]);
             } else
                 combo_p1_name.setValue(temp.split(" ")[0]);
+
+            //load w/l radio
+            if (temp.endsWith("[L]")) {
+                p1L = true;
+            }
         } catch (IOException | NullPointerException ignored) {}
 
         try (BufferedReader p1_nation_file = new BufferedReader(new FileReader(dir.getAbsolutePath() + '/' + ResourcePath.P1_NATION))) {
@@ -273,6 +282,10 @@ public class UiController {
                 combo_p2_name.setValue(temp_arr[1].trim().split(" ")[0]);
             } else
                 combo_p2_name.setValue(temp.split(" ")[0]);
+
+            if (temp.endsWith("[L]")) {
+                p2L = true;
+            }
         } catch (IOException | NullPointerException ignored) {}
 
         try (BufferedReader p2_nation_file = new BufferedReader(new FileReader(dir.getAbsolutePath() + '/' + ResourcePath.P2_NATION))) {
@@ -282,6 +295,14 @@ public class UiController {
         try (BufferedReader p2_score_file = new BufferedReader(new FileReader(dir.getAbsolutePath() + '/' + ResourcePath.P2_SCORE))) {
             txt_p2_score.setText(p2_score_file.readLine());
         } catch (IOException | NullPointerException ignored) {}
+
+        //set the radio
+        //expect toggle to be on after round-name load
+        if (GF_toggle.isSelected()) {
+            if (p1L && p2L) radio_reset.fire();
+            else if (p1L) radio_p1_L.fire();
+            else if (p2L) radio_p2_L.fire();
+        }
 
         //As the comms file is all mashed up together, some parsing is necessary
         try (BufferedReader comms_file = new BufferedReader(new InputStreamReader(new FileInputStream(dir.getAbsolutePath() + '/' + ResourcePath.COMMS), StandardCharsets.UTF_8))) {

@@ -41,9 +41,9 @@ Most of the GUI elements should feel quite natural in usage, additionally for co
 - [ ] Attach a sample OBS scene
 - [ ] Allow round names list file, if none is found - add the default opts
 - [ ] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning (not error)
-- [ ] Set radio buttons on load if it's a grand final round
+- [x] Set radio buttons on load if it's a grand final round
 - [ ] (maybe) Config for splitting up the commentary file into separate files. 
 - [ ] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
 - [ ] Make html output
-- [ ] Quick player switch button
+- [x] Quick player switch button
 
