@@ -41,6 +41,7 @@ public class UiController {
     public RadioButton radio_reset;
     public RadioButton radio_p2_L;
     public RadioButton radio_p2_W;
+    public ToggleButton GF_toggle;
 
     /**
      * Loads a hardcoded preset of round opts, attempts to load flag/nationality opts, sets the default flag as null.
@@ -534,5 +535,21 @@ public class UiController {
         radio_p2_W.setSelected(true);
         radio_p2_L.setSelected(false);
         radio_reset.setSelected(false);
+    }
+
+    public void on_player_swap(ActionEvent actionEvent) {
+        String p1_score = txt_p1_score.getText();
+        String p2_score = txt_p2_score.getText();
+        String p1_name = combo_p1_name.getValue();
+        String p2_name = combo_p2_name.getValue();
+
+        combo_p1_name.setValue(p2_name);
+        combo_p2_name.setValue(p1_name);
+        txt_p1_score.setText(p2_score);
+        txt_p2_score.setText(p1_score);
+    }
+
+    public void on_GF_toggle(ActionEvent actionEvent) {
+
     }
 }
