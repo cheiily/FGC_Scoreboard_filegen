@@ -42,9 +42,11 @@ public class UiController {
     public RadioButton radio_p2_L;
     public RadioButton radio_p2_W;
     public ToggleButton GF_toggle;
+    List<RadioButton> radio_buttons = new ArrayList<>();
 
     /**
-     * Loads a hardcoded preset of round opts, attempts to load flag/nationality opts, sets the default flag as null.
+     * Loads a hardcoded preset of round opts, attempts to load flag/nationality opts, sets the default flag as null,
+     * loads radio buttons into a list and disables them all
      */
     public void initialize() {
         ObservableList<String> r_opts = combo_round.getItems();
@@ -87,6 +89,12 @@ public class UiController {
         img_p1_flag.setImage(new Image(Util.flags + "/null.png"));
         img_p2_flag.setImage(new Image(Util.flags + "/null.png"));
 
+        radio_buttons.add(radio_reset);
+        radio_buttons.add(radio_p1_W);
+        radio_buttons.add(radio_p1_L);
+        radio_buttons.add(radio_p2_W);
+        radio_buttons.add(radio_p2_L);
+        radio_buttons.forEach(r -> r.setDisable(true));
     }
 
 
@@ -106,13 +114,13 @@ public class UiController {
         failedSaves.add(Util.saveFile(combo_round.getValue(), ResourcePath.ROUND));
 
         //Combine the tag with the player name split by '|'
-        //Append grands' W/L tag to the name if radios are enabled
+        //Append grands' W/L tag to the name if GF toggle is on
         String temp = txt_p1_tag.getText().isEmpty()
                 ? combo_p1_name.getValue()
                 : txt_p1_tag.getText() + " | " + combo_p1_name.getValue();
-        if (!radio_reset.isDisabled()) {
+        if (GF_toggle.isSelected()) {
             if (radio_p1_W.isSelected()) temp += " [W]";
-            else if (radio_p1_L.isSelected()) temp += " [L]";
+            else temp += " [L]";
         }
         if (temp == null) temp = "";
         failedSaves.add(Util.saveFile(temp, ResourcePath.P1_NAME));
@@ -132,9 +140,9 @@ public class UiController {
         temp = txt_p2_tag.getText().isEmpty()
                 ? combo_p2_name.getValue()
                 : txt_p2_tag.getText() + " | " + combo_p2_name.getValue();
-        if (!radio_reset.isDisabled()) {
+        if (GF_toggle.isSelected()) {
             if (radio_p2_W.isSelected()) temp += " [W]";
-            else if (radio_p2_L.isSelected()) temp += " [L]";
+            else temp += " [L]";
         }
         failedSaves.add(Util.saveFile(temp, ResourcePath.P2_NAME));
 
@@ -415,7 +423,7 @@ public class UiController {
 
 
 
-    //adding scroll listeners in a prettier way than by Util.makeScrollable
+    //adding scroll listeners in a prettier way than via Util.makeScrollable
     public void on_p1_name_scroll(ScrollEvent scrollEvent) {
         Util.scrollOpt(combo_p1_name, scrollEvent);
     }
@@ -461,19 +469,9 @@ public class UiController {
      */
     public void on_round_select() {
         String temp = combo_round.getValue() == null ? "" : combo_round.getValue();
-        if (temp.toLowerCase().contains("gran")) {
-            radio_reset.setDisable(false);
-            radio_p1_L.setDisable(false);
-            radio_p1_W.setDisable(false);
-            radio_p2_L.setDisable(false);
-            radio_p2_W.setDisable(false);
-        } else {
-            radio_reset.setDisable(true);
-            radio_p1_L.setDisable(true);
-            radio_p1_W.setDisable(true);
-            radio_p2_L.setDisable(true);
-            radio_p2_W.setDisable(true);
-        }
+        if ( (temp.toLowerCase().contains("gran") && !GF_toggle.isSelected())
+            || (!temp.toLowerCase().contains("gran") && GF_toggle.isSelected())
+        ) GF_toggle.fire();
     }
 
 
@@ -486,31 +484,26 @@ public class UiController {
      * </ul>
      */
     public void on_radio_W1() {
+        radio_buttons.forEach(r -> r.setSelected(false));
         radio_p1_W.setSelected(true);
-        radio_p1_L.setSelected(false);
-        radio_p2_W.setSelected(false);
         radio_p2_L.setSelected(true);
-        radio_reset.setSelected(false);
     }
 
     /**
      * See {@link #on_radio_W1()}.
      */
     public void on_radio_L1() {
-        radio_p1_W.setSelected(false);
+        radio_buttons.forEach(r -> r.setSelected(false));
         radio_p1_L.setSelected(true);
         radio_p2_W.setSelected(true);
-        radio_p2_L.setSelected(false);
-        radio_reset.setSelected(false);
     }
 
     /**
      * See {@link #on_radio_W1()}.
      */
     public void on_radio_reset() {
-        radio_p1_W.setSelected(false);
+        radio_buttons.forEach(r -> r.setSelected(false));
         radio_p1_L.setSelected(true);
-        radio_p2_W.setSelected(false);
         radio_p2_L.setSelected(true);
         radio_reset.setSelected(true);
     }
@@ -519,22 +512,18 @@ public class UiController {
      * See {@link #on_radio_W1()}.
      */
     public void on_radio_L2() {
+        radio_buttons.forEach(r -> r.setSelected(false));
         radio_p1_W.setSelected(true);
-        radio_p1_L.setSelected(false);
-        radio_p2_W.setSelected(false);
         radio_p2_L.setSelected(true);
-        radio_reset.setSelected(false);
     }
 
     /**
      * See {@link #on_radio_W1()}.
      */
     public void on_radio_W2() {
-        radio_p1_W.setSelected(false);
+        radio_buttons.forEach(r -> r.setSelected(false));
         radio_p1_L.setSelected(true);
         radio_p2_W.setSelected(true);
-        radio_p2_L.setSelected(false);
-        radio_reset.setSelected(false);
     }
 
     public void on_player_swap(ActionEvent actionEvent) {
@@ -547,9 +536,22 @@ public class UiController {
         combo_p2_name.setValue(p1_name);
         txt_p1_score.setText(p2_score);
         txt_p2_score.setText(p1_score);
+
+        if (GF_toggle.isSelected() && !radio_reset.isSelected()) {
+            boolean p1w = radio_p1_W.isSelected();
+            radio_buttons.forEach(r -> r.setSelected(false));
+            if (p1w) {
+                radio_p1_L.setSelected(true);
+                radio_p2_W.setSelected(true);
+            } else {
+                radio_p2_L.setSelected(true);
+                radio_p1_W.setSelected(true);
+            }
+        }
     }
 
     public void on_GF_toggle(ActionEvent actionEvent) {
-
+        boolean turn_off = !GF_toggle.isSelected();
+        radio_buttons.forEach(r -> r.setDisable(turn_off));
     }
 }
