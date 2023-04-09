@@ -1,13 +1,14 @@
 package pl.cheily.filegen;
 
 import javafx.scene.input.ScrollEvent;
+import org.ini4j.Config;
+import org.ini4j.Ini;
 import pl.cheily.filegen.Util.ResourcePath;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -18,6 +19,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UiController {
@@ -42,7 +45,10 @@ public class UiController {
     public RadioButton radio_p2_L;
     public RadioButton radio_p2_W;
     public ToggleButton GF_toggle;
-    List<RadioButton> radio_buttons = new ArrayList<>();
+    public List<RadioButton> radio_buttons = new ArrayList<>();
+    private Ini i_metadata = new Ini();
+    private Ini i_player_list = new Ini();
+    private Ini i_comms_list = new Ini();
 
     /**
      * Loads a hardcoded preset of round opts, attempts to load flag/nationality opts, sets the default flag as null,
@@ -71,7 +77,7 @@ public class UiController {
 
         ObservableList<String> f1_opts = combo_p1_natio.getItems();
         ObservableList<String> f2_opts = combo_p2_natio.getItems();
-        try (Stream<Path> flags = Files.walk(Util.flags)) {
+        try (Stream<Path> flags = Files.walk(Util.flagsDir)) {
             flags.filter(path -> path.toString().endsWith(".png"))
                     .filter(path ->
                             !path.getFileName().toString().equals(ResourcePath.P1_FLAG.toString())
@@ -86,8 +92,8 @@ public class UiController {
             throw new RuntimeException(e);
         }
 
-        img_p1_flag.setImage(new Image(Util.flags + "/null.png"));
-        img_p2_flag.setImage(new Image(Util.flags + "/null.png"));
+        img_p1_flag.setImage(new Image(Util.flagsDir + "/null.png"));
+        img_p2_flag.setImage(new Image(Util.flagsDir + "/null.png"));
 
         radio_buttons.add(radio_reset);
         radio_buttons.add(radio_p1_W);
@@ -95,6 +101,12 @@ public class UiController {
         radio_buttons.add(radio_p2_W);
         radio_buttons.add(radio_p2_L);
         radio_buttons.forEach(r -> r.setDisable(true));
+
+        try {
+            i_metadata.load(new File(ResourcePath.METADATA.toString()));
+        } catch (IOException ignored) {
+            //file is created automatically via File ctor
+        }
     }
 
 
@@ -104,7 +116,7 @@ public class UiController {
      * collects failures and shows an alert if any happened.
      */
     public void on_save() {
-        if (Util.path == null) {
+        if (Util.targetDir == null) {
             new Alert(Alert.AlertType.WARNING, "No path selected.", ButtonType.OK).show();
             return;
         }
@@ -221,12 +233,11 @@ public class UiController {
             return;
         }
 
-        Util.path = dir.toPath();
+        Util.targetDir = dir.toPath();
         txt_path.setText(dir.toPath().toString());
 
         try_load_data(dir);
     }
-
 
     /**
      * Tries to load as much data as possible by separating each read operation into its own try-catch block.
@@ -323,40 +334,26 @@ public class UiController {
             }
         } catch (IOException | NullPointerException ignored) {}
 
-        try (BufferedReader player_list = new BufferedReader(new FileReader(dir.getAbsolutePath() + "/" + ResourcePath.PLAYER_LIST))) {
-            ObservableList<String> p1_opts = combo_p1_name.getItems();
-            ObservableList<String> p2_opts = combo_p2_name.getItems();
 
-            while ((temp = player_list.readLine()) != null) {
-                if (temp.isEmpty()) continue;
+        try {
+            i_player_list.load(new File(dir.getAbsolutePath() + "/" + ResourcePath.PLAYER_LIST));
+            Set<String> players = i_player_list.keySet().stream()
+                    .filter(key -> !key.isEmpty())
+                    .collect(Collectors.toSet());
+            combo_p1_name.getItems().addAll(players);
+            combo_p2_name.getItems().addAll(players);
+        } catch (IOException ignored) {}
 
-                //same as with player name
-                //account for possible tabs for nationality separation
-                temp_arr = temp.split("[ \\t]+");
-                temp_arr = temp_arr[0].split("\\|");
-                if (temp_arr.length > 1) {
-                    p1_opts.add(temp_arr[1]);
-                    p2_opts.add(temp_arr[1]);
-                } else {
-                    p1_opts.add(temp_arr[0]);
-                    p2_opts.add(temp_arr[0]);
-                }
-            }
-        } catch (IOException | NullPointerException ignored) {}
+        try {
+            i_comms_list.load(new File(dir.getAbsolutePath() + "/" + ResourcePath.COMMS_LIST));
+            Set<String> comms = i_comms_list.keySet().stream()
+                            .filter(key -> !key.isEmpty())
+                            .collect(Collectors.toSet());
+            combo_host.getItems().addAll(comms);
+            combo_comm1.getItems().addAll(comms);
+            combo_comm2.getItems().addAll(comms);
+        } catch (IOException ignored) {}
 
-        try (BufferedReader comms_list = new BufferedReader(new FileReader(dir.getAbsolutePath() + "/" + ResourcePath.COMMS_LIST))) {
-            ObservableList<String> c1_opts = combo_comm1.getItems();
-            ObservableList<String> c2_opts = combo_comm2.getItems();
-            ObservableList<String> h_opts = combo_host.getItems();
-
-            while ((temp = comms_list.readLine()) != null) {
-                if (temp.isEmpty()) continue;
-
-                c1_opts.add(temp);
-                c2_opts.add(temp);
-                h_opts.add(temp);
-            }
-        } catch (IOException | NullPointerException ignored) {}
     }
 
     /**
@@ -364,9 +361,9 @@ public class UiController {
      */
     public void on_p1_natio_selection() {
         try {
-            img_p1_flag.setImage(new Image(Util.flags + "/" + combo_p1_natio.getValue().toLowerCase() + ".png"));
+            img_p1_flag.setImage(new Image(Util.flagsDir + "/" + combo_p1_natio.getValue().toLowerCase() + ".png"));
         } catch (Exception ex) {
-            img_p1_flag.setImage(new Image(Util.flags + "/null.png"));
+            img_p1_flag.setImage(new Image(Util.flagsDir + "/null.png"));
         }
     }
 
@@ -375,9 +372,9 @@ public class UiController {
      */
     public void on_p2_natio_selection() {
         try {
-            img_p2_flag.setImage(new Image(Util.flags + "/" + combo_p2_natio.getValue().toLowerCase() + ".png"));
+            img_p2_flag.setImage(new Image(Util.flagsDir + "/" + combo_p2_natio.getValue().toLowerCase() + ".png"));
         } catch (Exception ex) {
-            img_p2_flag.setImage(new Image(Util.flags + "/null.png"));
+            img_p2_flag.setImage(new Image(Util.flagsDir + "/null.png"));
         }
     }
 
@@ -387,7 +384,7 @@ public class UiController {
     public void on_p1_selection() {
         txt_p1_score.setText("0");
 
-        if (Util.path == null) return;
+        if (Util.targetDir == null) return;
         String new_player = combo_p1_name.getValue();
 
         Util.Player found = Util.search_player_list(new_player);
@@ -407,7 +404,7 @@ public class UiController {
     public void on_p2_selection() {
         txt_p2_score.setText("0");
 
-        if (Util.path == null) return;
+        if (Util.targetDir == null) return;
         String new_player = combo_p2_name.getValue();
 
         Util.Player found = Util.search_player_list(new_player);

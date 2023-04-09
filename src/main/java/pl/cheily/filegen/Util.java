@@ -4,24 +4,24 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.input.ScrollEvent;
+import org.ini4j.Ini;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+
+import static org.ini4j.Profile.*;
 
 public class Util {
     /**
      * Target directory path
      */
-    public static Path path;
-    public static Path flags = Path.of("flags").toAbsolutePath();
+    public static Path targetDir;
+    public static Path flagsDir = Path.of("flags").toAbsolutePath();
 
 
     /**
@@ -35,14 +35,14 @@ public class Util {
         if (rPath.toString().contains("/")) {
             try {
                 Files.createDirectories(Path.of(
-                        path + "/" + rPath.toString().split("/")[0]
+                        targetDir + "/" + rPath.toString().split("/")[0]
                 ));
             } catch (IOException e) {
                 return null;
             }
         }
 
-        try (OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(path.toString() + '/' + rPath.toString()), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(targetDir.toString() + '/' + rPath.toString()), StandardCharsets.UTF_8)) {
             if (text == null) text = "";
             fw.write(text);
 
@@ -61,10 +61,10 @@ public class Util {
      */
     public static String saveImg(Path source_name, ResourcePath rPath) {
         try {
-            Files.copy(Path.of(flags + "/" + source_name),
-                    Path.of(path + "/" + rPath),
+            Files.copy(Path.of(flagsDir + "/" + source_name),
+                    Path.of(targetDir + "/" + rPath),
                     StandardCopyOption.REPLACE_EXISTING);
-            Files.setLastModifiedTime(Path.of(path + "/" + rPath), FileTime.from(Instant.now()));
+            Files.setLastModifiedTime(Path.of(targetDir + "/" + rPath), FileTime.from(Instant.now()));
         } catch (Exception e) {
             return rPath.toString();
         }
@@ -139,8 +139,9 @@ public class Util {
         P2_NATION("fgen/p2_nation.txt"),
         P2_SCORE("p2_score.txt"),
         COMMS("comms.txt"),
-        PLAYER_LIST("fgen/player_list.txt"),
-        COMMS_LIST("fgen/comms_list.txt");
+        PLAYER_LIST("fgen/player_list.ini"),
+        COMMS_LIST("fgen/comms_list.ini"),
+        METADATA("fgen/metadata.ini");
 
 
         private final String fileName;
@@ -165,37 +166,25 @@ public class Util {
     public record Player(String tag, String name, String nationality) {}
 
     /**
-     * Browses the player list file for records associated with the player name.
+     * Looks up the player list file for records associated with the player name, via {@link Ini#get(Object)}.
      * Doesn't throw on IOException - returns null instead.
      * @param new_player_name
      * @return {@link Player} object representing the player's related fields, null if none are found.
      */
     public static Player search_player_list(String new_player_name) {
-        try (BufferedReader player_list = new BufferedReader(new FileReader(Util.path.toAbsolutePath() + "/" + ResourcePath.PLAYER_LIST))) {
-            String line, tag, name, natio;
-            String[] words;
-            while ((line = player_list.readLine()) != null) {
-                words = line.split("[ \\t]+");
-                if (words.length > 1)
-                    natio = words[1].toUpperCase();
-                else natio = "";
 
-                words = words[0].split("\\|");
-                if (words.length > 1) {
-                    tag = words[0];
-                    name = words[1];
-                } else {
-                    tag = "";
-                    name = words[0];
-                }
+        try {
+            Ini ini = new Ini(new File(Util.targetDir.toAbsolutePath() + "/" + ResourcePath.PLAYER_LIST));
+            Section i_new_player = ini.get(new_player_name);
+            if (i_new_player == null) return null;
 
-                if (new_player_name.equals(name)) {
-                    return new Player(tag, name, natio);
-                }
+            String tag, natio;
+            tag = i_new_player.get("tag");
+            natio = i_new_player.get("nat");
 
-            }
+            return new Player(tag, new_player_name, natio);
+
         } catch (IOException ignored) {}
-
         return null;
     }
 
