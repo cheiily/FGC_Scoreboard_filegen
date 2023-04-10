@@ -1,4 +1,4 @@
-package pl.cheily.filegen;
+package pl.cheily.filegen.Utils;
 
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -15,14 +15,18 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 
 import static org.ini4j.Profile.*;
+import static pl.cheily.filegen.Utils.IniKey.*;
 
 public class Util {
     /**
      * Target directory path
      */
     public static Path targetDir;
-    public static Path flagsDir = Path.of("flags").toAbsolutePath();
+    public static final Path flagsDir = Path.of("flags").toAbsolutePath();
 
+    public static Ini i_metadata = new Ini();
+    public static Ini i_player_list = new Ini();
+    public static Ini i_comms_list = new Ini();
 
     /**
      * Attempts to save the passed text content to a file specified by rPath.
@@ -71,23 +75,6 @@ public class Util {
         return null;
     }
 
-    /**
-     * Equivalent to {@link #makeScrollable(Node, ComboBox)} with both arguments being the same ComboBox.
-     * @param comboBox
-     */
-    public static void makeScrollable(ComboBox<String> comboBox) {
-        makeScrollable(comboBox, comboBox);
-    }
-
-    /**
-     * Appends an onScroll listener based on scrollOpt to event_source, the listener will scroll items within content_to_scroll.
-     * E.g. Allows scrolling on an ImageView to scroll opts on a ComboBox next to it.
-     * @param event_source
-     * @param content_to_scroll
-     */
-    public static void makeScrollable(Node event_source, ComboBox<String> content_to_scroll) {
-        event_source.setOnScroll(evt -> scrollOpt(content_to_scroll, evt));
-    }
 
     /**
      * Scrolls the selected option in content_to_scroll.
@@ -109,7 +96,6 @@ public class Util {
 
         int new_index = wrap(old_index + delta_move, opts.size());
         content_to_scroll.setValue(opts.get(new_index));
-
     }
 
     /**
@@ -125,45 +111,6 @@ public class Util {
         return value;
     }
 
-    /**
-     * Set of predefined resource paths, to be loaded onto the overlay and auto-refreshed.
-     */
-    public enum ResourcePath {
-        ROUND("round.txt"),
-        P1_NAME("p1_name.txt"),
-        P1_FLAG("p1_flag.png"),
-        P1_NATION("fgen/p1_nation.txt"),
-        P1_SCORE("p1_score.txt"),
-        P2_NAME("p2_name.txt"),
-        P2_FLAG("p2_flag.png"),
-        P2_NATION("fgen/p2_nation.txt"),
-        P2_SCORE("p2_score.txt"),
-        COMMS("comms.txt"),
-        PLAYER_LIST("fgen/player_list.ini"),
-        COMMS_LIST("fgen/comms_list.ini"),
-        METADATA("fgen/metadata.ini");
-
-
-        private final String fileName;
-        ResourcePath(String fileName) {
-            this.fileName = fileName;
-        }
-
-        @Override
-        public String toString() {
-            return fileName;
-        }
-    }
-
-
-    /**
-     * Represents a "player" or rather a player menu item for combo box selection,
-     *  used when searching the player list for records associated with the newly input player name to auto-fill their nationality and tag as saved within the list.
-     * @param tag
-     * @param name
-     * @param nationality
-     */
-    public record Player(String tag, String name, String nationality) {}
 
     /**
      * Looks up the player list file for records associated with the player name, via {@link Ini#get(Object)}.
@@ -179,13 +126,26 @@ public class Util {
             if (i_new_player == null) return null;
 
             String tag, natio;
-            tag = i_new_player.get("tag");
-            natio = i_new_player.get("nat");
+            tag = i_new_player.get(KEY_TAG.toString());
+            natio = i_new_player.get(KEY_NATION.toString());
 
             return new Player(tag, new_player_name, natio);
 
         } catch (IOException ignored) {}
         return null;
+    }
+
+    public static void put_meta(IniKey section, IniKey key, String value) {
+        i_metadata.put(section.toString(), key.toString(), value);
+    }
+
+    public static String get_meta(IniKey section, IniKey key) {
+        String ret = i_metadata.get(section.toString(), key.toString());
+        return ret == null ? "" : ret;
+    }
+
+    public static <T> T get_meta(IniKey section, IniKey key, Class<T> clazz) {
+        return i_metadata.get(section.toString(), key.toString(), clazz);
     }
 
 }

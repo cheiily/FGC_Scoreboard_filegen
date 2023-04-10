@@ -47,6 +47,18 @@ Most of the GUI elements should feel quite natural in usage, additionally for co
 - [x] Quick player switch button
 
 Config todo:
+- [ ] Config file w/ load into static fields
 - [ ] Ignoring case when searching player name by manual input
+- [ ] API Key for challonge import
 - [ ] (maybe) splitting up the commentary file into separate files.
+
+UI todo:
+- [ ] Status tab for player_list.ini edition including:
+  - [ ] drag to seed manip
+  - [ ] check-in button
+
+Integration todo:
+- [ ] Challonge: 
+  - [ ] import player list
+  - [ ] update participant status
 
