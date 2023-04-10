@@ -36,14 +36,31 @@ Most of the GUI elements should feel quite natural in usage, additionally for co
 
 
 
-### TODO:
+### TODO's
+Core todo:
 - [ ] Combobox autocomplete / suggestions
 - [ ] Attach a sample OBS scene
 - [ ] Allow round names list file, if none is found - add the default opts
 - [ ] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning (not error)
-- [x] Set radio buttons on load if it's a grand final round
-- [ ] (maybe) Config for splitting up the commentary file into separate files. 
-- [ ] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
+- [x] Set radio buttons on load if it's a grand final round 
+- [x] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
 - [ ] Make html output
 - [x] Quick player switch button
+- [ ] Move output writing to OutputWriter (html / raw prep)
+
+Config todo:
+- [ ] Ignoring case when searching player name by manual input
+- [ ] API Key for challonge import
+- [ ] (maybe) splitting up the commentary file into separate files.
+
+UI todo:
+- [ ] Status tab for player_list.ini edition including:
+  - [ ] drag to seed manip
+  - [ ] check-in button
+- [ ] Config tab
+
+Integration todo:
+- [ ] Challonge: 
+  - [ ] import player list
+  - [ ] update participant status
 
