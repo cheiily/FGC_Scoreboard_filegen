@@ -117,6 +117,34 @@ public class UiController {
 
         List<String> failedSaves = new ArrayList<>();
 
+
+
+        put_meta(SEC_ROUND, KEY_ROUND_LABEL, combo_round.getValue());
+        put_meta(SEC_ROUND, KEY_SCORE_1, txt_p1_score.getText());
+        put_meta(SEC_ROUND, KEY_SCORE_2, txt_p2_score.getText());
+        put_meta(SEC_ROUND, KEY_GF, String.valueOf(GF_toggle.isSelected()));
+        put_meta(SEC_ROUND, KEY_GF_RESET, String.valueOf(radio_reset.isSelected()));
+        put_meta(SEC_ROUND, KEY_GF_W1, String.valueOf(radio_p1_W.isSelected()));
+
+        put_meta(SEC_P1, KEY_TAG, txt_p1_tag.getText());
+        put_meta(SEC_P1, KEY_NAME, combo_p1_name.getValue());
+        put_meta(SEC_P1, KEY_NATION, combo_p1_natio.getValue());
+
+        put_meta(SEC_P2, KEY_TAG, txt_p2_tag.getText());
+        put_meta(SEC_P2, KEY_NAME, combo_p2_name.getValue());
+        put_meta(SEC_P2, KEY_NATION, combo_p2_natio.getValue());
+
+        put_meta(SEC_COMMS, KEY_HOST, combo_host.getValue());
+        put_meta(SEC_COMMS, KEY_COMM_1, combo_comm1.getValue());
+        put_meta(SEC_COMMS, KEY_COMM_2, combo_comm2.getValue());
+
+        try {
+            i_metadata.store(new File(Util.targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
+        } catch (IOException ignored) {
+            failedSaves.add(ResourcePath.METADATA.toString());
+        }
+
+
         failedSaves.add(Util.saveFile(combo_round.getValue(), ResourcePath.ROUND));
 
         //Combine the tag with the player name split by '|'
@@ -137,9 +165,6 @@ public class UiController {
         if (temp == null || temp.isEmpty()) temp = "null.png";
         else temp = temp.toLowerCase() + ".png";
         failedSaves.add(Util.saveImg(Path.of(temp), ResourcePath.P1_FLAG));
-
-        temp = combo_p1_natio.getValue() == null ? "" : combo_p1_natio.getValue();
-        failedSaves.add(Util.saveFile(temp.toLowerCase(), ResourcePath.P1_NATION));
         failedSaves.add(Util.saveFile(txt_p1_score.getText(), ResourcePath.P1_SCORE));
 
         //same as above
@@ -157,8 +182,6 @@ public class UiController {
         else temp = temp.toLowerCase() + ".png";
         if (temp.equals(".png")) temp = "null.png";
         failedSaves.add(Util.saveImg(Path.of(temp), ResourcePath.P2_FLAG));
-        temp = combo_p2_natio.getValue() == null ? "" : combo_p2_natio.getValue();
-        failedSaves.add(Util.saveFile(temp.toLowerCase(), ResourcePath.P2_NATION));
         failedSaves.add(Util.saveFile(txt_p2_score.getText(), ResourcePath.P2_SCORE));
 
         //Host and comms are compiled to a single file
@@ -168,32 +191,6 @@ public class UiController {
                 + (combo_comm2.getValue() == null ? "" : combo_comm2.getValue() + " \uD83C\uDF99️");
         failedSaves.add(Util.saveFile(temp, ResourcePath.COMMS));
 
-
-
-        put_meta(SEC_ROUND, KEY_ROUND_LABEL, combo_round.getValue());
-        put_meta(SEC_ROUND, KEY_SCORE_1, txt_p1_score.getText());
-        put_meta(SEC_ROUND, KEY_SCORE_2, txt_p2_score.getText());
-        put_meta(SEC_ROUND, KEY_GF, String.valueOf(GF_toggle.isSelected()));
-        put_meta(SEC_ROUND, KEY_GF_RESET, String.valueOf(radio_reset.isSelected()));
-        put_meta(SEC_ROUND, KEY_GF_W1, String.valueOf(radio_p1_W.isSelected()));
-
-        put_meta(SEC_P1, KEY_TAG, txt_p1_tag.getText());
-        put_meta(SEC_P1, KEY_NAME, combo_p1_name.getValue());
-        put_meta(SEC_P1, KEY_NATION, combo_p1_natio.getValue());
-        
-        put_meta(SEC_P2, KEY_TAG, txt_p2_tag.getText());
-        put_meta(SEC_P2, KEY_NAME, combo_p2_name.getValue());
-        put_meta(SEC_P2, KEY_NATION, combo_p2_natio.getValue());
-
-        put_meta(SEC_COMMS, KEY_HOST, combo_host.getValue());
-        put_meta(SEC_COMMS, KEY_COMM_1, combo_comm1.getValue());
-        put_meta(SEC_COMMS, KEY_COMM_2, combo_comm2.getValue());
-
-        try {
-            i_metadata.store(new File(Util.targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
-        } catch (IOException ignored) {
-            failedSaves.add(ResourcePath.METADATA.toString());
-        }
 
 
         //Display Alert if any errors were found
@@ -519,15 +516,27 @@ public class UiController {
         radio_p2_W.setSelected(true);
     }
 
+    /**
+     * Swaps the player data around.
+     * @param actionEvent
+     */
     public void on_player_swap(ActionEvent actionEvent) {
-        String p1_score = txt_p1_score.getText();
-        String p2_score = txt_p2_score.getText();
         String p1_name = combo_p1_name.getValue();
+        String p1_tag = txt_p1_tag.getText();
+        String p1_nat = combo_p1_natio.getValue();
+        String p1_score = txt_p1_score.getText();
         String p2_name = combo_p2_name.getValue();
+        String p2_tag = txt_p2_tag.getText();
+        String p2_nat = combo_p2_natio.getValue();
+        String p2_score = txt_p2_score.getText();
 
         combo_p1_name.setValue(p2_name);
-        combo_p2_name.setValue(p1_name);
+        txt_p1_tag.setText(p2_tag);
+        combo_p1_natio.setValue(p2_nat);
         txt_p1_score.setText(p2_score);
+        combo_p2_name.setValue(p1_name);
+        txt_p2_tag.setText(p1_tag);
+        combo_p2_natio.setValue(p1_nat);
         txt_p2_score.setText(p1_score);
 
         if (GF_toggle.isSelected() && !radio_reset.isSelected()) {
@@ -543,6 +552,9 @@ public class UiController {
         }
     }
 
+    /**
+     * Disables or enables the radio buttons.
+     */
     public void on_GF_toggle(ActionEvent actionEvent) {
         boolean turn_off = !GF_toggle.isSelected();
         radio_buttons.forEach(r -> r.setDisable(turn_off));
