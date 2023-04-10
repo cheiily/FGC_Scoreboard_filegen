@@ -62,6 +62,7 @@ public class Util {
     /**
      * Attempts to copy a flag.png file from the flag directory into the target directory, file specified by rPath.
      * Also refreshes the last modified timestamp on the rPath file to enable polled refreshes by obs.
+     * If there is no corresponding flag file found, tries to copy the null flag (will display a warning). Will also display an error if the null flag cannot be found.
      * @param source_name name of the flag image to copy
      * @param rPath representing the file to be copied "into".
      * @return null if the operation goes through successfully, rPath.toString() if it fails.

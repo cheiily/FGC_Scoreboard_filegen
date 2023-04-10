@@ -139,6 +139,7 @@ public class UiController {
         put_meta(SEC_COMMS, KEY_COMM_2, combo_comm2.getValue());
 
         try {
+            Files.createDirectories(Path.of(targetDir + "/" + ResourcePath.METADATA.toString().split("/")[0]));
             i_metadata.store(new File(targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
         } catch (IOException ignored) {
             failedSaves.add(ResourcePath.METADATA.toString());
