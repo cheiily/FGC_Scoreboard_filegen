@@ -46,10 +46,9 @@ Core todo:
 - [x] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
 - [ ] Make html output
 - [x] Quick player switch button
-- [ ] 
+- [ ] Move output writing to OutputWriter (html / raw prep)
 
 Config todo:
-- [ ] Config file w/ load into static fields
 - [ ] Ignoring case when searching player name by manual input
 - [ ] API Key for challonge import
 - [ ] (maybe) splitting up the commentary file into separate files.
@@ -58,6 +57,7 @@ UI todo:
 - [ ] Status tab for player_list.ini edition including:
   - [ ] drag to seed manip
   - [ ] check-in button
+- [ ] Config tab
 
 Integration todo:
 - [ ] Challonge: 
