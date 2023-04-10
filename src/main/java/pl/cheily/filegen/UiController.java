@@ -1,19 +1,19 @@
 package pl.cheily.filegen;
 
-import javafx.scene.input.ScrollEvent;
-import pl.cheily.filegen.Utils.Player;
-import pl.cheily.filegen.Utils.Util;
-import pl.cheily.filegen.Utils.ResourcePath;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import pl.cheily.filegen.Utils.Player;
+import pl.cheily.filegen.Utils.ResourcePath;
+import pl.cheily.filegen.Utils.Util;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class UiController {
 
         ObservableList<String> f1_opts = combo_p1_natio.getItems();
         ObservableList<String> f2_opts = combo_p2_natio.getItems();
-        try (Stream<Path> flags = Files.walk(Util.flagsDir)) {
+        try (Stream<Path> flags = Files.walk(flagsDir)) {
             flags.filter(path -> path.toString().endsWith(".png"))
                     .filter(path ->
                             !path.getFileName().toString().equals(ResourcePath.P1_FLAG.toString())
@@ -92,8 +92,8 @@ public class UiController {
             throw new RuntimeException(e);
         }
 
-        img_p1_flag.setImage(new Image(Util.flagsDir + "/null.png"));
-        img_p2_flag.setImage(new Image(Util.flagsDir + "/null.png"));
+        img_p1_flag.setImage(new Image(nullFlag.toString()));
+        img_p2_flag.setImage(new Image(nullFlag.toString()));
 
         radio_buttons.add(radio_reset);
         radio_buttons.add(radio_p1_W);
@@ -110,7 +110,7 @@ public class UiController {
      * collects failures and shows an alert if any happened.
      */
     public void on_save() {
-        if (Util.targetDir == null) {
+        if (targetDir == null) {
             new Alert(Alert.AlertType.WARNING, "No path selected.", ButtonType.OK).show();
             return;
         }
@@ -139,13 +139,13 @@ public class UiController {
         put_meta(SEC_COMMS, KEY_COMM_2, combo_comm2.getValue());
 
         try {
-            i_metadata.store(new File(Util.targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
+            i_metadata.store(new File(targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
         } catch (IOException ignored) {
             failedSaves.add(ResourcePath.METADATA.toString());
         }
 
 
-        failedSaves.add(Util.saveFile(combo_round.getValue(), ResourcePath.ROUND));
+        failedSaves.add(saveFile(combo_round.getValue(), ResourcePath.ROUND));
 
         //Combine the tag with the player name split by '|'
         //Append grands' W/L tag to the name if GF toggle is on
@@ -157,15 +157,15 @@ public class UiController {
             else temp += " [L]";
         }
         if (temp == null) temp = "";
-        failedSaves.add(Util.saveFile(temp, ResourcePath.P1_NAME));
+        failedSaves.add(saveFile(temp, ResourcePath.P1_NAME));
 
         //If no text in nationality combobox - copy the null flag, otherwise pass for saveImg to handle
         //Note: Currently if the text does not correspond to a specific flag file, saveImg will return an error, displaying a save failure alert
         temp = combo_p1_natio.getValue();
         if (temp == null || temp.isEmpty()) temp = "null.png";
         else temp = temp.toLowerCase() + ".png";
-        failedSaves.add(Util.saveImg(Path.of(temp), ResourcePath.P1_FLAG));
-        failedSaves.add(Util.saveFile(txt_p1_score.getText(), ResourcePath.P1_SCORE));
+        failedSaves.add(saveImg(Path.of(temp), ResourcePath.P1_FLAG));
+        failedSaves.add(saveFile(txt_p1_score.getText(), ResourcePath.P1_SCORE));
 
         //same as above
         temp = txt_p2_tag.getText() == null || txt_p2_tag.getText().isEmpty()
@@ -175,21 +175,21 @@ public class UiController {
             if (radio_p2_W.isSelected()) temp += " [W]";
             else temp += " [L]";
         }
-        failedSaves.add(Util.saveFile(temp, ResourcePath.P2_NAME));
+        failedSaves.add(saveFile(temp, ResourcePath.P2_NAME));
 
         temp = combo_p2_natio.getValue();
         if (temp == null || temp.isEmpty()) temp = "null.png";
         else temp = temp.toLowerCase() + ".png";
         if (temp.equals(".png")) temp = "null.png";
-        failedSaves.add(Util.saveImg(Path.of(temp), ResourcePath.P2_FLAG));
-        failedSaves.add(Util.saveFile(txt_p2_score.getText(), ResourcePath.P2_SCORE));
+        failedSaves.add(saveImg(Path.of(temp), ResourcePath.P2_FLAG));
+        failedSaves.add(saveFile(txt_p2_score.getText(), ResourcePath.P2_SCORE));
 
         //Host and comms are compiled to a single file
         temp = ""
                 + (combo_host.getValue() == null ? "" : "\uD83C\uDFE0 " + combo_host.getValue() + " \uD83C\uDFE0\n")
                 + (combo_comm1.getValue() == null ? "" : "\uD83C\uDF99️ " + combo_comm1.getValue() + " \uD83C\uDF99️ ")
                 + (combo_comm2.getValue() == null ? "" : combo_comm2.getValue() + " \uD83C\uDF99️");
-        failedSaves.add(Util.saveFile(temp, ResourcePath.COMMS));
+        failedSaves.add(saveFile(temp, ResourcePath.COMMS));
 
 
 
@@ -252,7 +252,7 @@ public class UiController {
             return;
         }
 
-        Util.targetDir = dir.toPath();
+        targetDir = dir.toPath();
         txt_path.setText(dir.toPath().toString());
 
         try_load_data(dir);
@@ -265,7 +265,7 @@ public class UiController {
      */
     private void try_load_data(File dir) {
         try {
-            i_metadata.load(new File(Util.targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
+            i_metadata.load(new File(targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
 
         } catch (IOException ignored) {}
 
@@ -308,8 +308,8 @@ public class UiController {
         combo_comm2.setValue(get_meta(SEC_COMMS, KEY_COMM_2));
 
         try {
-            Util.i_player_list.load(new File(dir.getAbsolutePath() + "/" + ResourcePath.PLAYER_LIST));
-            Set<String> players = Util.i_player_list.keySet().stream()
+            i_player_list.load(new File(dir.getAbsolutePath() + "/" + ResourcePath.PLAYER_LIST));
+            Set<String> players = i_player_list.keySet().stream()
                     .filter(key -> !key.isEmpty())
                     .collect(Collectors.toSet());
             combo_p1_name.getItems().addAll(players);
@@ -317,8 +317,8 @@ public class UiController {
         } catch (IOException ignored) {}
 
         try {
-            Util.i_comms_list.load(new File(dir.getAbsolutePath() + "/" + ResourcePath.COMMS_LIST));
-            Set<String> comms = Util.i_comms_list.keySet().stream()
+            i_comms_list.load(new File(dir.getAbsolutePath() + "/" + ResourcePath.COMMS_LIST));
+            Set<String> comms = i_comms_list.keySet().stream()
                             .filter(key -> !key.isEmpty())
                             .collect(Collectors.toSet());
             combo_host.getItems().addAll(comms);
@@ -333,9 +333,9 @@ public class UiController {
      */
     public void on_p1_natio_selection() {
         try {
-            img_p1_flag.setImage(new Image(Util.flagsDir + "/" + combo_p1_natio.getValue().toLowerCase() + ".png"));
+            img_p1_flag.setImage(new Image(flagsDir + "/" + combo_p1_natio.getValue().toLowerCase() + ".png"));
         } catch (Exception ex) {
-            img_p1_flag.setImage(new Image(Util.flagsDir + "/null.png"));
+            img_p1_flag.setImage(new Image(nullFlag.toString()));
         }
     }
 
@@ -344,9 +344,9 @@ public class UiController {
      */
     public void on_p2_natio_selection() {
         try {
-            img_p2_flag.setImage(new Image(Util.flagsDir + "/" + combo_p2_natio.getValue().toLowerCase() + ".png"));
+            img_p2_flag.setImage(new Image(flagsDir + "/" + combo_p2_natio.getValue().toLowerCase() + ".png"));
         } catch (Exception ex) {
-            img_p2_flag.setImage(new Image(Util.flagsDir + "/null.png"));
+            img_p2_flag.setImage(new Image(nullFlag.toString()));
         }
     }
 
@@ -356,10 +356,10 @@ public class UiController {
     public void on_p1_selection() {
         txt_p1_score.setText("0");
 
-        if (Util.targetDir == null) return;
+        if (targetDir == null) return;
         String new_player = combo_p1_name.getValue();
 
-        Player found = Util.search_player_list(new_player);
+        Player found = search_player_list(new_player);
         if (found == null) {
             txt_p1_tag.setText("");
             combo_p1_natio.setValue("");
@@ -376,10 +376,10 @@ public class UiController {
     public void on_p2_selection() {
         txt_p2_score.setText("0");
 
-        if (Util.targetDir == null) return;
+        if (targetDir == null) return;
         String new_player = combo_p2_name.getValue();
 
-        Player found = Util.search_player_list(new_player);
+        Player found = search_player_list(new_player);
         if (found == null) {
             txt_p2_tag.setText("");
             combo_p2_natio.setValue("");
@@ -415,42 +415,42 @@ public class UiController {
 
     //adding scroll listeners in a prettier way than via Util.makeScrollable
     public void on_p1_name_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_p1_name, scrollEvent);
+        scrollOpt(combo_p1_name, scrollEvent);
     }
 
     public void on_p2_name_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_p2_name, scrollEvent);
+        scrollOpt(combo_p2_name, scrollEvent);
     }
     public void on_p1_natio_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_p1_natio, scrollEvent);
+        scrollOpt(combo_p1_natio, scrollEvent);
     }
 
     public void on_p2_natio_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_p2_natio, scrollEvent);
+        scrollOpt(combo_p2_natio, scrollEvent);
     }
 
     public void on_comm1_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_comm1, scrollEvent);
+        scrollOpt(combo_comm1, scrollEvent);
     }
 
     public void on_comm2_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_comm2, scrollEvent);
+        scrollOpt(combo_comm2, scrollEvent);
     }
 
     public void on_host_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_host, scrollEvent);
+        scrollOpt(combo_host, scrollEvent);
     }
 
     public void on_p1_flag_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_p1_natio, scrollEvent);
+        scrollOpt(combo_p1_natio, scrollEvent);
     }
 
     public void on_p2_flag_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_p2_natio, scrollEvent);
+        scrollOpt(combo_p2_natio, scrollEvent);
     }
 
     public void on_round_scroll(ScrollEvent scrollEvent) {
-        Util.scrollOpt(combo_round, scrollEvent);
+        scrollOpt(combo_round, scrollEvent);
     }
 
     /**

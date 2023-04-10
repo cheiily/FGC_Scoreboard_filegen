@@ -2,6 +2,8 @@ package pl.cheily.filegen.Utils;
 
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.input.ScrollEvent;
 import org.ini4j.Ini;
@@ -23,6 +25,7 @@ public class Util {
      */
     public static Path targetDir;
     public static final Path flagsDir = Path.of("flags").toAbsolutePath();
+    public static final Path nullFlag = Path.of(flagsDir + "/null.png");
 
     public static Ini i_metadata = new Ini();
     public static Ini i_player_list = new Ini();
@@ -65,8 +68,15 @@ public class Util {
      */
     public static String saveImg(Path source_name, ResourcePath rPath) {
         try {
-            Files.copy(Path.of(flagsDir + "/" + source_name),
-                    Path.of(targetDir + "/" + rPath),
+            Path flagToCopy = Path.of(flagsDir + "/" + source_name);
+            Path target = Path.of(targetDir + "/" + rPath);
+
+            if (!Files.exists(flagToCopy)) {
+                flagToCopy = nullFlag;
+                new Alert(Alert.AlertType.WARNING, "Couldn't find corresponding flag image: " + source_name, ButtonType.OK).show();
+            }
+
+            Files.copy(flagToCopy, target,
                     StandardCopyOption.REPLACE_EXISTING);
             Files.setLastModifiedTime(Path.of(targetDir + "/" + rPath), FileTime.from(Instant.now()));
         } catch (Exception e) {

@@ -41,7 +41,7 @@ Core todo:
 - [ ] Combobox autocomplete / suggestions
 - [ ] Attach a sample OBS scene
 - [ ] Allow round names list file, if none is found - add the default opts
-- [ ] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning (not error)
+- [x] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning (not error)
 - [x] Set radio buttons on load if it's a grand final round 
 - [x] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
 - [ ] Make html output
