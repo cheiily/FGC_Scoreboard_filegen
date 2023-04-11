@@ -8,14 +8,52 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class ScoreboardApplication extends Application {
+    public static Scene controllerScene,
+                        playersScene,
+                        configScene;
+
+    private static Stage mainStage;
+
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ScoreboardApplication.class.getResource("filegen_ui.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Scoreboard controller");
-        stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
+        mainStage = stage;
+        FXMLLoader fxmlLoader = new FXMLLoader(ScoreboardApplication.class.getResource("controller_scene.fxml"));
+        controllerScene = new Scene(fxmlLoader.load());
+
+        mainStage.setTitle("Scoreboard controller");
+        mainStage.setResizable(false);
+        mainStage.setScene(controllerScene);
+        mainStage.show();
+    }
+
+    public static void setControllerScene() {
+        mainStage.setScene(controllerScene);
+    }
+    
+    public static void setPlayersScene() {
+        if (playersScene == null) {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(ScoreboardApplication.class.getResource("players_scene.fxml"));
+                playersScene = new Scene(fxmlLoader.load());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
+        mainStage.setScene(playersScene);
+    }
+    
+    public static void setConfigScene() {
+        if (configScene == null) {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(ScoreboardApplication.class.getResource("config_scene.fxml"));
+                configScene = new Scene(fxmlLoader.load());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
+        mainStage.setScene(configScene);
     }
 
     public static void main(String[] args) {

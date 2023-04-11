@@ -46,7 +46,7 @@ Core todo:
 - [x] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
 - [ ] Make html output
 - [x] Quick player switch button
-- [ ] Move output writing to OutputWriter (html / raw prep)
+- [ ] Move output writing to DataManager (html / raw prep)
 
 Config todo:
 - [ ] Ignoring case when searching player name by manual input
@@ -57,10 +57,16 @@ UI todo:
 - [ ] Status tab for player_list.ini edition including:
   - [ ] drag to seed manip
   - [ ] check-in button
+  - [x] scene
+  - [ ] controller
 - [ ] Config tab
+  - [x] scene
+  - [ ] controller
 
 Integration todo:
 - [ ] Challonge: 
   - [ ] import player list
   - [ ] update participant status
 
+Fixes/Next commit/Minor todo:
+- [ ] Fix scene toggle selection on scene change (app-global toggle status)

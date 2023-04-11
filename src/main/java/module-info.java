@@ -8,4 +8,6 @@ module com.example.filegen {
     exports pl.cheily.filegen;
     exports pl.cheily.filegen.Utils;
     opens pl.cheily.filegen.Utils to javafx.fxml;
+    exports pl.cheily.filegen.UI;
+    opens pl.cheily.filegen.UI to javafx.fxml;
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="610.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.ConfigUI">
+   <children>
+      <ToolBar layoutX="-181.0" layoutY="181.0" prefHeight="25.0" prefWidth="399.0" rotate="270.0">
+        <items>
+            <ToggleButton fx:id="scene_toggle_config" mnemonicParsing="false" onAction="#on_scene_toggle_config" prefWidth="125.0" text="App Config" />
+            <ToggleButton fx:id="scene_toggle_players" mnemonicParsing="false" onAction="#on_scene_toggle_players" prefWidth="125.0" text="Players" />
+            <ToggleButton fx:id="scene_toggle_controller" mnemonicParsing="false" onAction="#on_scene_toggle_controller" prefWidth="125.0" text="Controller" />
+        </items>
+      </ToolBar>
+      <Label layoutX="453.0" layoutY="378.0" text="_cheily 2023     MIT License" />
+      <CheckBox fx:id="chk_ignore_case" layoutX="49.0" layoutY="45.0" mnemonicParsing="false" onAction="#on_chk_ignore_case" text="Ignore case when browsing player lists on manual player name input" />
+      <PasswordField fx:id="api_key" layoutX="49.0" layoutY="14.0" onAction="#on_api_key_input" prefHeight="25.0" prefWidth="384.0" />
+      <Label layoutX="439.0" layoutY="18.0" text="Challonge API Key" />
+   </children>
+</AnchorPane>

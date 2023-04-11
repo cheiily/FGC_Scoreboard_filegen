@@ -1,13 +1,16 @@
-package pl.cheily.filegen;
+package pl.cheily.filegen.UI;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.Player;
 import pl.cheily.filegen.Utils.ResourcePath;
 import pl.cheily.filegen.Utils.Util;
@@ -26,7 +29,7 @@ import java.util.stream.Stream;
 import static pl.cheily.filegen.Utils.IniKey.*;
 import static pl.cheily.filegen.Utils.Util.*;
 
-public class UiController {
+public class ControllerUI {
     public TextField txt_p1_tag;
     public ComboBox<String> combo_p1_natio;
     public ImageView img_p1_flag;
@@ -49,10 +52,14 @@ public class UiController {
     public RadioButton radio_p2_W;
     public ToggleButton GF_toggle;
     public List<RadioButton> radio_buttons = new ArrayList<>();
+    public ToggleButton scene_toggle_config;
+    public ToggleButton scene_toggle_players;
+    public ToggleButton scene_toggle_controller;
+    ToggleGroup scene_toggles;
 
     /**
      * Loads a hardcoded preset of round opts, attempts to load flag/nationality opts, sets the default flag as null,
-     * loads radio buttons into a list and disables them all
+     * loads radio buttons into a list and disables them all, adds scene toggles to a toggle group
      */
     public void initialize() {
         ObservableList<String> r_opts = combo_round.getItems();
@@ -101,6 +108,12 @@ public class UiController {
         radio_buttons.add(radio_p2_W);
         radio_buttons.add(radio_p2_L);
         radio_buttons.forEach(r -> r.setDisable(true));
+
+        scene_toggle_controller.setSelected(true);
+        scene_toggles = new ToggleGroup();
+        scene_toggles.getToggles().add(scene_toggle_controller);
+        scene_toggles.getToggles().add(scene_toggle_players);
+        scene_toggles.getToggles().add(scene_toggle_config);
     }
 
 
@@ -559,5 +572,17 @@ public class UiController {
     public void on_GF_toggle(ActionEvent actionEvent) {
         boolean turn_off = !GF_toggle.isSelected();
         radio_buttons.forEach(r -> r.setDisable(turn_off));
+    }
+
+    public void on_scene_toggle_config(ActionEvent actionEvent) {
+        ScoreboardApplication.setConfigScene();
+    }
+
+    public void on_scene_toggle_players(ActionEvent actionEvent) {
+        ScoreboardApplication.setPlayersScene();
+    }
+
+    public void on_scene_toggle_controller(ActionEvent actionEvent) {
+        ScoreboardApplication.setControllerScene();
     }
 }
