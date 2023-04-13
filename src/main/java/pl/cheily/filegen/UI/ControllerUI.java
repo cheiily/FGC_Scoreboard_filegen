@@ -3,6 +3,7 @@ package pl.cheily.filegen.UI;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -17,19 +18,17 @@ import pl.cheily.filegen.Utils.Util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static pl.cheily.filegen.Utils.IniKey.*;
 import static pl.cheily.filegen.Utils.Util.*;
 
-public class ControllerUI {
+public class ControllerUI implements Initializable {
     public TextField txt_p1_tag;
     public ComboBox<String> combo_p1_natio;
     public ImageView img_p1_flag;
@@ -55,13 +54,13 @@ public class ControllerUI {
     public ToggleButton scene_toggle_config;
     public ToggleButton scene_toggle_players;
     public ToggleButton scene_toggle_controller;
-    ToggleGroup scene_toggles;
 
     /**
      * Loads a hardcoded preset of round opts, attempts to load flag/nationality opts, sets the default flag as null,
      * loads radio buttons into a list and disables them all, adds scene toggles to a toggle group
      */
-    public void initialize() {
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
         ObservableList<String> r_opts = combo_round.getItems();
         r_opts.add("Winners' R1");
         r_opts.add("Winners' R2");
@@ -110,10 +109,6 @@ public class ControllerUI {
         radio_buttons.forEach(r -> r.setDisable(true));
 
         scene_toggle_controller.setSelected(true);
-        scene_toggles = new ToggleGroup();
-        scene_toggles.getToggles().add(scene_toggle_controller);
-        scene_toggles.getToggles().add(scene_toggle_players);
-        scene_toggles.getToggles().add(scene_toggle_config);
     }
 
 
@@ -575,14 +570,18 @@ public class ControllerUI {
     }
 
     public void on_scene_toggle_config(ActionEvent actionEvent) {
+        scene_toggle_config.setSelected(false);
         ScoreboardApplication.setConfigScene();
     }
 
     public void on_scene_toggle_players(ActionEvent actionEvent) {
+        scene_toggle_players.setSelected(false);
         ScoreboardApplication.setPlayersScene();
     }
 
     public void on_scene_toggle_controller(ActionEvent actionEvent) {
+        scene_toggle_controller.setSelected(true);
         ScoreboardApplication.setControllerScene();
     }
+
 }

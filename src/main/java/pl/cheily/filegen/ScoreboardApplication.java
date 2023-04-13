@@ -19,7 +19,6 @@ public class ScoreboardApplication extends Application {
         mainStage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader(ScoreboardApplication.class.getResource("controller_scene.fxml"));
         controllerScene = new Scene(fxmlLoader.load());
-
         mainStage.setTitle("Scoreboard controller");
         mainStage.setResizable(false);
         mainStage.setScene(controllerScene);

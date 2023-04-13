@@ -69,4 +69,4 @@ Integration todo:
   - [ ] update participant status
 
 Fixes/Next commit/Minor todo:
-- [ ] Fix scene toggle selection on scene change (app-global toggle status)
+- [x] Fix scene toggle selection on scene change (app-global toggle status)
