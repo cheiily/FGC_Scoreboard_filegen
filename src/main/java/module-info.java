@@ -10,4 +10,6 @@ module com.example.filegen {
     opens pl.cheily.filegen.Utils to javafx.fxml;
     exports pl.cheily.filegen.UI;
     opens pl.cheily.filegen.UI to javafx.fxml;
+    exports pl.cheily.filegen.LocalData;
+    opens pl.cheily.filegen.LocalData to javafx.fxml;
 }

@@ -1,6 +1,6 @@
-package pl.cheily.filegen.Utils;
+package pl.cheily.filegen.LocalData;
 
-public enum IniKey {
+public enum MetaKey {
     SEC_P1("P1"),
     SEC_P2("P2"),
     SEC_ROUND("ROUND"),
@@ -22,7 +22,7 @@ public enum IniKey {
 
     private final String key;
 
-    IniKey(String key) {
+    MetaKey(String key) {
         this.key = key;
     }
 

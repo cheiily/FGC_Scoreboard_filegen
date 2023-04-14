@@ -1,12 +1,14 @@
 package pl.cheily.filegen.Utils;
 
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.input.ScrollEvent;
 import org.ini4j.Ini;
+import pl.cheily.filegen.LocalData.MetaKey;
+import pl.cheily.filegen.LocalData.Player;
+import pl.cheily.filegen.LocalData.ResourcePath;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +19,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 
 import static org.ini4j.Profile.*;
-import static pl.cheily.filegen.Utils.IniKey.*;
+import static pl.cheily.filegen.LocalData.MetaKey.*;
 
 public class Util {
     /**
@@ -132,7 +134,7 @@ public class Util {
     public static Player search_player_list(String new_player_name) {
 
         try {
-            Ini ini = new Ini(new File(Util.targetDir.toAbsolutePath() + "/" + ResourcePath.PLAYER_LIST));
+            Ini ini = new Ini(new File(Util.targetDir + "/" + ResourcePath.PLAYER_LIST));
             Section i_new_player = ini.get(new_player_name);
             if (i_new_player == null) return null;
 
@@ -146,16 +148,16 @@ public class Util {
         return null;
     }
 
-    public static void put_meta(IniKey section, IniKey key, String value) {
+    public static void put_meta(MetaKey section, MetaKey key, String value) {
         i_metadata.put(section.toString(), key.toString(), value);
     }
 
-    public static String get_meta(IniKey section, IniKey key) {
+    public static String get_meta(MetaKey section, MetaKey key) {
         String ret = i_metadata.get(section.toString(), key.toString());
         return ret == null ? "" : ret;
     }
 
-    public static <T> T get_meta(IniKey section, IniKey key, Class<T> clazz) {
+    public static <T> T get_meta(MetaKey section, MetaKey key, Class<T> clazz) {
         return i_metadata.get(section.toString(), key.toString(), clazz);
     }
 

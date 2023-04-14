@@ -2,9 +2,7 @@ package pl.cheily.filegen.UI;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -12,8 +10,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import pl.cheily.filegen.ScoreboardApplication;
-import pl.cheily.filegen.Utils.Player;
-import pl.cheily.filegen.Utils.ResourcePath;
+import pl.cheily.filegen.LocalData.Player;
+import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.Utils.Util;
 
 import java.io.File;
@@ -25,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static pl.cheily.filegen.Utils.IniKey.*;
+import static pl.cheily.filegen.LocalData.MetaKey.*;
 import static pl.cheily.filegen.Utils.Util.*;
 
 public class ControllerUI implements Initializable {
@@ -148,7 +146,7 @@ public class ControllerUI implements Initializable {
 
         try {
             Files.createDirectories(Path.of(targetDir + "/" + ResourcePath.METADATA.toString().split("/")[0]));
-            i_metadata.store(new File(targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
+            i_metadata.store(new File(targetDir + "/" + ResourcePath.METADATA));
         } catch (IOException ignored) {
             failedSaves.add(ResourcePath.METADATA.toString());
         }
@@ -261,8 +259,8 @@ public class ControllerUI implements Initializable {
             return;
         }
 
-        targetDir = dir.toPath();
-        txt_path.setText(dir.toPath().toString());
+        targetDir = dir.toPath().toAbsolutePath();
+        txt_path.setText(targetDir.toString());
 
         try_load_data(dir);
     }
@@ -274,7 +272,7 @@ public class ControllerUI implements Initializable {
      */
     private void try_load_data(File dir) {
         try {
-            i_metadata.load(new File(targetDir.toAbsolutePath() + "/" + ResourcePath.METADATA));
+            i_metadata.load(new File(targetDir + "/" + ResourcePath.METADATA));
 
         } catch (IOException ignored) {}
 

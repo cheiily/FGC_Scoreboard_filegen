@@ -52,6 +52,7 @@ Config todo:
 - [ ] Ignoring case when searching player name by manual input
 - [ ] API Key for challonge import
 - [ ] (maybe) splitting up the commentary file into separate files.
+- [ ] Flag output toggle w/ directory selection & deduced-default file extension
 
 UI todo:
 - [ ] Status tab for player_list.ini edition including:
@@ -62,6 +63,7 @@ UI todo:
 - [ ] Config tab
   - [x] scene
   - [ ] controller
+- [ ] ResourceBundle localization
 
 Integration todo:
 - [ ] Challonge: 
@@ -69,4 +71,6 @@ Integration todo:
   - [ ] update participant status
 
 Fixes/Next commit/Minor todo:
+- [ ] AppConfig class
+- [ ] Finish DataManager
 - [x] Fix scene toggle selection on scene change (app-global toggle status)

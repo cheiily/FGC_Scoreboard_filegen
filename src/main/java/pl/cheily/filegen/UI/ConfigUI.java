@@ -47,4 +47,6 @@ public class ConfigUI implements Initializable {
         ScoreboardApplication.setControllerScene();
     }
 
+    public void onResetConfig(ActionEvent actionEvent) {
+    }
 }

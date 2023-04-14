@@ -1,4 +1,4 @@
-package pl.cheily.filegen.Utils;
+package pl.cheily.filegen.LocalData;
 
 /**
  * Represents a "player" or rather a player menu item for combo box selection,

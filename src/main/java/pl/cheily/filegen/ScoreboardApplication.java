@@ -4,6 +4,9 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import pl.cheily.filegen.LocalData.DataManager;
+import pl.cheily.filegen.LocalData.DefaultOutputFormatter;
+import pl.cheily.filegen.LocalData.DefaultOutputWriter;
 
 import java.io.IOException;
 
@@ -12,6 +15,8 @@ public class ScoreboardApplication extends Application {
                         playersScene,
                         configScene;
 
+
+    public static DataManager dataManager;
     private static Stage mainStage;
 
     @Override
