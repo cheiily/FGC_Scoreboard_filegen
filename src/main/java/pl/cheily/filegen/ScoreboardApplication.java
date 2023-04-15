@@ -4,11 +4,13 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import pl.cheily.filegen.LocalData.DataHttpServer;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.DefaultOutputFormatter;
 import pl.cheily.filegen.LocalData.RawOutputWriter;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 public class ScoreboardApplication extends Application {
     public static Scene controllerScene,
@@ -23,6 +25,14 @@ public class ScoreboardApplication extends Application {
     public static DataManager dataManager;
     private static Stage mainStage;
 
+    /**
+     * An HTTP server initialised at runtime, can be connected to within OBS to dynamically update a browser source on metadata save.
+     * Will be listening on 127.0.0.1:2086 by default. <br/>
+     * 
+     * TODO: Avoid using final in order to add config to change address to listen to.
+     */
+    public static final DataHttpServer dataHttpServer = new DataHttpServer();
+
     @Override
     public void start(Stage stage) throws IOException {
         mainStage = stage;
@@ -34,6 +44,8 @@ public class ScoreboardApplication extends Application {
         mainStage.setResizable(false);
         mainStage.setScene(controllerScene);
         mainStage.show();
+
+        dataHttpServer.start(new InetSocketAddress("127.0.0.1", 2086));
     }
 
     public static void setControllerScene() {
