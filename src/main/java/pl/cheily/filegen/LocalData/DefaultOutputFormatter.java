@@ -17,15 +17,18 @@ public class DefaultOutputFormatter implements OutputFormatter {
      */
     @Override
     public String format(String resourceName, String... data) {
-        if ( !formats.containsKey(ResourcePath.of(resourceName)) ) return null;
+        if ( !formats.containsKey(ResourcePath.of(resourceName)) ) return data [ 0 ];
 
         return formats.get(ResourcePath.of(resourceName)).apply(data);
     }
 
-    private static final String emojiHouse = "\uD83C\uDFE0";
-    private static final String emojiMic = "\uD83C\uDF99️";
+    protected static final String tagSeparator = " | ";
+    protected static final String winnerMarker = " [W]";
+    protected static final String loserMarker = " [L]";
+    protected static final String emojiHouse = "\uD83C\uDFE0";
+    protected static final String emojiMic = "\uD83C\uDF99️";
 
-    private static final Map<ResourcePath, Function<String[], String>> formats = new HashMap<>();
+    protected static final Map<ResourcePath, Function<String[], String>> formats = new HashMap<>();
 
     //initializer block
     static {
@@ -34,16 +37,20 @@ public class DefaultOutputFormatter implements OutputFormatter {
         formats.put(ResourcePath.COMMS, DefaultOutputFormatter::comms);
     }
 
-    private static String playerName(String... data) {
-        if ( data.length < 2 )
-            return data[ 0 ];
 
-        if ( Boolean.parseBoolean(data[ 1 ]) )
-            return data[ 0 ] + " [W]";
-        else return data[ 0 ] + " [L]";
+    protected static String playerName(String... data) {
+        String ret;
+        if ( data[ 0 ] != null )
+            ret = data[ 0 ] + tagSeparator + data[ 1 ];
+        else ret = data[ 1 ];
+
+        if ( data[ 2 ] != null )
+            ret += Boolean.parseBoolean(data[ 2 ]) ? winnerMarker : loserMarker;
+
+        return ret;
     }
 
-    private static String comms(String... data) {
+    protected static String comms(String... data) {
         StringBuilder ret = new StringBuilder();
 
         if ( !data[ 0 ].isEmpty() )

@@ -52,18 +52,25 @@ public class PlayersUI implements Initializable {
     public void on_csv_load(ActionEvent actionEvent) {
     }
 
-    public void on_scene_toggle_config(ActionEvent actionEvent) {
+    public void on_csv_export(ActionEvent actionEvent) {
+    }
+
+    /**
+     * Prompts the {@link ScoreboardApplication} to display the corresponding scene.
+     */
+    public void on_scene_toggle_config() {
         scene_toggle_config.setSelected(false);
         ScoreboardApplication.setConfigScene();
     }
 
-    public void on_scene_toggle_players(ActionEvent actionEvent) {
-        scene_toggle_players.setSelected(true);
+    public void on_scene_toggle_players() {
+        scene_toggle_players.setSelected(false);
         ScoreboardApplication.setPlayersScene();
     }
 
-    public void on_scene_toggle_controller(ActionEvent actionEvent) {
-        scene_toggle_controller.setSelected(false);
+    public void on_scene_toggle_controller() {
+        scene_toggle_controller.setSelected(true);
         ScoreboardApplication.setControllerScene();
     }
+
 }

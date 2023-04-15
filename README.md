@@ -46,7 +46,7 @@ Core todo:
 - [x] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
 - [ ] Make html output
 - [x] Quick player switch button
-- [ ] Move output writing to DataManager (html / raw prep)
+- [x] Move output writing to DataManager (html / raw prep)
 
 Config todo:
 - [ ] Ignoring case when searching player name by manual input
@@ -71,6 +71,9 @@ Integration todo:
   - [ ] update participant status
 
 Fixes/Next commit/Minor todo:
+- [ ] V0.2
+- [ ] Move null-flag & default flag collection to resource
 - [ ] AppConfig class
-- [ ] Finish DataManager
-- [x] Fix scene toggle selection on scene change (app-global toggle status)
+- [ ] Round names list
+- [x] Finish DataManager
+- [x] Fix scene toggle selection on scene change

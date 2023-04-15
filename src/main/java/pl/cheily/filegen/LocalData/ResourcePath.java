@@ -1,6 +1,6 @@
 package pl.cheily.filegen.LocalData;
 
-import pl.cheily.filegen.Utils.Util;
+import pl.cheily.filegen.ScoreboardApplication;
 
 import java.nio.file.Path;
 
@@ -17,10 +17,12 @@ public enum ResourcePath {
     P2_FLAG("p2_flag.png"),
     P2_SCORE("p2_score.txt"),
     COMMS("comms.txt"),
-    PLAYER_LIST("fgen/player_list.ini"),
-    COMMS_LIST("fgen/comms_list.ini"),
-    METADATA("fgen/metadata.ini"),
-    CONFIG("fgen/config.ini");
+    CUSTOM_PLAYER_LIST("lists/player_list.csv"),
+    CUSTOM_COMMS_LIST("lists/comms_list.csv"),
+    PLAYER_LIST("meta/player_list.ini"),
+    COMMS_LIST("meta/comms_list.csv"),
+    METADATA("meta/metadata.ini"),
+    CONFIG("meta/config.ini");
 
 
     private final String fileName;
@@ -29,15 +31,27 @@ public enum ResourcePath {
         this.fileName = fileName;
     }
 
+    /**
+     * @return just the contained value, NOT an absolute path
+     */
     @Override
     public String toString() {
         return fileName;
     }
 
+    /**
+     * @return valid absolute {@link Path}
+     */
     public Path toPath() {
-        return Path.of(Util.targetDir + "/" + this.fileName);
+        return Path.of(ScoreboardApplication.dataManager.targetDir + "/" + this.fileName);
     }
 
+    /**
+     * Finds the enum with the desired value.
+     *
+     * @param path either full path as contained by the enum, or just its last segment (i.e. filename)
+     * @return null if not found, valid enum otherwise
+     */
     public static ResourcePath of(String path) {
         String[] arr;
         for (ResourcePath rPath : ResourcePath.values()) {
@@ -48,5 +62,13 @@ public enum ResourcePath {
 
         }
         return null;
+    }
+
+    /**
+     * @return true if the resource is an overlay resource
+     */
+    public boolean isOutputResource() {
+        return !this.fileName.startsWith("lists")
+                && !this.fileName.startsWith("meta");
     }
 }

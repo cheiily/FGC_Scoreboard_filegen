@@ -9,22 +9,24 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import pl.cheily.filegen.ScoreboardApplication;
+import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
-import pl.cheily.filegen.Utils.Util;
+import pl.cheily.filegen.ScoreboardApplication;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import static pl.cheily.filegen.LocalData.MetaKey.*;
-import static pl.cheily.filegen.Utils.Util.*;
+import static pl.cheily.filegen.ScoreboardApplication.dataManager;
+import static pl.cheily.filegen.Utils.Util.scrollOpt;
 
 public class ControllerUI implements Initializable {
     public TextField txt_p1_tag;
@@ -81,12 +83,12 @@ public class ControllerUI implements Initializable {
 
         ObservableList<String> f1_opts = combo_p1_natio.getItems();
         ObservableList<String> f2_opts = combo_p2_natio.getItems();
-        try (Stream<Path> flags = Files.walk(flagsDir)) {
+        try ( Stream<Path> flags = Files.walk(dataManager.flagsDir) ) {
             flags.filter(path -> path.toString().endsWith(".png"))
                     .filter(path ->
                             !path.getFileName().toString().equals(ResourcePath.P1_FLAG.toString())
-                            && !path.getFileName().toString().equals(ResourcePath.P2_FLAG.toString()))
-                    .map(path -> path.getFileName().toString().split("\\.")[0])
+                                    && !path.getFileName().toString().equals(ResourcePath.P2_FLAG.toString()))
+                    .map(path -> path.getFileName().toString().split("\\.")[ 0 ])
                     .forEach(path -> {
                         f1_opts.add(path.toUpperCase());
                         f2_opts.add(path.toUpperCase());
@@ -96,8 +98,8 @@ public class ControllerUI implements Initializable {
             throw new RuntimeException(e);
         }
 
-        img_p1_flag.setImage(new Image(nullFlag.toString()));
-        img_p2_flag.setImage(new Image(nullFlag.toString()));
+        img_p1_flag.setImage(new Image(dataManager.nullFlag.toString()));
+        img_p2_flag.setImage(new Image(dataManager.nullFlag.toString()));
 
         radio_buttons.add(radio_reset);
         radio_buttons.add(radio_p1_W);
@@ -111,99 +113,17 @@ public class ControllerUI implements Initializable {
 
 
     /**
-     * Attempts to save as much as possible by having try-wrapped save operations
-     * (see {@link Util#saveFile(String, ResourcePath)} and {@link Util#saveImg(Path, ResourcePath)}),
-     * collects failures and shows an alert if any happened.
+     * Issues the {@link ScoreboardApplication#dataManager} to save its contained data.
+     * See {@link DataManager#save()}
      */
     public void on_save() {
-        if (targetDir == null) {
+        if ( !dataManager.isInitialized() ) {
             new Alert(Alert.AlertType.WARNING, "No path selected.", ButtonType.OK).show();
             return;
         }
 
-        List<String> failedSaves = new ArrayList<>();
-
-
-
-        put_meta(SEC_ROUND, KEY_ROUND_LABEL, combo_round.getValue());
-        put_meta(SEC_ROUND, KEY_SCORE_1, txt_p1_score.getText());
-        put_meta(SEC_ROUND, KEY_SCORE_2, txt_p2_score.getText());
-        put_meta(SEC_ROUND, KEY_GF, String.valueOf(GF_toggle.isSelected()));
-        put_meta(SEC_ROUND, KEY_GF_RESET, String.valueOf(radio_reset.isSelected()));
-        put_meta(SEC_ROUND, KEY_GF_W1, String.valueOf(radio_p1_W.isSelected()));
-
-        put_meta(SEC_P1, KEY_TAG, txt_p1_tag.getText());
-        put_meta(SEC_P1, KEY_NAME, combo_p1_name.getValue());
-        put_meta(SEC_P1, KEY_NATION, combo_p1_natio.getValue());
-
-        put_meta(SEC_P2, KEY_TAG, txt_p2_tag.getText());
-        put_meta(SEC_P2, KEY_NAME, combo_p2_name.getValue());
-        put_meta(SEC_P2, KEY_NATION, combo_p2_natio.getValue());
-
-        put_meta(SEC_COMMS, KEY_HOST, combo_host.getValue());
-        put_meta(SEC_COMMS, KEY_COMM_1, combo_comm1.getValue());
-        put_meta(SEC_COMMS, KEY_COMM_2, combo_comm2.getValue());
-
-        try {
-            Files.createDirectories(Path.of(targetDir + "/" + ResourcePath.METADATA.toString().split("/")[0]));
-            i_metadata.store(new File(targetDir + "/" + ResourcePath.METADATA));
-        } catch (IOException ignored) {
-            failedSaves.add(ResourcePath.METADATA.toString());
-        }
-
-
-        failedSaves.add(saveFile(combo_round.getValue(), ResourcePath.ROUND));
-
-        //Combine the tag with the player name split by '|'
-        //Append grands' W/L tag to the name if GF toggle is on
-        String temp = txt_p1_tag.getText() == null || txt_p1_tag.getText().isEmpty()
-                ? combo_p1_name.getValue()
-                : txt_p1_tag.getText() + " | " + combo_p1_name.getValue();
-        if (GF_toggle.isSelected()) {
-            if (radio_p1_W.isSelected()) temp += " [W]";
-            else temp += " [L]";
-        }
-        if (temp == null) temp = "";
-        failedSaves.add(saveFile(temp, ResourcePath.P1_NAME));
-
-        //If no text in nationality combobox - copy the null flag, otherwise pass for saveImg to handle
-        //Note: Currently if the text does not correspond to a specific flag file, saveImg will return an error, displaying a save failure alert
-        temp = combo_p1_natio.getValue();
-        if (temp == null || temp.isEmpty()) temp = "null.png";
-        else temp = temp.toLowerCase() + ".png";
-        failedSaves.add(saveImg(Path.of(temp), ResourcePath.P1_FLAG));
-        failedSaves.add(saveFile(txt_p1_score.getText(), ResourcePath.P1_SCORE));
-
-        //same as above
-        temp = txt_p2_tag.getText() == null || txt_p2_tag.getText().isEmpty()
-                ? combo_p2_name.getValue()
-                : txt_p2_tag.getText() + " | " + combo_p2_name.getValue();
-        if (GF_toggle.isSelected()) {
-            if (radio_p2_W.isSelected()) temp += " [W]";
-            else temp += " [L]";
-        }
-        failedSaves.add(saveFile(temp, ResourcePath.P2_NAME));
-
-        temp = combo_p2_natio.getValue();
-        if (temp == null || temp.isEmpty()) temp = "null.png";
-        else temp = temp.toLowerCase() + ".png";
-        if (temp.equals(".png")) temp = "null.png";
-        failedSaves.add(saveImg(Path.of(temp), ResourcePath.P2_FLAG));
-        failedSaves.add(saveFile(txt_p2_score.getText(), ResourcePath.P2_SCORE));
-
-        //Host and comms are compiled to a single file
-        temp = ""
-                + (combo_host.getValue() == null ? "" : "\uD83C\uDFE0 " + combo_host.getValue() + " \uD83C\uDFE0\n")
-                + (combo_comm1.getValue() == null ? "" : "\uD83C\uDF99️ " + combo_comm1.getValue() + " \uD83C\uDF99️ ")
-                + (combo_comm2.getValue() == null ? "" : combo_comm2.getValue() + " \uD83C\uDF99️");
-        failedSaves.add(saveFile(temp, ResourcePath.COMMS));
-
-
-
-        //Display Alert if any errors were found
-        failedSaves = failedSaves.stream().filter(Objects::nonNull).toList();
-        if (!failedSaves.isEmpty())
-            new Alert(Alert.AlertType.ERROR, "Failed saving files: " + failedSaves, ButtonType.OK).show();
+        dataManager.loadMetadataFromUI(this);
+        dataManager.save();
     }
 
     /**
@@ -254,151 +174,132 @@ public class ControllerUI implements Initializable {
         dc.setInitialDirectory(new File("."));
         File dir = dc.showDialog(new Stage());
 
-        if (dir == null) {
+        if ( dir == null ) {
             new Alert(Alert.AlertType.WARNING, "No directory selected", ButtonType.OK).show();
             return;
         }
 
-        targetDir = dir.toPath().toAbsolutePath();
-        txt_path.setText(targetDir.toString());
+        combo_p1_name.getItems().clear();
+        combo_p2_name.getItems().clear();
+        combo_p1_natio.getItems().clear();
+        combo_p2_natio.getItems().clear();
+        combo_host.getItems().clear();
+        combo_comm1.getItems().clear();
+        combo_comm2.getItems().clear();
 
-        try_load_data(dir);
+        dataManager.initialize(dir.toPath().toAbsolutePath());
+        txt_path.setText(dir.toPath().toAbsolutePath().toString());
+
+        try_load_data();
     }
 
     /**
-     * Tries to load as much data as possible by separating each read operation into its own try-catch block.
-     * This method is VERY messy, maybe to be cleaned up in the future.
-     * Currently does not set radio buttons.
+     * Loads data from the initialized {@link ScoreboardApplication#dataManager} into ui components
      */
-    private void try_load_data(File dir) {
-        try {
-            i_metadata.load(new File(targetDir + "/" + ResourcePath.METADATA));
-
-        } catch (IOException ignored) {}
-
+    private void try_load_data() {
         //round data
-        combo_round.setValue(get_meta(SEC_ROUND, KEY_ROUND_LABEL));
-        txt_p1_score.setText(String.valueOf(get_meta(SEC_ROUND, KEY_SCORE_1, int.class)));
-        txt_p2_score.setText(String.valueOf(get_meta(SEC_ROUND, KEY_SCORE_2, int.class)));
+        combo_round.setValue(dataManager.getMeta(SEC_ROUND, KEY_ROUND_LABEL));
+        txt_p1_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_1, int.class)));
+        txt_p2_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_2, int.class)));
 
-        boolean is_reset = get_meta(SEC_ROUND, KEY_GF_RESET, boolean.class);
-        boolean is_p1_w = get_meta(SEC_ROUND, KEY_GF_W1, boolean.class);
+        boolean is_reset = dataManager.getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
+        boolean is_p1_w = dataManager.getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
         radio_buttons.forEach(r -> r.setDisable(false));
 
-        if (is_reset && !radio_reset.isSelected())
+        if ( is_reset && !radio_reset.isSelected() )
             radio_reset.fire();
-        else if (is_p1_w && !radio_p1_W.isSelected())
+        else if ( is_p1_w && !radio_p1_W.isSelected() )
             radio_p1_W.fire();
-        else if (!is_p1_w && radio_p1_W.isSelected())
+        else if ( !is_p1_w && radio_p1_W.isSelected() )
             radio_p1_W.fire();
 
         radio_buttons.forEach(r -> r.setDisable(true));
 
-        boolean is_gf = get_meta(SEC_ROUND, KEY_GF, boolean.class);
+        boolean is_gf = dataManager.getMeta(SEC_ROUND, KEY_GF, boolean.class);
         if ( (!GF_toggle.isSelected() && is_gf)
                 || (GF_toggle.isSelected() && !is_gf)
         ) GF_toggle.fire();
 
         //p1 data
-        combo_p1_name.setValue(get_meta(SEC_P1, KEY_NAME));
-        txt_p1_tag.setText(get_meta(SEC_P1, KEY_TAG));
-        combo_p1_natio.setValue(get_meta(SEC_P1, KEY_NATION));
-        
+        combo_p1_name.setValue(dataManager.getMeta(SEC_P1, KEY_NAME));
+        txt_p1_tag.setText(dataManager.getMeta(SEC_P1, KEY_TAG));
+        combo_p1_natio.setValue(dataManager.getMeta(SEC_P1, KEY_NATION));
+
         //p2 data
-        combo_p2_name.setValue(get_meta(SEC_P2, KEY_NAME));
-        txt_p2_tag.setText(get_meta(SEC_P2, KEY_TAG));
-        combo_p2_natio.setValue(get_meta(SEC_P2, KEY_NATION));
+        combo_p2_name.setValue(dataManager.getMeta(SEC_P2, KEY_NAME));
+        txt_p2_tag.setText(dataManager.getMeta(SEC_P2, KEY_TAG));
+        combo_p2_natio.setValue(dataManager.getMeta(SEC_P2, KEY_NATION));
 
         //comms data
-        combo_host.setValue(get_meta(SEC_COMMS, KEY_HOST));
-        combo_comm1.setValue(get_meta(SEC_COMMS, KEY_COMM_1));
-        combo_comm2.setValue(get_meta(SEC_COMMS, KEY_COMM_2));
+        combo_host.setValue(dataManager.getMeta(SEC_COMMS, KEY_HOST));
+        combo_comm1.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_1));
+        combo_comm2.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_2));
 
-        try {
-            i_player_list.load(new File(dir.getAbsolutePath() + "/" + ResourcePath.PLAYER_LIST));
-            Set<String> players = i_player_list.keySet().stream()
-                    .filter(key -> !key.isEmpty())
-                    .collect(Collectors.toSet());
-            combo_p1_name.getItems().addAll(players);
-            combo_p2_name.getItems().addAll(players);
-        } catch (IOException ignored) {}
-
-        try {
-            i_comms_list.load(new File(dir.getAbsolutePath() + "/" + ResourcePath.COMMS_LIST));
-            Set<String> comms = i_comms_list.keySet().stream()
-                            .filter(key -> !key.isEmpty())
-                            .collect(Collectors.toSet());
-            combo_host.getItems().addAll(comms);
-            combo_comm1.getItems().addAll(comms);
-            combo_comm2.getItems().addAll(comms);
-        } catch (IOException ignored) {}
-
+        List<String> allPlayers = dataManager.getAllPlayerNames();
+        List<String> allComms = dataManager.getAllCommentatorNames();
+        combo_p1_name.getItems().addAll(allPlayers);
+        combo_p2_name.getItems().addAll(allPlayers);
+        combo_host.getItems().addAll(allComms);
+        combo_comm1.getItems().addAll(allComms);
+        combo_comm2.getItems().addAll(allComms);
     }
 
     /**
      * Tries to load a related flag file into the coupled {@link ImageView}, loads the null flag if no related file is found.
+     * See {@link pl.cheily.filegen.LocalData.DataManager#getFlag(String)}
      */
     public void on_p1_natio_selection() {
-        try {
-            img_p1_flag.setImage(new Image(flagsDir + "/" + combo_p1_natio.getValue().toLowerCase() + ".png"));
-        } catch (Exception ex) {
-            img_p1_flag.setImage(new Image(nullFlag.toString()));
-        }
+        img_p1_flag.setImage(dataManager.getFlag(combo_p1_natio.getValue()));
     }
 
     /**
      * Tries to load a related flag file into the coupled {@link ImageView}, loads the null flag if no related file is found.
+     * See {@link pl.cheily.filegen.LocalData.DataManager#getFlag(String)}
      */
     public void on_p2_natio_selection() {
-        try {
-            img_p2_flag.setImage(new Image(flagsDir + "/" + combo_p2_natio.getValue().toLowerCase() + ".png"));
-        } catch (Exception ex) {
-            img_p2_flag.setImage(new Image(nullFlag.toString()));
-        }
+        img_p2_flag.setImage(dataManager.getFlag(combo_p2_natio.getValue()));
     }
 
     /**
-     * Clears score, sets related fields via {@link Util#search_player_list(String)}
+     * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
+     * If no such player is found within the defined set (i.e. equal to {@link Player#EMPTY}),
+     * the related fields are not cleared, so as not to overwrite any previously entered data
+     * that might be related to the undefined player.
      */
     public void on_p1_selection() {
         txt_p1_score.setText("0");
 
-        if (targetDir == null) return;
-        String new_player = combo_p1_name.getValue();
+        Player selected = dataManager.getPlayer(combo_p1_name.getValue())
+                .orElse(Player.EMPTY);
 
-        Player found = search_player_list(new_player);
-        if (found == null) {
-            txt_p1_tag.setText("");
-            combo_p1_natio.setValue("");
-        } else {
-            txt_p1_tag.setText(found.tag());
-            combo_p1_natio.setValue(found.nationality());
+        if ( selected != Player.EMPTY ) {
+            txt_p1_tag.setText(selected.tag());
+            combo_p1_natio.setValue(selected.nationality());
         }
-
     }
 
     /**
-     * Clears score, sets related fields via {@link Util#search_player_list(String)}
+     * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
+     * If no such player is found within the defined set (i.e. equal to {@link Player#EMPTY}),
+     * the related fields are not cleared, so as not to overwrite any previously entered data
+     * that might be related to the undefined player.
      */
     public void on_p2_selection() {
         txt_p2_score.setText("0");
 
-        if (targetDir == null) return;
-        String new_player = combo_p2_name.getValue();
+        Player selected = dataManager.getPlayer(combo_p2_name.getValue())
+                .orElse(Player.EMPTY);
 
-        Player found = search_player_list(new_player);
-        if (found == null) {
-            txt_p2_tag.setText("");
-            combo_p2_natio.setValue("");
-        } else {
-            txt_p2_tag.setText(found.tag());
-            combo_p2_natio.setValue(found.nationality());
+        if ( selected != Player.EMPTY ) {
+            txt_p2_tag.setText(selected.tag());
+            combo_p2_natio.setValue(selected.nationality());
         }
     }
 
 
     /**
      * Score text area scroll listener - increments the value by one on scroll up, decrements by one on scroll down.
+     *
      * @param scrollEvent
      */
     public void on_p1_score_scroll(ScrollEvent scrollEvent) {
@@ -410,6 +311,7 @@ public class ControllerUI implements Initializable {
 
     /**
      * Score text area scroll listener - increments the value on scroll up, decrements on scroll down.
+     *
      * @param scrollEvent
      */
     public void on_p2_score_scroll(ScrollEvent scrollEvent) {
@@ -417,7 +319,6 @@ public class ControllerUI implements Initializable {
                 Integer.parseInt(txt_p2_score.getText()) + Integer.signum((int) scrollEvent.getTextDeltaY())
         ));
     }
-
 
 
     //adding scroll listeners in a prettier way than via Util.makeScrollable
@@ -428,6 +329,7 @@ public class ControllerUI implements Initializable {
     public void on_p2_name_scroll(ScrollEvent scrollEvent) {
         scrollOpt(combo_p2_name, scrollEvent);
     }
+
     public void on_p1_natio_scroll(ScrollEvent scrollEvent) {
         scrollOpt(combo_p1_natio, scrollEvent);
     }
@@ -467,7 +369,7 @@ public class ControllerUI implements Initializable {
     public void on_round_select() {
         String temp = combo_round.getValue() == null ? "" : combo_round.getValue();
         if ( (temp.toLowerCase().contains("gran") && !GF_toggle.isSelected())
-            || (!temp.toLowerCase().contains("gran") && GF_toggle.isSelected())
+                || (!temp.toLowerCase().contains("gran") && GF_toggle.isSelected())
         ) GF_toggle.fire();
     }
 
@@ -525,6 +427,7 @@ public class ControllerUI implements Initializable {
 
     /**
      * Swaps the player data around.
+     *
      * @param actionEvent
      */
     public void on_player_swap(ActionEvent actionEvent) {
@@ -546,10 +449,10 @@ public class ControllerUI implements Initializable {
         combo_p2_natio.setValue(p1_nat);
         txt_p2_score.setText(p1_score);
 
-        if (GF_toggle.isSelected() && !radio_reset.isSelected()) {
+        if ( GF_toggle.isSelected() && !radio_reset.isSelected() ) {
             boolean p1w = radio_p1_W.isSelected();
             radio_buttons.forEach(r -> r.setSelected(false));
-            if (p1w) {
+            if ( p1w ) {
                 radio_p1_L.setSelected(true);
                 radio_p2_W.setSelected(true);
             } else {
@@ -562,22 +465,25 @@ public class ControllerUI implements Initializable {
     /**
      * Disables or enables the radio buttons.
      */
-    public void on_GF_toggle(ActionEvent actionEvent) {
+    public void on_GF_toggle() {
         boolean turn_off = !GF_toggle.isSelected();
         radio_buttons.forEach(r -> r.setDisable(turn_off));
     }
 
-    public void on_scene_toggle_config(ActionEvent actionEvent) {
+    /**
+     * Prompts the {@link ScoreboardApplication} to display the corresponding scene.
+     */
+    public void on_scene_toggle_config() {
         scene_toggle_config.setSelected(false);
         ScoreboardApplication.setConfigScene();
     }
 
-    public void on_scene_toggle_players(ActionEvent actionEvent) {
+    public void on_scene_toggle_players() {
         scene_toggle_players.setSelected(false);
         ScoreboardApplication.setPlayersScene();
     }
 
-    public void on_scene_toggle_controller(ActionEvent actionEvent) {
+    public void on_scene_toggle_controller() {
         scene_toggle_controller.setSelected(true);
         ScoreboardApplication.setControllerScene();
     }

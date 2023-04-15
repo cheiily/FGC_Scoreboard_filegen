@@ -18,46 +18,47 @@
             <ToggleButton fx:id="scene_toggle_controller" mnemonicParsing="false" onAction="#on_scene_toggle_controller" prefWidth="125.0" text="Controller" />
         </items>
       </ToolBar>
-      <TextField fx:id="txt_url" alignment="CENTER" layoutX="49.0" layoutY="14.0" prefHeight="25.0" prefWidth="416.0" promptText="Challonge tournament URL goes here" />
+      <TextField fx:id="txt_url" alignment="CENTER" layoutX="145.0" layoutY="14.0" prefHeight="25.0" prefWidth="320.0" promptText="Challonge tournament URL goes here" />
       <Button layoutX="465.0" layoutY="14.0" mnemonicParsing="false" onAction="#on_challonge_import" prefHeight="25.0" prefWidth="143.0" text="Import from Challonge" />
       <Button layoutX="49.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_save" text="💾 Save">
          <tooltip>
             <Tooltip text="Saves current data to local files." />
          </tooltip>
       </Button>
-      <Button layoutX="105.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_pull" text="↙Pull">
+      <Button layoutX="49.0" layoutY="14.0" mnemonicParsing="false" onAction="#on_pull" text="↙Pull">
          <tooltip>
             <Tooltip text="Pull data from challonge to refresh. Pulled data will be saved in local files but will not remove any entries not present on challonge. Will overwrite data for players already present (i.e. update)." />
          </tooltip>
       </Button>
-      <Button layoutX="150.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_push" text="↗Push">
+      <Button layoutX="94.0" layoutY="14.0" mnemonicParsing="false" onAction="#on_push" text="↗Push">
          <tooltip>
             <Tooltip text="Push data from local files to challonge. Remember to save before pushing. Will create any entries present locally but not present on challonge. Will update data for players already present." />
          </tooltip>
       </Button>
-      <Button layoutX="201.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_add" text="+Add">
+      <Button layoutX="105.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_add" text="+Add">
          <tooltip>
             <Tooltip text="Add a player entry." />
          </tooltip>
       </Button>
-      <Button layoutX="248.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_remove" text="-Remove">
+      <Button layoutX="152.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_remove" text="-Remove">
          <tooltip>
             <Tooltip text="Remove a player entry." />
          </tooltip>
       </Button>
-      <Button layoutX="312.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_reload" prefHeight="25.0" prefWidth="70.0" text="🔄Reload">
+      <Button layoutX="216.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_reload" prefHeight="25.0" prefWidth="70.0" text="🔄Reload">
          <tooltip>
             <Tooltip text="Reload data from the same csv &amp; any present local meta files. Entries will not be doubled nor deleted in case they're not present within all of the files." />
          </tooltip>
       </Button>
-      <TextField fx:id="txt_csv_path" alignment="CENTER" editable="false" layoutX="382.0" layoutY="39.0" prefHeight="25.0" prefWidth="132.0" promptText="Path will display here..." />
-      <Button layoutX="514.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_csv_load" prefHeight="25.0" prefWidth="94.0" text="Load from csv" />
-      <TableView fx:id="player_table" layoutX="49.0" layoutY="72.0" prefHeight="316.0" prefWidth="558.0">
-        <columns>
-          <TableColumn prefWidth="33.0" text="Seed" />
+      <TextField fx:id="txt_csv_path" alignment="CENTER" editable="false" layoutX="286.0" layoutY="39.0" prefHeight="25.0" prefWidth="132.0" promptText="Path will display here..." />
+      <Button layoutX="418.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_csv_load" prefHeight="25.0" prefWidth="94.0" text="Load from csv" />
+      <Button layoutX="512.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_csv_export" prefHeight="25.0" prefWidth="96.0" text="Export to csv" />
+       <TableView fx:id="player_table" layoutX="49.0" layoutY="72.0" prefHeight="316.0" prefWidth="558.0">
+          <columns>
+            <TableColumn prefWidth="33.0" text="Seed" />
             <TableColumn minWidth="0.0" prefWidth="31.0" text="Icon" />
             <TableColumn minWidth="0.0" prefWidth="92.0" text="Tag" />
-          <TableColumn prefWidth="256.0" text="Name" />
+            <TableColumn prefWidth="256.0" text="Name" />
             <TableColumn minWidth="0.0" prefWidth="88.0" text="Nationality" />
             <TableColumn minWidth="0.0" prefWidth="57.0" text="Check-in" />
         </columns>

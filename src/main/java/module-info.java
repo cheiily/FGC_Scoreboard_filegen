@@ -2,6 +2,7 @@ module com.example.filegen {
     requires javafx.controls;
     requires javafx.fxml;
     requires ini4j;
+    requires com.opencsv;
 
 
     opens pl.cheily.filegen to javafx.fxml;

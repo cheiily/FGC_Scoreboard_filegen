@@ -26,27 +26,31 @@ public class ConfigUI implements Initializable {
         scene_toggle_config.setSelected(true);
     }
 
+    public void onResetConfig(ActionEvent actionEvent) {
+    }
+
     public void on_chk_ignore_case(ActionEvent actionEvent) {
     }
 
     public void on_api_key_input(ActionEvent actionEvent) {
     }
 
-    public void on_scene_toggle_config(ActionEvent actionEvent) {
-        scene_toggle_config.setSelected(true);
+    /**
+     * Prompts the {@link ScoreboardApplication} to display the corresponding scene.
+     */
+    public void on_scene_toggle_config() {
+        scene_toggle_config.setSelected(false);
         ScoreboardApplication.setConfigScene();
     }
 
-    public void on_scene_toggle_players(ActionEvent actionEvent) {
+    public void on_scene_toggle_players() {
         scene_toggle_players.setSelected(false);
         ScoreboardApplication.setPlayersScene();
     }
 
-    public void on_scene_toggle_controller(ActionEvent actionEvent) {
-        scene_toggle_controller.setSelected(false);
+    public void on_scene_toggle_controller() {
+        scene_toggle_controller.setSelected(true);
         ScoreboardApplication.setControllerScene();
     }
 
-    public void onResetConfig(ActionEvent actionEvent) {
-    }
 }
