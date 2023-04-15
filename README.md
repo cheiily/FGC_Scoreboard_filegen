@@ -40,13 +40,14 @@ Most of the GUI elements should feel quite natural in usage, additionally for co
 Core todo:
 - [ ] Combobox autocomplete / suggestions
 - [ ] Attach a sample OBS scene
-- [ ] Allow round names list file, if none is found - add the default opts
+- [x] Allow round names list file, if none is found - add the default opts
 - [x] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning (not error)
 - [x] Set radio buttons on load if it's a grand final round 
 - [x] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
 - [ ] Make html output
 - [x] Quick player switch button
 - [x] Move output writing to DataManager (html / raw prep)
+- [ ] UI-Meta bindings
 
 Config todo:
 - [ ] Ignoring case when searching player name by manual input
@@ -74,6 +75,6 @@ Fixes/Next commit/Minor todo:
 - [ ] V0.2
   - [ ] Move null-flag & default flag collection to resource
   - [ ] AppConfig class
-  - [ ] Round names list
+  - [x] Round names list
   - [x] Finish DataManager
   - [x] Fix scene toggle selection on scene change

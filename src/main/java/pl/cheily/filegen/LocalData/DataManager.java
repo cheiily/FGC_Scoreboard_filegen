@@ -31,12 +31,28 @@ public class DataManager {
      * TODO Replace this with AppConfig.FLAG_EXT
      */
     public final static String DEFAULT_FLAG_EXT = ".png";
+    public final static Set<String> DEFAULT_ROUND_SET = Set.of(
+            //w rounds
+            "Winners' R1", "Winners' R2", "Winners' R3", "Winners' R4",
+            //l rounds
+            "Losers' R1", "Losers' R2", "Losers' R3", "Losers' R4",
+            //w top 8
+            "Winners' Semis", "Winners' Finals",
+            //l top 8
+            "Losers' Eights", "Losers' Quarters", "Losers' Semis", "Losers' Finals",
+            //gf
+            "Grand Finals",
+            //Extra
+            "Top 8", "Winners' top 8", "Losers' top 8", "Losers' top 6", "Losers' top 4",
+            "Winners' Eights", "Winners' Quarters"
+    );
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
 
     private final Ini metadata = new Ini();
     private final Ini playerList = new Ini();
     private final Set<String> commsList = new HashSet<>();
+    private final Set<String> roundList = new HashSet<>();
     private boolean initialized;
 
 
@@ -61,11 +77,16 @@ public class DataManager {
      * <li>Data stored within other internal files, i.e. in the "meta" directory in order to restore the previous or imported configuration.</li>
      * <li>Data stored within custom lists, i.e. in the "lists" directory - in order to complement the lists with any updates or missing entries.</li>
      * </ol>
-     * The Manager will then attempt to save the loaded data into the internal files so as to store the update configuration.
-     * <p>
-     * See also: {@link DataManager#loadMetadata()}, {@link DataManager#loadInternalLists()}, {@link DataManager#loadCustomLists()}, {@link DataManager#saveLists()}
+     * The Manager will then attempt to save the loaded data into the internal files so as to store the updated configuration.
+     * Additionally, the Manager will try to read a {@link ResourcePath#CUSTOM_ROUND_LIST}. If there is no such file found, the {@link DataManager#DEFAULT_ROUND_SET} is loaded instead.
+     * As there is not much additional information to ever store about the round labels, the Manager does not store such lists in its "meta" files, but rather holds it in memory while active.
      *
      * @param targetDir {@link Path} representation of the target directory
+     * @see DataManager#loadMetadata()
+     * @see DataManager#loadInternalLists()
+     * @see DataManager#loadCustomLists()
+     * @see DataManager#saveLists()
+     * @see DataManager#loadRoundsCSV()
      */
     public void initialize(Path targetDir) {
         initialized = true;
@@ -74,11 +95,15 @@ public class DataManager {
         metadata.clear();
         playerList.clear();
         commsList.clear();
+        roundList.clear();
 
         loadMetadata();
         loadInternalLists();
         loadCustomLists();
         saveLists();
+
+        loadRoundsCSV();
+        if ( roundList.isEmpty() ) roundList.addAll(DEFAULT_ROUND_SET);
     }
 
 
@@ -249,11 +274,12 @@ public class DataManager {
     }
 
     /**
-     * Attempts to load the custom lists
+     * Attempts to load the custom lists, excluding the round list.
      *
      * @return propagated success value
      * @see DataManager#loadCommsCSV(ResourcePath)
      * @see DataManager#loadPlayersCSV()
+     * @see DataManager#loadRoundsCSV()
      */
     private boolean loadCustomLists() {
         return loadCommsCSV(ResourcePath.CUSTOM_COMMS_LIST) && loadPlayersCSV();
@@ -292,6 +318,26 @@ public class DataManager {
             String line;
             while ( (line = bReader.readLine()) != null )
                 commsList.add(line);
+
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Attempts to read the custom round list.
+     * <p>
+     * As this is a more commonly failure-returning operation, it is not included with other lists in {@link DataManager#loadCustomLists()}
+     *
+     * @return success value
+     */
+    private boolean loadRoundsCSV() {
+        try ( BufferedReader bReader = Files.newBufferedReader(ResourcePath.CUSTOM_ROUND_LIST.toPath()) ) {
+            String line;
+            while ( (line = bReader.readLine()) != null ) {
+                roundList.add(line);
+            }
 
             return true;
         } catch (IOException e) {
@@ -444,6 +490,14 @@ public class DataManager {
         if ( !Files.exists(Path.of(flagsDir + "/" + ISO2_code)) )
             return new Image(nullFlag.toString());
         return new Image(flagsDir + "/" + ISO2_code);
+    }
+
+    public boolean roundLabelsAreNotDefault() {
+        return !roundList.equals(DEFAULT_ROUND_SET);
+    }
+
+    public Set<String> getRoundLabels() {
+        return Collections.unmodifiableSet(roundList);
     }
 
     /**

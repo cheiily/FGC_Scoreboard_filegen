@@ -10,6 +10,7 @@ mvnw.cmd
 
 #git
 .mailmap
+commit.txt
 
 #additional resources
 flags

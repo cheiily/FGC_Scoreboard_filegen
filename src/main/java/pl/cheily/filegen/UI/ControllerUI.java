@@ -61,25 +61,7 @@ public class ControllerUI implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        ObservableList<String> r_opts = combo_round.getItems();
-        r_opts.add("Winners' R1");
-        r_opts.add("Winners' R2");
-        r_opts.add("Winners' R3");
-        r_opts.add("Winners' R4");
-        r_opts.add("Losers' R1");
-        r_opts.add("Losers' R2");
-        r_opts.add("Losers' R3");
-        r_opts.add("Losers' R4");
-        r_opts.add("Winners' Quarters");
-        r_opts.add("Winners' Semis");
-        r_opts.add("Winners' Finals");
-        r_opts.add("Losers' Semis");
-        r_opts.add("Losers' Finals");
-        r_opts.add("Grand Finals");
-        r_opts.add("Top 8");
-        r_opts.add("Winners' Eights");
-        r_opts.add("Losers' Quarters");
-        r_opts.add("Losers' Eights");
+        combo_round.getItems().addAll(DataManager.DEFAULT_ROUND_SET);
 
         ObservableList<String> f1_opts = combo_p1_natio.getItems();
         ObservableList<String> f2_opts = combo_p2_natio.getItems();
@@ -195,6 +177,11 @@ public class ControllerUI implements Initializable {
      * Loads data from the initialized {@link ScoreboardApplication#dataManager} into ui components
      */
     private void try_load_data() {
+        if ( dataManager.roundLabelsAreNotDefault() ) {
+            combo_round.getItems().clear();
+            combo_round.getItems().addAll(dataManager.getRoundLabels());
+        }
+
         //round data
         combo_round.setValue(dataManager.getMeta(SEC_ROUND, KEY_ROUND_LABEL));
         txt_p1_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_1, int.class)));
