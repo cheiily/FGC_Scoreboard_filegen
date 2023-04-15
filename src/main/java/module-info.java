@@ -3,6 +3,8 @@ module com.example.filegen {
     requires javafx.fxml;
     requires ini4j;
     requires com.opencsv;
+    requires jdk.httpserver;
+    requires org.json;
 
 
     opens pl.cheily.filegen to javafx.fxml;

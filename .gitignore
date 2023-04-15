@@ -15,3 +15,6 @@ commit.txt
 #additional resources
 flags
 filegen.jar
+
+#vscode
+.vscode
