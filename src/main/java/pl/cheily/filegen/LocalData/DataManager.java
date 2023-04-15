@@ -186,6 +186,9 @@ public class DataManager {
      */
     private boolean saveMeta() {
         try {
+            if ( !Files.exists(ResourcePath.METADATA.toPath().getParent()) )
+                Files.createDirectories(ResourcePath.METADATA.toPath().getParent());
+
             metadata.store(ResourcePath.METADATA.toPath().toFile());
             return true;
         } catch (IOException e) {
@@ -204,6 +207,13 @@ public class DataManager {
      */
     private boolean saveLists() {
         boolean success = true;
+
+        try {
+            if ( !Files.exists(ResourcePath.PLAYER_LIST.toPath().getParent()) )
+                Files.createDirectories(ResourcePath.PLAYER_LIST.toPath().getParent());
+        } catch (IOException e) {
+            return false;
+        }
         try {
             playerList.store(ResourcePath.PLAYER_LIST.toPath().toFile());
         } catch (IOException e) {

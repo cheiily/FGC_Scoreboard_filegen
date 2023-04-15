@@ -72,8 +72,8 @@ Integration todo:
 
 Fixes/Next commit/Minor todo:
 - [ ] V0.2
-- [ ] Move null-flag & default flag collection to resource
-- [ ] AppConfig class
-- [ ] Round names list
-- [x] Finish DataManager
-- [x] Fix scene toggle selection on scene change
+  - [ ] Move null-flag & default flag collection to resource
+  - [ ] AppConfig class
+  - [ ] Round names list
+  - [x] Finish DataManager
+  - [x] Fix scene toggle selection on scene change

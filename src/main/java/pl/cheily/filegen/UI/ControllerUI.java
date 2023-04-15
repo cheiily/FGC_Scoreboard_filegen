@@ -181,8 +181,6 @@ public class ControllerUI implements Initializable {
 
         combo_p1_name.getItems().clear();
         combo_p2_name.getItems().clear();
-        combo_p1_natio.getItems().clear();
-        combo_p2_natio.getItems().clear();
         combo_host.getItems().clear();
         combo_comm1.getItems().clear();
         combo_comm2.getItems().clear();
