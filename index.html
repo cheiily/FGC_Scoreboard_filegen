@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="src/fetchControllerData.js"></script>
+</head>
+
+<body>
+    <span id="round_label"></span>
+    <span id="round_score_p1"></span>
+    <span id="round_score_p2"></span>
+    <span id="round_isGF"></span>
+    <span id="round_isReset"></span>
+    <span id="round_isP1Winners"></span>
+
+    <span id="p1_name"></span>
+    <span id="p1_tag"></span>
+    <span id="p1_nation"></span>
+
+    <span id="p2_name"></span>
+    <span id="p2_tag"></span>
+    <span id="p2_nation"></span>
+
+
+    <span id="comms_host"></span>
+    <span id="comms_commentator_1"></span>
+    <span id="comms_commentator_2"></span>
+
+    <script>
+    let updateMetadataInterval = window.setInterval(async() => await updateMetadata(), 1000);
+
+    </script>
+
+</body>
+
+
+</html>
