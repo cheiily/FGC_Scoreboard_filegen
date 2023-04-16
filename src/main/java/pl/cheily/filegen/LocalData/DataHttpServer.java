@@ -29,6 +29,8 @@ public class DataHttpServer {
      * 
      * @param address {@link InetSocketAddress} for the server to listen on.
      */
+
+    // TODO: Handle exception on address already being in use.
     public static void start(InetSocketAddress address) throws IOException {
         serverInstance = HttpServer.create(address, 0);
         serverInstance.createContext("/metadata", new MetadataHandler());
@@ -36,6 +38,10 @@ public class DataHttpServer {
         serverInstance.start();
     }
 
+    public void close() {
+        serverInstance.stop(0);
+    }
+    
     static class MetadataHandler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
             // Create JSON object

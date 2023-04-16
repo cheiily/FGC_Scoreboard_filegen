@@ -1,9 +1,11 @@
 package pl.cheily.filegen;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import pl.cheily.filegen.LocalData.DataHttpServer;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.DefaultOutputFormatter;
@@ -27,7 +29,7 @@ public class ScoreboardApplication extends Application {
 
     /**
      * An HTTP server initialised at runtime, can be connected to within OBS to dynamically update a browser source on metadata save.
-     * Will be listening on 127.0.0.1:2086 by default. <br/>
+     * Will be listening on 127.0.0.1:52086 by default. <br/>
      * 
      * TODO: Avoid using final in order to add config to change address to listen to.
      */
@@ -45,7 +47,16 @@ public class ScoreboardApplication extends Application {
         mainStage.setScene(controllerScene);
         mainStage.show();
 
-        dataHttpServer.start(new InetSocketAddress("127.0.0.1", 2086));
+        dataHttpServer.start(new InetSocketAddress("127.0.0.1", 52086));
+
+        // Destruct the server on app closure.
+        // Otherwise the server thread will run indefinitely in the background.
+        mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                dataHttpServer.close();
+            }
+        });
     }
 
     public static void setControllerScene() {
