@@ -26,13 +26,16 @@ public class ConfigUI implements Initializable {
         scene_toggle_config.setSelected(true);
     }
 
+    public void onSaveConfig(ActionEvent actionEvent) {
+    }
+
+    public void onReloadConfig(ActionEvent actionEvent) {
+    }
+
+    public void onSelectConfig(ActionEvent actionEvent) {
+    }
+
     public void onResetConfig(ActionEvent actionEvent) {
-    }
-
-    public void on_chk_ignore_case(ActionEvent actionEvent) {
-    }
-
-    public void on_api_key_input(ActionEvent actionEvent) {
     }
 
     /**
@@ -52,5 +55,4 @@ public class ConfigUI implements Initializable {
         scene_toggle_controller.setSelected(true);
         ScoreboardApplication.setControllerScene();
     }
-
 }
