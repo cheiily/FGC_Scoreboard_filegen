@@ -496,6 +496,35 @@ public class DataManager {
         return new Image(flagsDir + "/" + ISO2_code);
     }
 
+    /**
+     * A modified version of {@link DataManager#getFlag} that returns a Base64 String instead of an Image.
+     *
+     * @param ISO2_code by standard but in actuality - an extension-less string representing the name of the related file within {@link DataManager#flagsDir}.
+     * @return Base64 String representation of the loaded flag, {@link DataManager#nullFlag} if the corresponding file cannot be found.
+     * @see DataManager#getFlag(String)
+     * @see DataManager#saveResource(ResourcePath, String...)
+     * @see OutputWriter#writeData(String, String...)
+     */
+    public String getFlagBase64String(String ISO2_code) throws IOException {
+
+        byte[] raw_image;
+
+        if (ISO2_code == null) {
+            raw_image = Files.readAllBytes(Path.of(nullFlag.toString()));
+        } else {
+            ISO2_code = ISO2_code.toLowerCase();
+            ISO2_code += DEFAULT_FLAG_EXT;
+
+            if (!Files.exists(Path.of(flagsDir + "/" + ISO2_code))) {
+                raw_image = Files.readAllBytes(Path.of(nullFlag.toString()));
+            } else {
+                raw_image = Files.readAllBytes(Path.of(flagsDir + "/" + ISO2_code));
+            }
+        }
+
+        return Base64.getEncoder().encodeToString(raw_image);
+    }
+
     public boolean roundLabelsAreNotDefault() {
         return !roundList.equals(DEFAULT_ROUND_SET);
     }

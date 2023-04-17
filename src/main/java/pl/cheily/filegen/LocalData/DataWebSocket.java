@@ -1,5 +1,6 @@
 package pl.cheily.filegen.LocalData;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.java_websocket.WebSocket;
@@ -70,6 +71,7 @@ public class DataWebSocket extends WebSocketServer {
 
 
     private static JSONObject getMetadataJSON() {
+
         // Create JSON object
         JSONObject jsonObject = new JSONObject();
 
@@ -93,7 +95,10 @@ public class DataWebSocket extends WebSocketServer {
 
         p1Object.put("name", dataManager.getMeta(SEC_P1, KEY_NAME));
         p1Object.put("tag", dataManager.getMeta(SEC_P1, KEY_TAG));
-        p1Object.put("nation", dataManager.getMeta(SEC_P1, KEY_NATION));
+        // This is so cursed...
+        try {
+            p1Object.put("nation", "data:image/png;base64, " + dataManager.getFlagBase64String(dataManager.getMeta(SEC_P1, KEY_NATION)));
+        } catch (IOException e) { p1Object.put("nation", ""); }
 
         jsonObject.put("p1", p1Object);
 
@@ -103,7 +108,10 @@ public class DataWebSocket extends WebSocketServer {
 
         p2Object.put("name", dataManager.getMeta(SEC_P2, KEY_NAME));
         p2Object.put("tag", dataManager.getMeta(SEC_P2, KEY_TAG));
-        p2Object.put("nation", dataManager.getMeta(SEC_P2, KEY_NATION));
+        // Return of the accursed Base64...
+        try {
+            p2Object.put("nation", "data:image/png;base64, " + dataManager.getFlagBase64String(dataManager.getMeta(SEC_P2, KEY_NATION)));
+        } catch (IOException e) { p2Object.put("nation", ""); }
 
         jsonObject.put("p2", p2Object);
 

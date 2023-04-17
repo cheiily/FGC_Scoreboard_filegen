@@ -29,18 +29,16 @@
 
     <script>
         const socket = new WebSocket("ws://127.0.0.1:52086");
-        let flagsDir;
 
         socket.addEventListener("message", event => {
             let message = JSON.parse(event.data);
 
             switch (message["type"]) {
-                case "flagsdir":
-                    flagsDir = "file://" + message["data"];
-                    break;
                 case "metadata":
-                    updateMetadata(message["data"], flagsDir);
+                    updateMetadata(message["data"]);
                     break;
+                case "obs-data":
+                    // UNIMPLEMENTED    
             }
         });
     </script>
