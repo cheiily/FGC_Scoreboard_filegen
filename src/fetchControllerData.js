@@ -24,5 +24,15 @@ function updateMetadata(metadata, flagsDir) {
             entry.src = flagsDir + "/" + metadata["p1"]["nation"] + ".png";
         }
     });
+
+    document.querySelectorAll(`img[metadata-value=p2_nation]`)
+    .forEach(entry => {
+        if (metadata["p2"]["nation"] === "NULL" || metadata["p2"]["nation"] === "") {
+            entry.src = flagsDir + "/null.png";
+        }
+        else {
+            entry.src = flagsDir + "/" + metadata["p2"]["nation"] + ".png";
+        }
+    });
     
 }
