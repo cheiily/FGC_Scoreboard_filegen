@@ -1,4 +1,4 @@
-module com.example.filegen {
+module pl.cheily.filegen {
     requires javafx.controls;
     requires javafx.fxml;
     requires ini4j;

@@ -13,7 +13,7 @@ import static pl.cheily.filegen.LocalData.MetaKey.*;
 
 /**
  * Basic HTTP server from which JSON data about the current status of the controller can be fetched.
- * Use {@link DataHttpServer#start()} to start a new server.
+ * Use {@link DataHttpServer#start(InetSocketAddress)} to start a new server.
  * Endpoints implemented:
  * <ul>
  * <li>/metadata: Returns the current metadata stored in the DataManager.</li>

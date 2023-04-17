@@ -37,16 +37,14 @@ Most of the GUI elements should feel quite natural in usage, additionally for co
 
 
 ### TODO's
-Core todo:
+App-core todo:
 - [ ] Combobox autocomplete / suggestions
 - [ ] Attach a sample OBS scene
-- [x] Allow round names list file, if none is found - add the default opts
-- [x] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning (not error)
-- [x] Set radio buttons on load if it's a grand final round 
-- [x] Make lists Ini-format to allow spaces in names (requires output files to parse differently as well)
+- [x] Allow round names list file, if none is found - add the default opts (V0.2)
+- [x] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning, not err (V0.2)
+- [x] Make lists Ini-format to allow spaces in names (V0.2)
 - [ ] Make html output
-- [x] Quick player switch button
-- [x] Move output writing to DataManager (html / raw prep)
+- [x] Move output writing to DataManager (V0.2)
 - [ ] UI-Meta bindings
 
 Config todo:
@@ -56,7 +54,10 @@ Config todo:
 - [ ] Flag output toggle w/ directory selection & deduced-default file extension
 
 UI todo:
-- [ ] Status tab for player_list.ini edition including:
+- [x] Controller tab (V0.1)
+  - [x] Set radio buttons on load if it's a grand final round 
+  - [x] Quick player switch button (V0.2)
+- [ ] Players tab
   - [ ] drag to seed manip
   - [ ] check-in button
   - [x] scene
@@ -74,7 +75,8 @@ Integration todo:
 Fixes/Next commit/Minor todo:
 - [ ] V0.2
   - [ ] Move null-flag & default flag collection to resource
-  - [ ] AppConfig class
+  - [ ] Autocomplete?
+  - [x] AppConfig class
   - [x] Round names list
   - [x] Finish DataManager
   - [x] Fix scene toggle selection on scene change
