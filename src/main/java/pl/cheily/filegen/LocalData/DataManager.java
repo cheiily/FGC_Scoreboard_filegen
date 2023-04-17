@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static pl.cheily.filegen.LocalData.MetaKey.*;
+import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
 
 public class DataManager {
     /**
@@ -119,6 +120,9 @@ public class DataManager {
         if ( !saveMeta() )
             new Alert(Alert.AlertType.ERROR, "Couldn't save metadata.", ButtonType.OK).show();
 
+        //Update the Websocket before we return.
+        dataWebSocket.updateMetadata();
+        
         List<ResourcePath> failedResourceSaves = saveOutput();
         if ( failedResourceSaves.isEmpty() ) return;
 
