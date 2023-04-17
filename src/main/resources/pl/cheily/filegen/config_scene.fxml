@@ -8,6 +8,7 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 
+<?import javafx.scene.control.TextField?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="610.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.ConfigUI">
    <children>
       <ToolBar layoutX="-181.0" layoutY="181.0" prefHeight="25.0" prefWidth="399.0" rotate="270.0">
@@ -18,12 +19,17 @@
         </items>
       </ToolBar>
       <Label layoutX="453.0" layoutY="378.0" text="_cheily 2023     MIT License" />
-      <CheckBox fx:id="chk_ignore_case" layoutX="49.0" layoutY="45.0" mnemonicParsing="false" text="Ignore case when browsing player lists on manual player name input" />
+      <CheckBox fx:id="chk_out_raw" layoutX="49.0" layoutY="45.0" mnemonicParsing="false" text="Make &quot;raw&quot; output" />
       <PasswordField fx:id="api_key" layoutX="49.0" layoutY="14.0" prefHeight="25.0" prefWidth="384.0" />
       <Label layoutX="439.0" layoutY="18.0" text="Challonge API Key" />
       <Button layoutX="344.0" layoutY="366.0" mnemonicParsing="false" onAction="#onResetConfig" text="Reset to default" />
       <Button layoutX="180.0" layoutY="341.0" mnemonicParsing="false" onAction="#onSaveConfig" text="Save changed configuration" />
       <Button layoutX="68.0" layoutY="366.0" mnemonicParsing="false" onAction="#onReloadConfig" text="Reload from current directory" />
       <Button layoutX="241.0" layoutY="366.0" mnemonicParsing="false" onAction="#onSelectConfig" text="Select from file..." />
+      <CheckBox fx:id="chk_out_html" layoutX="49.0" layoutY="65.0" mnemonicParsing="false" text="Make html (browser source) output" />
+      <CheckBox fx:id="chk_ignore_case" layoutX="49.0" layoutY="85.0" mnemonicParsing="false" text="Ignore case when browsing player lists on manual player name input" />
+      <CheckBox fx:id="chk_out_flags" layoutX="49.0" layoutY="105.0" mnemonicParsing="false" text="Put flags in output" />
+      <TextField fx:id="txt_flag_path" layoutX="49.0" layoutY="128.0" prefHeight="25.0" prefWidth="384.0" />
+      <Label layoutX="439.0" layoutY="132.0" text="Flag source path" />
    </children>
 </AnchorPane>

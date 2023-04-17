@@ -45,7 +45,7 @@ public class ScoreboardApplication extends Application {
         mainStage.setScene(controllerScene);
         mainStage.show();
 
-        dataHttpServer.start(new InetSocketAddress("127.0.0.1", 2086));
+//        dataHttpServer.start(new InetSocketAddress("127.0.0.1", 2086));
     }
 
     public static void setControllerScene() {

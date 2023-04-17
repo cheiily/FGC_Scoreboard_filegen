@@ -4,10 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.io.IOException;
@@ -20,6 +17,10 @@ public class ConfigUI implements Initializable {
     public ToggleButton scene_toggle_controller;
     public CheckBox chk_ignore_case;
     public PasswordField api_key;
+    public CheckBox chk_out_raw;
+    public CheckBox chk_out_html;
+    public CheckBox chk_out_flags;
+    public TextField txt_flag_path;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
