@@ -15,7 +15,7 @@ import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
 public class RawOutputWriter implements OutputWriter {
     private OutputFormatter formatter;
-    private boolean enabled;
+    private boolean enabled = true;
     private final String name;
 
     public RawOutputWriter(String name, OutputFormatter formatter) {
@@ -41,14 +41,16 @@ public class RawOutputWriter implements OutputWriter {
         String formatted = formatter.format(resourceName, data);
 
         try {
-            ResourcePath rp = ResourcePath.of(resourceName);
-            if ( rp == null ) return false;
-            Path p;
-            if ( !Files.exists(p = rp.toPath()) )
-                Files.createDirectories(p.getParent());
+            ResourcePath rPath = ResourcePath.of(resourceName);
+            if ( rPath == null ) return false;
+            Path filePath;
+            if ( !Files.exists(filePath = rPath.toPath()) ) {
+                Files.createDirectories(filePath.getParent());
+                Files.createFile(filePath);
+            }
 
-            if ( !rp.toString().endsWith(DataManager.DEFAULT_FLAG_EXT) ) {
-                try ( BufferedWriter bw = Files.newBufferedWriter(p) ) {
+            if ( !rPath.toString().endsWith(DataManager.DEFAULT_FLAG_EXT) ) {
+                try ( BufferedWriter bw = Files.newBufferedWriter(filePath) ) {
                     bw.write(formatted);
                 }
             } else {
@@ -61,8 +63,8 @@ public class RawOutputWriter implements OutputWriter {
                         new Alert(Alert.AlertType.WARNING, "Unable to find corresponding file image: " + t, ButtonType.OK).show();
                 }
 
-                Files.copy(sourceFlag, p, StandardCopyOption.REPLACE_EXISTING);
-                Files.setLastModifiedTime(p, FileTime.from(Instant.now()));
+                Files.copy(sourceFlag, filePath, StandardCopyOption.REPLACE_EXISTING);
+                Files.setLastModifiedTime(filePath, FileTime.from(Instant.now()));
             }
 
             return true;

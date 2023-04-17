@@ -19,6 +19,7 @@ public enum ResourcePath {
     COMMS("comms.txt"),
     CUSTOM_PLAYER_LIST("lists/player_list.csv"),
     CUSTOM_COMMS_LIST("lists/comms_list.csv"),
+    CUSTOM_ROUND_LIST("lists/round_list.csv"),
     PLAYER_LIST("meta/player_list.ini"),
     COMMS_LIST("meta/comms_list.csv"),
     METADATA("meta/metadata.ini"),
