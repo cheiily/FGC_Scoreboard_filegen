@@ -207,44 +207,6 @@ public class ControllerUI implements Initializable {
         combo_round.getItems().addAll(dataManager.getRoundLabels());
         ac_round.loadOriginList(dataManager.getRoundLabels().stream().toList());
 
-        //round data
-        combo_round.setValue(dataManager.getMeta(SEC_ROUND, KEY_ROUND_LABEL));
-        txt_p1_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_1, int.class)));
-        txt_p2_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_2, int.class)));
-
-        boolean is_reset = dataManager.getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
-        boolean is_p1_w = dataManager.getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
-        radio_buttons.forEach(r -> r.setDisable(false));
-
-        if ( is_reset && !radio_reset.isSelected() )
-            radio_reset.fire();
-        else if ( is_p1_w && !radio_p1_W.isSelected() )
-            radio_p1_W.fire();
-        else if ( !is_p1_w && radio_p1_W.isSelected() )
-            radio_p1_W.fire();
-
-        radio_buttons.forEach(r -> r.setDisable(true));
-
-        boolean is_gf = dataManager.getMeta(SEC_ROUND, KEY_GF, boolean.class);
-        if ( (!GF_toggle.isSelected() && is_gf)
-                || (GF_toggle.isSelected() && !is_gf)
-        ) GF_toggle.fire();
-
-        //p1 data
-        combo_p1_name.setValue(dataManager.getMeta(SEC_P1, KEY_NAME));
-        txt_p1_tag.setText(dataManager.getMeta(SEC_P1, KEY_TAG));
-        combo_p1_nation.setValue(dataManager.getMeta(SEC_P1, KEY_NATION));
-
-        //p2 data
-        combo_p2_name.setValue(dataManager.getMeta(SEC_P2, KEY_NAME));
-        txt_p2_tag.setText(dataManager.getMeta(SEC_P2, KEY_TAG));
-        combo_p2_nation.setValue(dataManager.getMeta(SEC_P2, KEY_NATION));
-
-        //comms data
-        combo_host.setValue(dataManager.getMeta(SEC_COMMS, KEY_HOST));
-        combo_comm1.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_1));
-        combo_comm2.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_2));
-
         List<String> allPlayers = dataManager.getAllPlayerNames();
         List<String> allComms = dataManager.getAllCommentatorNames();
         combo_p1_name.getItems().addAll(allPlayers);
@@ -262,6 +224,47 @@ public class ControllerUI implements Initializable {
         for (AutocompleteWrapper acWrapper : acWrappers) {
             acWrapper.clearSuggestions();
         }
+
+        //round data
+        combo_round.setValue(dataManager.getMeta(SEC_ROUND, KEY_ROUND_LABEL));
+        txt_p1_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_1, int.class)));
+        txt_p2_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_2, int.class)));
+
+        boolean is_reset = dataManager.getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
+        boolean is_p1_w = dataManager.getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
+        //enable radio to allow "chained" setting
+        radio_buttons.forEach(r -> r.setDisable(false));
+
+        if ( is_reset && !radio_reset.isSelected() )
+            radio_reset.fire();
+        else if ( is_p1_w && !radio_p1_W.isSelected() )
+            radio_p1_W.fire();
+        else if ( !is_p1_w && radio_p1_W.isSelected() )
+            radio_p1_W.fire();
+
+        //disable radio
+        GF_toggle.setSelected(false);
+
+        //finally set radio in the proper state
+        boolean is_gf = dataManager.getMeta(SEC_ROUND, KEY_GF, boolean.class);
+        GF_toggle.setSelected(is_gf);
+
+        //p1 data
+        combo_p1_name.setValue(dataManager.getMeta(SEC_P1, KEY_NAME));
+        txt_p1_tag.setText(dataManager.getMeta(SEC_P1, KEY_TAG));
+        combo_p1_nation.setValue(dataManager.getMeta(SEC_P1, KEY_NATION));
+
+        //p2 data
+        combo_p2_name.setValue(dataManager.getMeta(SEC_P2, KEY_NAME));
+        txt_p2_tag.setText(dataManager.getMeta(SEC_P2, KEY_TAG));
+        combo_p2_nation.setValue(dataManager.getMeta(SEC_P2, KEY_NATION));
+
+        //comms data
+        combo_host.setValue(dataManager.getMeta(SEC_COMMS, KEY_HOST));
+        combo_comm1.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_1));
+        combo_comm2.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_2));
+
+
     }
 
     /**
