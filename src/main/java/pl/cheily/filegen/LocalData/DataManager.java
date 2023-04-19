@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import pl.cheily.filegen.UI.ControllerUI;
+import pl.cheily.filegen.Utils.Util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -44,7 +45,7 @@ public class DataManager {
             "Grand Finals",
             //Extra
             "Top 8", "Winners' top 8", "Losers' top 8", "Losers' top 6", "Losers' top 4",
-            "Winners' Eights", "Winners' Quarters"
+            "Winners' Eights", "Winners' Quarters", "Pools"
     );
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
@@ -67,6 +68,7 @@ public class DataManager {
             throw new IllegalArgumentException("DataManager cannot be created without any writers");
 
         this.writers.addAll(List.of(writers));
+        roundSet.addAll(DEFAULT_ROUND_SET);
     }
 
     /**
@@ -492,8 +494,28 @@ public class DataManager {
         return new Image(flagsDir + "/" + ISO2_code);
     }
 
+    /**
+     * @return current round labels as immutable set
+     */
     public Set<String> getRoundLabels() {
         return Collections.unmodifiableSet(roundSet);
+    }
+
+    /**
+     * @return list of the current round labels, sorted with {@link Util#roundComparator}
+     */
+    public List<String> getRoundLabelsSorted() {
+        return getRoundLabelsSorted(Util.roundComparator);
+    }
+
+    /**
+     * @param comparator to apply
+     * @return list of the current round labels, sorted with the passed comparator
+     */
+    public List<String> getRoundLabelsSorted(Comparator<String> comparator) {
+        List<String> ret = new ArrayList<>(roundSet);
+        ret.sort(comparator);
+        return ret;
     }
 
     /**

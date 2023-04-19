@@ -53,7 +53,10 @@ public class AutocompleteWrapper {
 
     private void setupAutocomplete(ComboBox<String> comboBox) {
 
-        comboBox.getEditor().addEventHandler(KeyEvent.KEY_PRESSED, t -> comboBox.hide());
+        comboBox.getEditor().addEventHandler(KeyEvent.KEY_PRESSED, t -> {
+            if ( !enabled ) return;
+            comboBox.hide();
+        });
 
         comboBox.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
 

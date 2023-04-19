@@ -1,6 +1,8 @@
 package pl.cheily.filegen.UI;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -15,6 +17,7 @@ import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.AutocompleteWrapper;
+import pl.cheily.filegen.Utils.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +77,7 @@ public class ControllerUI implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        combo_round.getItems().addAll(DataManager.DEFAULT_ROUND_SET);
+        combo_round.getItems().addAll(dataManager.getRoundLabelsSorted());
 
         ObservableList<String> f1_opts = combo_p1_nation.getItems();
         ObservableList<String> f2_opts = combo_p2_nation.getItems();
@@ -204,8 +207,9 @@ public class ControllerUI implements Initializable {
     private void tryLoadData() {
 
         combo_round.getItems().clear();
-        combo_round.getItems().addAll(dataManager.getRoundLabels());
-        ac_round.loadOriginList(dataManager.getRoundLabels().stream().toList());
+        List<String> rnds = dataManager.getRoundLabelsSorted();
+        combo_round.getItems().addAll(rnds);
+        ac_round.loadOriginList(rnds);
 
         List<String> allPlayers = dataManager.getAllPlayerNames();
         List<String> allComms = dataManager.getAllCommentatorNames();
