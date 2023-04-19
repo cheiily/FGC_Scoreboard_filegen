@@ -52,7 +52,7 @@ public class DataManager {
     private final Ini metadata = new Ini();
     private final Ini playerList = new Ini();
     private final Set<String> commsList = new HashSet<>();
-    private final Set<String> roundList = new HashSet<>();
+    private final Set<String> roundSet = new HashSet<>();
     private boolean initialized;
 
 
@@ -95,7 +95,7 @@ public class DataManager {
         metadata.clear();
         playerList.clear();
         commsList.clear();
-        roundList.clear();
+        roundSet.clear();
 
         loadMetadata();
         loadInternalLists();
@@ -103,7 +103,7 @@ public class DataManager {
         saveLists();
 
         loadRoundsCSV();
-        if ( roundList.isEmpty() ) roundList.addAll(DEFAULT_ROUND_SET);
+        if ( roundSet.isEmpty() ) roundSet.addAll(DEFAULT_ROUND_SET);
     }
 
 
@@ -336,7 +336,7 @@ public class DataManager {
         try ( BufferedReader bReader = Files.newBufferedReader(ResourcePath.CUSTOM_ROUND_LIST.toPath()) ) {
             String line;
             while ( (line = bReader.readLine()) != null ) {
-                roundList.add(line);
+                roundSet.add(line);
             }
 
             return true;
@@ -379,11 +379,11 @@ public class DataManager {
 
         putMeta(SEC_P1, KEY_TAG, ui.txt_p1_tag.getText());
         putMeta(SEC_P1, KEY_NAME, ui.combo_p1_name.getValue());
-        putMeta(SEC_P1, KEY_NATION, ui.combo_p1_natio.getValue());
+        putMeta(SEC_P1, KEY_NATION, ui.combo_p1_nation.getValue());
 
         putMeta(SEC_P2, KEY_TAG, ui.txt_p2_tag.getText());
         putMeta(SEC_P2, KEY_NAME, ui.combo_p2_name.getValue());
-        putMeta(SEC_P2, KEY_NATION, ui.combo_p2_natio.getValue());
+        putMeta(SEC_P2, KEY_NATION, ui.combo_p2_nation.getValue());
 
         putMeta(SEC_COMMS, KEY_HOST, ui.combo_host.getValue());
         putMeta(SEC_COMMS, KEY_COMM_1, ui.combo_comm1.getValue());
@@ -492,12 +492,8 @@ public class DataManager {
         return new Image(flagsDir + "/" + ISO2_code);
     }
 
-    public boolean roundLabelsAreNotDefault() {
-        return !roundList.equals(DEFAULT_ROUND_SET);
-    }
-
     public Set<String> getRoundLabels() {
-        return Collections.unmodifiableSet(roundList);
+        return Collections.unmodifiableSet(roundSet);
     }
 
     /**

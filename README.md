@@ -75,7 +75,8 @@ Integration todo:
 Fixes/Next commit/Minor todo:
 - [ ] V0.2
   - [ ] Move null-flag & default flag collection to resource
-  - [ ] Autocomplete?
+  - [ ] Fix radio buttons sometimes not enabling on-load 
+  - [x] Autocomplete
   - [x] AppConfig class
   - [x] Round names list
   - [x] Finish DataManager

@@ -7,12 +7,14 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
+import pl.cheily.filegen.Utils.AutocompleteWrapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,12 +31,13 @@ import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 import static pl.cheily.filegen.Utils.Util.scrollOpt;
 
 public class ControllerUI implements Initializable {
+    public AnchorPane bg_pane;
     public TextField txt_p1_tag;
-    public ComboBox<String> combo_p1_natio;
+    public ComboBox<String> combo_p1_nation;
     public ImageView img_p1_flag;
     public TextField txt_p1_score;
     public TextField txt_p2_tag;
-    public ComboBox<String> combo_p2_natio;
+    public ComboBox<String> combo_p2_nation;
     public ImageView img_p2_flag;
     public TextField txt_p2_score;
     public TextField txt_path;
@@ -55,6 +58,16 @@ public class ControllerUI implements Initializable {
     public ToggleButton scene_toggle_players;
     public ToggleButton scene_toggle_controller;
 
+    private AutocompleteWrapper ac_p1_name,
+            ac_p2_name,
+            ac_p1_nation,
+            ac_p2_nation,
+            ac_round,
+            ac_host,
+            ac_comm1,
+            ac_comm2;
+    private List<AutocompleteWrapper> acWrappers;
+
     /**
      * Loads a hardcoded preset of round opts, attempts to load flag/nationality opts, sets the default flag as null,
      * loads radio buttons into a list and disables them all, adds scene toggles to a toggle group
@@ -63,8 +76,8 @@ public class ControllerUI implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         combo_round.getItems().addAll(DataManager.DEFAULT_ROUND_SET);
 
-        ObservableList<String> f1_opts = combo_p1_natio.getItems();
-        ObservableList<String> f2_opts = combo_p2_natio.getItems();
+        ObservableList<String> f1_opts = combo_p1_nation.getItems();
+        ObservableList<String> f2_opts = combo_p2_nation.getItems();
         try ( Stream<Path> flags = Files.walk(dataManager.flagsDir) ) {
             flags.filter(path -> path.toString().endsWith(".png"))
                     .filter(path ->
@@ -91,6 +104,16 @@ public class ControllerUI implements Initializable {
         radio_buttons.forEach(r -> r.setDisable(true));
 
         scene_toggle_controller.setSelected(true);
+
+        ac_p1_name = new AutocompleteWrapper(combo_p1_name);
+        ac_p1_nation = new AutocompleteWrapper(combo_p1_nation);
+        ac_p2_name = new AutocompleteWrapper(combo_p2_name);
+        ac_p2_nation = new AutocompleteWrapper(combo_p2_nation);
+        ac_round = new AutocompleteWrapper(combo_round);
+        ac_host = new AutocompleteWrapper(combo_host);
+        ac_comm1 = new AutocompleteWrapper(combo_comm1);
+        ac_comm2 = new AutocompleteWrapper(combo_comm2);
+        acWrappers = List.of(ac_p1_name, ac_p2_name, ac_p1_nation, ac_p2_nation, ac_round, ac_host, ac_comm1, ac_comm2);
     }
 
 
@@ -106,6 +129,8 @@ public class ControllerUI implements Initializable {
 
         dataManager.loadMetadataFromUI(this);
         dataManager.save();
+
+        for (AutocompleteWrapper wrapper : acWrappers) wrapper.clearSuggestions();
     }
 
     /**
@@ -170,17 +195,17 @@ public class ControllerUI implements Initializable {
         dataManager.initialize(dir.toPath().toAbsolutePath());
         txt_path.setText(dir.toPath().toAbsolutePath().toString());
 
-        try_load_data();
+        tryLoadData();
     }
 
     /**
      * Loads data from the initialized {@link ScoreboardApplication#dataManager} into ui components
      */
-    private void try_load_data() {
-        if ( dataManager.roundLabelsAreNotDefault() ) {
-            combo_round.getItems().clear();
-            combo_round.getItems().addAll(dataManager.getRoundLabels());
-        }
+    private void tryLoadData() {
+
+        combo_round.getItems().clear();
+        combo_round.getItems().addAll(dataManager.getRoundLabels());
+        ac_round.loadOriginList(dataManager.getRoundLabels().stream().toList());
 
         //round data
         combo_round.setValue(dataManager.getMeta(SEC_ROUND, KEY_ROUND_LABEL));
@@ -208,12 +233,12 @@ public class ControllerUI implements Initializable {
         //p1 data
         combo_p1_name.setValue(dataManager.getMeta(SEC_P1, KEY_NAME));
         txt_p1_tag.setText(dataManager.getMeta(SEC_P1, KEY_TAG));
-        combo_p1_natio.setValue(dataManager.getMeta(SEC_P1, KEY_NATION));
+        combo_p1_nation.setValue(dataManager.getMeta(SEC_P1, KEY_NATION));
 
         //p2 data
         combo_p2_name.setValue(dataManager.getMeta(SEC_P2, KEY_NAME));
         txt_p2_tag.setText(dataManager.getMeta(SEC_P2, KEY_TAG));
-        combo_p2_natio.setValue(dataManager.getMeta(SEC_P2, KEY_NATION));
+        combo_p2_nation.setValue(dataManager.getMeta(SEC_P2, KEY_NATION));
 
         //comms data
         combo_host.setValue(dataManager.getMeta(SEC_COMMS, KEY_HOST));
@@ -227,22 +252,32 @@ public class ControllerUI implements Initializable {
         combo_host.getItems().addAll(allComms);
         combo_comm1.getItems().addAll(allComms);
         combo_comm2.getItems().addAll(allComms);
+
+        ac_p1_name.loadOriginList(allPlayers);
+        ac_p2_name.loadOriginList(allPlayers);
+        ac_host.loadOriginList(allComms);
+        ac_comm1.loadOriginList(allComms);
+        ac_comm2.loadOriginList(allComms);
+
+        for (AutocompleteWrapper acWrapper : acWrappers) {
+            acWrapper.clearSuggestions();
+        }
     }
 
     /**
      * Tries to load a related flag file into the coupled {@link ImageView}, loads the null flag if no related file is found.
      * See {@link pl.cheily.filegen.LocalData.DataManager#getFlag(String)}
      */
-    public void on_p1_natio_selection() {
-        img_p1_flag.setImage(dataManager.getFlag(combo_p1_natio.getValue()));
+    public void on_p1_nation_selection() {
+        img_p1_flag.setImage(dataManager.getFlag(combo_p1_nation.getValue()));
     }
 
     /**
      * Tries to load a related flag file into the coupled {@link ImageView}, loads the null flag if no related file is found.
      * See {@link pl.cheily.filegen.LocalData.DataManager#getFlag(String)}
      */
-    public void on_p2_natio_selection() {
-        img_p2_flag.setImage(dataManager.getFlag(combo_p2_natio.getValue()));
+    public void on_p2_nation_selection() {
+        img_p2_flag.setImage(dataManager.getFlag(combo_p2_nation.getValue()));
     }
 
     /**
@@ -259,7 +294,7 @@ public class ControllerUI implements Initializable {
 
         if ( selected != Player.EMPTY ) {
             txt_p1_tag.setText(selected.tag());
-            combo_p1_natio.setValue(selected.nationality());
+            combo_p1_nation.setValue(selected.nationality());
         }
     }
 
@@ -277,7 +312,7 @@ public class ControllerUI implements Initializable {
 
         if ( selected != Player.EMPTY ) {
             txt_p2_tag.setText(selected.tag());
-            combo_p2_natio.setValue(selected.nationality());
+            combo_p2_nation.setValue(selected.nationality());
         }
     }
 
@@ -316,11 +351,11 @@ public class ControllerUI implements Initializable {
     }
 
     public void on_p1_natio_scroll(ScrollEvent scrollEvent) {
-        scrollOpt(combo_p1_natio, scrollEvent);
+        scrollOpt(combo_p1_nation, scrollEvent);
     }
 
     public void on_p2_natio_scroll(ScrollEvent scrollEvent) {
-        scrollOpt(combo_p2_natio, scrollEvent);
+        scrollOpt(combo_p2_nation, scrollEvent);
     }
 
     public void on_comm1_scroll(ScrollEvent scrollEvent) {
@@ -336,11 +371,11 @@ public class ControllerUI implements Initializable {
     }
 
     public void on_p1_flag_scroll(ScrollEvent scrollEvent) {
-        scrollOpt(combo_p1_natio, scrollEvent);
+        scrollOpt(combo_p1_nation, scrollEvent);
     }
 
     public void on_p2_flag_scroll(ScrollEvent scrollEvent) {
-        scrollOpt(combo_p2_natio, scrollEvent);
+        scrollOpt(combo_p2_nation, scrollEvent);
     }
 
     public void on_round_scroll(ScrollEvent scrollEvent) {
@@ -418,20 +453,20 @@ public class ControllerUI implements Initializable {
     public void on_player_swap(ActionEvent actionEvent) {
         String p1_name = combo_p1_name.getValue();
         String p1_tag = txt_p1_tag.getText();
-        String p1_nat = combo_p1_natio.getValue();
+        String p1_nat = combo_p1_nation.getValue();
         String p1_score = txt_p1_score.getText();
         String p2_name = combo_p2_name.getValue();
         String p2_tag = txt_p2_tag.getText();
-        String p2_nat = combo_p2_natio.getValue();
+        String p2_nat = combo_p2_nation.getValue();
         String p2_score = txt_p2_score.getText();
 
         combo_p1_name.setValue(p2_name);
         txt_p1_tag.setText(p2_tag);
-        combo_p1_natio.setValue(p2_nat);
+        combo_p1_nation.setValue(p2_nat);
         txt_p1_score.setText(p2_score);
         combo_p2_name.setValue(p1_name);
         txt_p2_tag.setText(p1_tag);
-        combo_p2_natio.setValue(p1_nat);
+        combo_p2_nation.setValue(p1_nat);
         txt_p2_score.setText(p1_score);
 
         if ( GF_toggle.isSelected() && !radio_reset.isSelected() ) {
@@ -473,4 +508,10 @@ public class ControllerUI implements Initializable {
         ScoreboardApplication.setControllerScene();
     }
 
+    /**
+     * Resets the focus to avoid "sticky" controls.
+     */
+    public void on_bg_click() {
+        bg_pane.requestFocus();
+    }
 }
