@@ -89,7 +89,7 @@ Fixes/Next commit/Minor todo:
   - [ ] Adjust the outputwriter architecture for fork merge
   - [ ] Merge and appropriate the websocket fork
   - [ ] Move P2 GF tag to the left
-- [ ] V0.2
+- [x] V0.2
   - [x] Sort (default) round opts
   - [x] Fix radio buttons sometimes not enabling on-load 
   - [x] Autocomplete
