@@ -79,7 +79,8 @@ public class DataManager {
      * <li>Data stored within other internal files, i.e. in the "meta" directory in order to restore the previous or imported configuration.</li>
      * <li>Data stored within custom lists, i.e. in the "lists" directory - in order to complement the lists with any updates or missing entries.</li>
      * </ol>
-     * The Manager will then attempt to save the loaded data into the internal files so as to store the updated configuration.
+     * The Manager will then attempt to save the loaded data into the internal files so as to store the updated configuration.<br/>
+     * Afterwards, the directory for custom lists will be prepared.<br/>
      * Additionally, the Manager will try to read a {@link ResourcePath#CUSTOM_ROUND_LIST}. If there is no such file found, the {@link DataManager#DEFAULT_ROUND_SET} is loaded instead.
      * As there is not much additional information to ever store about the round labels, the Manager does not store such lists in its "meta" files, but rather holds it in memory while active.
      *
@@ -103,9 +104,23 @@ public class DataManager {
         loadInternalLists();
         loadCustomLists();
         saveLists();
+        createCustomListsDir();
 
         loadRoundsCSV();
         if ( roundSet.isEmpty() ) roundSet.addAll(DEFAULT_ROUND_SET);
+    }
+
+    /**
+     * Prepares the folder for custom lists.
+     * @return success value
+     */
+    private boolean createCustomListsDir() {
+        try {
+            Files.createDirectory(Path.of(targetDir + "/lists"));
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
 
