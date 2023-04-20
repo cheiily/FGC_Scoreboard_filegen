@@ -65,7 +65,7 @@
       <Button layoutX="344.0" layoutY="148.0" mnemonicParsing="false" onAction="#on_player_swap" text="←→" />
       <ToggleButton fx:id="GF_toggle" layoutX="347.0" layoutY="87.0" mnemonicParsing="false" onAction="#on_GF_toggle" prefHeight="25.0" prefWidth="32.0" text="GF" />
       <Separator layoutX="361.0" layoutY="121.0" orientation="VERTICAL" prefHeight="20.0" />
-      <ToolBar layoutX="-181.0" layoutY="181.0" prefHeight="25.0" prefWidth="399.0" rotate="270.0">
+      <ToolBar disable="true" layoutX="-181.0" layoutY="181.0" prefHeight="25.0" prefWidth="399.0" rotate="270.0">
         <items>
             <ToggleButton fx:id="scene_toggle_config" mnemonicParsing="false" onAction="#on_scene_toggle_config" prefWidth="125.0" text="App Config" />
             <ToggleButton fx:id="scene_toggle_players" mnemonicParsing="false" onAction="#on_scene_toggle_players" prefWidth="125.0" text="Players" />
