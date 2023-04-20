@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ConfigUI implements Initializable {
+    public AnchorPane bg_pane;
     public ToggleButton scene_toggle_config;
     public ToggleButton scene_toggle_players;
     public ToggleButton scene_toggle_controller;
@@ -55,5 +58,12 @@ public class ConfigUI implements Initializable {
     public void on_scene_toggle_controller() {
         scene_toggle_controller.setSelected(true);
         ScoreboardApplication.setControllerScene();
+    }
+
+    /**
+     * Resets the focus to avoid "sticky" controls.
+     */
+    public void on_bg_click() {
+        bg_pane.requestFocus();
     }
 }

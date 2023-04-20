@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import pl.cheily.filegen.UI.ControllerUI;
+import pl.cheily.filegen.Utils.Util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -45,7 +46,7 @@ public class DataManager {
             "Grand Finals",
             //Extra
             "Top 8", "Winners' top 8", "Losers' top 8", "Losers' top 6", "Losers' top 4",
-            "Winners' Eights", "Winners' Quarters"
+            "Winners' Eights", "Winners' Quarters", "Pools"
     );
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
@@ -53,7 +54,7 @@ public class DataManager {
     private final Ini metadata = new Ini();
     private final Ini playerList = new Ini();
     private final Set<String> commsList = new HashSet<>();
-    private final Set<String> roundList = new HashSet<>();
+    private final Set<String> roundSet = new HashSet<>();
     private boolean initialized;
 
 
@@ -68,6 +69,7 @@ public class DataManager {
             throw new IllegalArgumentException("DataManager cannot be created without any writers");
 
         this.writers.addAll(List.of(writers));
+        roundSet.addAll(DEFAULT_ROUND_SET);
     }
 
     /**
@@ -78,7 +80,8 @@ public class DataManager {
      * <li>Data stored within other internal files, i.e. in the "meta" directory in order to restore the previous or imported configuration.</li>
      * <li>Data stored within custom lists, i.e. in the "lists" directory - in order to complement the lists with any updates or missing entries.</li>
      * </ol>
-     * The Manager will then attempt to save the loaded data into the internal files so as to store the updated configuration.
+     * The Manager will then attempt to save the loaded data into the internal files so as to store the updated configuration.<br/>
+     * Afterwards, the directory for custom lists will be prepared.<br/>
      * Additionally, the Manager will try to read a {@link ResourcePath#CUSTOM_ROUND_LIST}. If there is no such file found, the {@link DataManager#DEFAULT_ROUND_SET} is loaded instead.
      * As there is not much additional information to ever store about the round labels, the Manager does not store such lists in its "meta" files, but rather holds it in memory while active.
      *
@@ -96,15 +99,29 @@ public class DataManager {
         metadata.clear();
         playerList.clear();
         commsList.clear();
-        roundList.clear();
+        roundSet.clear();
 
         loadMetadata();
         loadInternalLists();
         loadCustomLists();
         saveLists();
+        createCustomListsDir();
 
         loadRoundsCSV();
-        if ( roundList.isEmpty() ) roundList.addAll(DEFAULT_ROUND_SET);
+        if ( roundSet.isEmpty() ) roundSet.addAll(DEFAULT_ROUND_SET);
+    }
+
+    /**
+     * Prepares the folder for custom lists.
+     * @return success value
+     */
+    private boolean createCustomListsDir() {
+        try {
+            Files.createDirectory(Path.of(targetDir + "/lists"));
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
 
@@ -340,7 +357,7 @@ public class DataManager {
         try ( BufferedReader bReader = Files.newBufferedReader(ResourcePath.CUSTOM_ROUND_LIST.toPath()) ) {
             String line;
             while ( (line = bReader.readLine()) != null ) {
-                roundList.add(line);
+                roundSet.add(line);
             }
 
             return true;
@@ -383,11 +400,11 @@ public class DataManager {
 
         putMeta(SEC_P1, KEY_TAG, ui.txt_p1_tag.getText());
         putMeta(SEC_P1, KEY_NAME, ui.combo_p1_name.getValue());
-        putMeta(SEC_P1, KEY_NATION, ui.combo_p1_natio.getValue());
+        putMeta(SEC_P1, KEY_NATION, ui.combo_p1_nation.getValue());
 
         putMeta(SEC_P2, KEY_TAG, ui.txt_p2_tag.getText());
         putMeta(SEC_P2, KEY_NAME, ui.combo_p2_name.getValue());
-        putMeta(SEC_P2, KEY_NATION, ui.combo_p2_natio.getValue());
+        putMeta(SEC_P2, KEY_NATION, ui.combo_p2_nation.getValue());
 
         putMeta(SEC_COMMS, KEY_HOST, ui.combo_host.getValue());
         putMeta(SEC_COMMS, KEY_COMM_1, ui.combo_comm1.getValue());
@@ -525,12 +542,28 @@ public class DataManager {
         return Base64.getEncoder().encodeToString(raw_image);
     }
 
-    public boolean roundLabelsAreNotDefault() {
-        return !roundList.equals(DEFAULT_ROUND_SET);
+    /**
+     * @return current round labels as immutable set
+     */
+    public Set<String> getRoundLabels() {
+        return Collections.unmodifiableSet(roundSet);
     }
 
-    public Set<String> getRoundLabels() {
-        return Collections.unmodifiableSet(roundList);
+    /**
+     * @return list of the current round labels, sorted with {@link Util#roundComparator}
+     */
+    public List<String> getRoundLabelsSorted() {
+        return getRoundLabelsSorted(Util.roundComparator);
+    }
+
+    /**
+     * @param comparator to apply
+     * @return list of the current round labels, sorted with the passed comparator
+     */
+    public List<String> getRoundLabelsSorted(Comparator<String> comparator) {
+        List<String> ret = new ArrayList<>(roundSet);
+        ret.sort(comparator);
+        return ret;
     }
 
     /**

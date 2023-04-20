@@ -8,6 +8,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.io.IOException;
@@ -15,6 +17,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class PlayersUI implements Initializable {
+    public AnchorPane bg_pane;
     public ToggleButton scene_toggle_config;
     public ToggleButton scene_toggle_players;
     public ToggleButton scene_toggle_controller;
@@ -73,4 +76,10 @@ public class PlayersUI implements Initializable {
         ScoreboardApplication.setControllerScene();
     }
 
+    /**
+     * Resets the focus to avoid "sticky" controls.
+     */
+    public void on_bg_click() {
+        bg_pane.requestFocus();
+    }
 }
