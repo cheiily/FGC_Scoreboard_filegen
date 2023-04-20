@@ -5,7 +5,7 @@ module pl.cheily.filegen {
     requires com.opencsv;
     requires jdk.httpserver;
     requires org.json;
-
+    requires Java.WebSocket;
 
     opens pl.cheily.filegen to javafx.fxml;
     exports pl.cheily.filegen;

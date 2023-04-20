@@ -1,11 +1,13 @@
 package pl.cheily.filegen;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import pl.cheily.filegen.LocalData.DataHttpServer;
+import javafx.stage.WindowEvent;
 import pl.cheily.filegen.LocalData.DataManager;
+import pl.cheily.filegen.LocalData.DataWebSocket;
 import pl.cheily.filegen.LocalData.DefaultOutputFormatter;
 import pl.cheily.filegen.LocalData.RawOutputWriter;
 
@@ -26,12 +28,12 @@ public class ScoreboardApplication extends Application {
     private static Stage mainStage;
 
     /**
-     * An HTTP server initialised at runtime, can be connected to within OBS to dynamically update a browser source on metadata save.
-     * Will be listening on 127.0.0.1:2086 by default. <br/>
+     * An WebSocket server initialised at runtime, can be connected to within OBS to dynamically update a browser source on metadata save.
+     * Will be listening on 127.0.0.1:52086 by default.
      * 
      * TODO: Avoid using final in order to add config to change address to listen to.
      */
-    public static final DataHttpServer dataHttpServer = new DataHttpServer();
+    public static final DataWebSocket dataWebSocket = new DataWebSocket(new InetSocketAddress("127.0.0.1", 52086));
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -45,7 +47,19 @@ public class ScoreboardApplication extends Application {
         mainStage.setScene(controllerScene);
         mainStage.show();
 
-//        dataHttpServer.start(new InetSocketAddress("127.0.0.1", 2086));
+        dataWebSocket.start();
+
+        // Destruct the server on app closure.
+        // Otherwise the server thread will run indefinitely in the background.
+        mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                try {
+                    dataWebSocket.stop();
+                } catch (InterruptedException e) {};
+                
+            }
+        });
     }
 
     public static void setControllerScene() {
