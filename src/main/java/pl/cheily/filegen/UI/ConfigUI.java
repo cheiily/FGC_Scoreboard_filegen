@@ -18,12 +18,11 @@ public class ConfigUI implements Initializable {
     public ToggleButton scene_toggle_config;
     public ToggleButton scene_toggle_players;
     public ToggleButton scene_toggle_controller;
-    public CheckBox chk_ignore_case;
+    public CheckBox chk_ac_on;
     public PasswordField api_key;
     public CheckBox chk_out_raw;
     public CheckBox chk_out_html;
     public CheckBox chk_out_flags;
-    public TextField txt_flag_path;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

@@ -47,19 +47,19 @@ public class ScoreboardApplication extends Application {
         mainStage.setScene(controllerScene);
         mainStage.show();
 
-        dataWebSocket.start();
-
-        // Destruct the server on app closure.
-        // Otherwise the server thread will run indefinitely in the background.
-        mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                try {
-                    dataWebSocket.stop();
-                } catch (InterruptedException e) {};
-                
-            }
-        });
+//        dataWebSocket.start();
+//
+//        // Destruct the server on app closure.
+//        // Otherwise the server thread will run indefinitely in the background.
+//        mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+//            @Override
+//            public void handle(WindowEvent event) {
+//                try {
+//                    dataWebSocket.stop();
+//                } catch (InterruptedException e) {};
+//
+//            }
+//        });
     }
 
     public static void setControllerScene() {
