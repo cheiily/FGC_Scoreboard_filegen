@@ -2,6 +2,12 @@ package pl.cheily.filegen.Configuration;
 
 import java.nio.file.Path;
 
+/**
+ * Set of default configuration values, loaded on app-launch.<br/>
+ * May be bulk-reassigned via {@link AppConfig#reset()}.
+ *
+ * @see AppConfig
+ */
 public class Defaults {
 
     public static final String CHALLONGE_API = "";

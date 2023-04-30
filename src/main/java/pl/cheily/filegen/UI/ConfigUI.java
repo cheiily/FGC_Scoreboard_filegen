@@ -26,6 +26,10 @@ public class ConfigUI implements Initializable {
     public CheckBox chk_out_raw;
     public CheckBox chk_out_html;
     public CheckBox chk_out_flags;
+
+    /**
+     * Listener to automatically update the UI on loads, resets, etc.
+     */
     PropertyChangeListener configListener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
