@@ -52,10 +52,10 @@ App-core todo:
 - [ ] UI-Meta bindings
 
 Config todo:
-- [ ] Ignoring case when searching player name by manual input
-- [ ] API Key for challonge import
+- [x] Ignoring case when searching player name by manual input
+- [x] API Key for challonge import
 - [ ] (maybe) splitting up the commentary file into separate files.
-- [ ] Flag output toggle w/ directory selection & deduced-default file extension
+- [x] Flag output toggle w/ directory selection & deduced-default file extension
 
 UI todo:
 - [x] Controller tab (V0.1)
