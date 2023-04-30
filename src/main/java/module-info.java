@@ -6,6 +6,7 @@ module pl.cheily.filegen {
     requires jdk.httpserver;
     requires org.json;
     requires Java.WebSocket;
+    requires java.desktop;
 
     opens pl.cheily.filegen to javafx.fxml;
     exports pl.cheily.filegen;

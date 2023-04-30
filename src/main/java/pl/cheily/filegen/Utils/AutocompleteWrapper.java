@@ -6,11 +6,15 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ComboBox;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import pl.cheily.filegen.Configuration.AppConfig;
+import pl.cheily.filegen.Configuration.PropKey;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AutocompleteWrapper {
+public class AutocompleteWrapper implements PropertyChangeListener {
     private final ComboBox<String> box;
     private List<String> originalList;
     private boolean enabled;
@@ -24,6 +28,7 @@ public class AutocompleteWrapper {
         this.originalList = comboBox.getItems();
         this.enabled = initialEnable;
         setupAutocomplete(box);
+        AppConfig.subscribe(PropKey.AUTOCOMPLETE_ON, this);
     }
 
 
@@ -134,5 +139,15 @@ public class AutocompleteWrapper {
                 moveCaretToPos = false;
             }
         });
+    }
+
+    /**
+     * Listens to changes on {@link AppConfig#AUTOCOMPLETE_ON()}.
+     * @param evt A PropertyChangeEvent object describing the event source
+     *          and the property that has changed.
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        this.enabled = (boolean) evt.getNewValue();
     }
 }

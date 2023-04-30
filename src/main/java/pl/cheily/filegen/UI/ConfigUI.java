@@ -1,15 +1,18 @@
 package pl.cheily.filegen.UI;
 
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
+import pl.cheily.filegen.Configuration.AppConfig;
+import pl.cheily.filegen.Configuration.PropKey;
 import pl.cheily.filegen.ScoreboardApplication;
 
-import java.io.IOException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeListenerProxy;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -23,13 +26,44 @@ public class ConfigUI implements Initializable {
     public CheckBox chk_out_raw;
     public CheckBox chk_out_html;
     public CheckBox chk_out_flags;
+    PropertyChangeListener configListener = new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            PropKey prop = PropKey.of(evt.getPropertyName());
+            if (prop ==null) return;
+
+            switch (prop) {
+                default: return;
+                case CHALLONGE_API: api_key.setText(AppConfig.CHALLONGE_API());
+                case AUTOCOMPLETE_ON: chk_ac_on.setSelected(AppConfig.AUTOCOMPLETE_ON());
+                case MAKE_RAW_OUTPUT: chk_out_raw.setSelected(AppConfig.MAKE_RAW_OUTPUT());
+                case MAKE_HTML_OUTPUT: chk_out_html.setSelected(AppConfig.MAKE_HTML_OUTPUT());
+                case PUT_FLAGS: chk_out_flags.setSelected(AppConfig.PUT_FLAGS());
+            }
+        }
+    };
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         scene_toggle_config.setSelected(true);
+
+        //load initial cfg
+        api_key.setText(AppConfig.CHALLONGE_API());
+        chk_ac_on.setSelected(AppConfig.AUTOCOMPLETE_ON());
+        chk_out_raw.setSelected(AppConfig.MAKE_RAW_OUTPUT());
+        chk_out_html.setSelected(AppConfig.MAKE_HTML_OUTPUT());
+        chk_out_flags.setSelected(AppConfig.PUT_FLAGS());
+
+        //listen for resets, loads, etc.
+        AppConfig.subscribeAll(configListener);
     }
 
     public void onSaveConfig(ActionEvent actionEvent) {
+        AppConfig.CHALLONGE_API(api_key.getText());
+        AppConfig.AUTOCOMPLETE_ON(chk_ac_on.isSelected());
+        AppConfig.MAKE_RAW_OUTPUT(chk_out_raw.isSelected());
+        AppConfig.MAKE_HTML_OUTPUT(chk_out_html.isSelected());
+        AppConfig.PUT_FLAGS(chk_out_flags.isSelected());
     }
 
     public void onReloadConfig(ActionEvent actionEvent) {
@@ -39,6 +73,7 @@ public class ConfigUI implements Initializable {
     }
 
     public void onResetConfig(ActionEvent actionEvent) {
+        AppConfig.reset();
     }
 
     /**
