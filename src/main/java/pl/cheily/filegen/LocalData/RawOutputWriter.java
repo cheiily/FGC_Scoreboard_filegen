@@ -2,6 +2,8 @@ package pl.cheily.filegen.LocalData;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import pl.cheily.filegen.Configuration.AppConfig;
+import pl.cheily.filegen.Configuration.Defaults;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -49,7 +51,7 @@ public class RawOutputWriter implements OutputWriter {
                 Files.createFile(filePath);
             }
 
-            if ( !rPath.toString().endsWith(DataManager.DEFAULT_FLAG_EXT) ) {
+            if ( !rPath.toString().endsWith(Defaults.FLAG_EXTENSION) ) {
                 try ( BufferedWriter bw = Files.newBufferedWriter(filePath) ) {
                     bw.write(formatted);
                 }
@@ -57,9 +59,10 @@ public class RawOutputWriter implements OutputWriter {
                 Path sourceFlag = Path.of(dataManager.flagsDir + "/" + formatted);
 
                 if ( !Files.exists(sourceFlag) ) {
-                    String t = sourceFlag.getFileName().toString();
                     sourceFlag = dataManager.nullFlag;
-                    if ( !t.isEmpty() && !t.equals(DataManager.DEFAULT_FLAG_EXT) )
+                    //if the UI field was empty, the filename will be just the extension
+                    String t = sourceFlag.getFileName().toString();
+                    if ( !t.isEmpty() && !t.equals(AppConfig.FLAG_EXTENSION()) )
                         new Alert(Alert.AlertType.WARNING, "Unable to find corresponding file image: " + t, ButtonType.OK).show();
                 }
 

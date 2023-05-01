@@ -7,6 +7,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
+import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.UI.ControllerUI;
 import pl.cheily.filegen.Utils.Util;
 
@@ -28,11 +29,8 @@ public class DataManager {
      */
     public Path targetDir;
     public final Path flagsDir = Path.of("flags").toAbsolutePath();
+    //TODO hook this up to AppConfig#Flagsdir via listener
     public final Path nullFlag = Path.of(flagsDir + "/null.png");
-    /**
-     * TODO Replace this with AppConfig.FLAG_EXT
-     */
-    public final static String DEFAULT_FLAG_EXT = ".png";
     public final static Set<String> DEFAULT_ROUND_SET = Set.of(
             //w rounds
             "Winners' R1", "Winners' R2", "Winners' R3", "Winners' R4",
@@ -171,9 +169,9 @@ public class DataManager {
             failedSaves.add(ResourcePath.P1_SCORE);
         if ( !saveResource(ResourcePath.P2_SCORE, getMeta(SEC_ROUND, KEY_SCORE_2)) )
             failedSaves.add(ResourcePath.P2_SCORE);
-        if ( !saveResource(ResourcePath.P1_FLAG, (getMeta(SEC_P1, KEY_NATION) + DEFAULT_FLAG_EXT).toLowerCase()) )
+        if ( !saveResource(ResourcePath.P1_FLAG, (getMeta(SEC_P1, KEY_NATION) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
             failedSaves.add(ResourcePath.P1_FLAG);
-        if ( !saveResource(ResourcePath.P2_FLAG, (getMeta(SEC_P2, KEY_NATION) + DEFAULT_FLAG_EXT).toLowerCase()) )
+        if ( !saveResource(ResourcePath.P2_FLAG, (getMeta(SEC_P2, KEY_NATION) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
             failedSaves.add(ResourcePath.P2_FLAG);
 
         if ( !saveResource(
@@ -507,7 +505,7 @@ public class DataManager {
         if ( ISO2_code == null ) return new Image(nullFlag.toString());
 
         ISO2_code = ISO2_code.toLowerCase();
-        ISO2_code += DEFAULT_FLAG_EXT;
+        ISO2_code += AppConfig.FLAG_EXTENSION();
         if ( !Files.exists(Path.of(flagsDir + "/" + ISO2_code)) )
             return new Image(nullFlag.toString());
         return new Image(flagsDir + "/" + ISO2_code);
@@ -530,7 +528,7 @@ public class DataManager {
             raw_image = Files.readAllBytes(Path.of(nullFlag.toString()));
         } else {
             ISO2_code = ISO2_code.toLowerCase();
-            ISO2_code += DEFAULT_FLAG_EXT;
+            ISO2_code += AppConfig.FLAG_EXTENSION();
 
             if (!Files.exists(Path.of(flagsDir + "/" + ISO2_code))) {
                 raw_image = Files.readAllBytes(Path.of(nullFlag.toString()));
