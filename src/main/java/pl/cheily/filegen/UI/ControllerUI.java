@@ -1,8 +1,6 @@
 package pl.cheily.filegen.UI;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -17,7 +15,6 @@ import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.AutocompleteWrapper;
-import pl.cheily.filegen.Utils.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -133,7 +130,24 @@ public class ControllerUI implements Initializable {
         dataManager.loadMetadataFromUI(this);
         dataManager.save();
 
+        Player p1 = new Player(
+                txt_p1_tag.getText(),
+                combo_p1_name.getValue(),
+                combo_p1_nation.getValue()
+        );
+        Player p2 = new Player(
+                txt_p2_tag.getText(),
+                combo_p2_name.getValue(),
+                combo_p2_nation.getValue()
+        );
+
         for (AutocompleteWrapper wrapper : acWrappers) wrapper.clearSuggestions();
+        combo_p1_name.setValue(p1.name());
+        txt_p1_tag.setText(p1.tag());
+        combo_p1_nation.setValue(p1.nationality());
+        combo_p2_name.setValue(p2.name());
+        txt_p2_tag.setText(p2.tag());
+        combo_p2_nation.setValue(p2.nationality());
     }
 
     /**
