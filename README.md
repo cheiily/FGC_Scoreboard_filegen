@@ -88,7 +88,7 @@ Fixes/Next commit/Minor todo:
   - [x] Apply config settings
   - [ ] Adjust the outputwriter architecture for fork merge
   - [ ] Merge and appropriate the websocket fork
-  - [ ] Move P2 GF tag to the left
+  - [x] Move P2 GF tag to the left
   - [x] Fix a bug where autcomplete clear on-save causes automated related-field load and loses changes
 - [x] V0.2
   - [x] Sort (default) round opts

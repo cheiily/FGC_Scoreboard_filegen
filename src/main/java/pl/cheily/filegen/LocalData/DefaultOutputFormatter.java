@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 public class DefaultOutputFormatter implements OutputFormatter {
 
     /**
-     * Formats a resource to the desired layout
+     * Formats a resource to the desired layout.<br/>
+     * In this implementation, the {@code resourceName} is packed together with {@code data} to create the "extended data" package to be passed further.
+     * The {@code resourceName} becomes the zero-th element in that package, while all original {@code data} elements are moved one index further.
      *
      * @param resourceName identifier of the resource, to decide how the data should be formatted
      * @param data         to format, may consist of multiple separate parts to merge
@@ -22,12 +24,16 @@ public class DefaultOutputFormatter implements OutputFormatter {
     public String format(String resourceName, String... data) {
         if ( !formats.containsKey(ResourcePath.of(resourceName)) ) return data[ 0 ];
 
-        return formats.get(ResourcePath.of(resourceName)).apply(data);
+        String[] extData = new String[data.length + 1];
+        System.arraycopy(data, 0, extData, 1, data.length);
+        extData[ 0 ] = resourceName;
+
+        return formats.get(ResourcePath.of(resourceName)).apply(extData);
     }
 
     protected static final String tagSeparator = " | ";
-    protected static final String winnerMarker = " [W]";
-    protected static final String loserMarker = " [L]";
+    protected static final String winnerMarker = " [W] ";
+    protected static final String loserMarker = " [L] ";
     protected static final String emojiHouse = "\uD83C\uDFE0";
     protected static final String emojiMic = "\uD83C\uDF99️";
 
@@ -49,14 +55,16 @@ public class DefaultOutputFormatter implements OutputFormatter {
      */
     protected static String playerName(String... data) {
         String ret;
-        if ( !data[ 0 ].isEmpty() )
-            ret = data[ 0 ] + tagSeparator + data[ 1 ];
+        if ( !data[ 1 ].isEmpty() )
+            ret = data[ 1 ] + tagSeparator + data[ 2 ];
         else ret = data[ 1 ];
 
-        if ( data[ 2 ] != null )
-            ret += Boolean.parseBoolean(data[ 2 ]) ? winnerMarker : loserMarker;
+        if ( data[ 3 ] != null )
+            if ( data[ 0 ].toLowerCase().contains("p1") )
+                ret += Boolean.parseBoolean(data[ 3 ]) ? winnerMarker : loserMarker;
+            else ret = (Boolean.parseBoolean(data[ 3 ]) ? winnerMarker : loserMarker) + ret;
 
-        return ret;
+        return ret.trim();
     }
 
     /**
@@ -71,10 +79,12 @@ public class DefaultOutputFormatter implements OutputFormatter {
     protected static String comms(String... data) {
         StringBuilder ret = new StringBuilder();
 
-        if ( !data[ 0 ].isEmpty() )
-            ret.append(emojiHouse).append(data[ 0 ]).append(emojiHouse).append('\n');
+        if ( !data[ 1 ].isEmpty() )
+            ret.append(emojiHouse).append(data[ 1 ]).append(emojiHouse).append('\n');
 
+        //overwrite the cells not containing commentator names to avoid accidental addition
         data[ 0 ] = "";
+        data[ 1 ] = "";
         int count = (int) Arrays.stream(data).filter(s -> !s.isEmpty()).count();
         List<String> notEmpty = Arrays.stream(data).filter(s -> !s.isEmpty()).toList();
 
