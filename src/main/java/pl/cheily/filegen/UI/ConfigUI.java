@@ -2,6 +2,7 @@ package pl.cheily.filegen.UI;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ToggleButton;
@@ -19,8 +20,6 @@ import java.util.ResourceBundle;
 public class ConfigUI implements Initializable {
     public AnchorPane bg_pane;
     public ToggleButton scene_toggle_config;
-    public ToggleButton scene_toggle_players;
-    public ToggleButton scene_toggle_controller;
     public CheckBox chk_ac_on;
     public PasswordField api_key;
     public CheckBox chk_out_raw;
@@ -83,18 +82,16 @@ public class ConfigUI implements Initializable {
     /**
      * Prompts the {@link ScoreboardApplication} to display the corresponding scene.
      */
-    public void on_scene_toggle_config() {
-        scene_toggle_config.setSelected(false);
+    public void on_scene_set_config() {
+        scene_toggle_config.setSelected(true);
         ScoreboardApplication.setConfigScene();
     }
 
-    public void on_scene_toggle_players() {
-        scene_toggle_players.setSelected(false);
+    public void on_scene_set_players() {
         ScoreboardApplication.setPlayersScene();
     }
 
-    public void on_scene_toggle_controller() {
-        scene_toggle_controller.setSelected(true);
+    public void on_scene_set_controller() {
         ScoreboardApplication.setControllerScene();
     }
 

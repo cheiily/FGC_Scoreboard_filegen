@@ -12,9 +12,9 @@
    <children>
       <ToolBar layoutX="-181.0" layoutY="181.0" prefHeight="25.0" prefWidth="399.0" rotate="270.0">
         <items>
-            <ToggleButton fx:id="scene_toggle_config" mnemonicParsing="false" onAction="#on_scene_toggle_config" prefWidth="125.0" text="App Config" />
-            <ToggleButton fx:id="scene_toggle_players" mnemonicParsing="false" onAction="#on_scene_toggle_players" prefWidth="125.0" text="Players" />
-            <ToggleButton fx:id="scene_toggle_controller" mnemonicParsing="false" onAction="#on_scene_toggle_controller" prefWidth="125.0" text="Controller" />
+            <ToggleButton fx:id="scene_toggle_config" mnemonicParsing="false" onAction="#on_scene_set_config" prefWidth="125.0" text="App Config" />
+            <Button mnemonicParsing="false" onAction="#on_scene_set_players" prefWidth="125.0" text="Players" />
+            <Button mnemonicParsing="false" onAction="#on_scene_set_controller" prefWidth="125.0" text="Controller" />
         </items>
       </ToolBar>
       <Label layoutX="453.0" layoutY="378.0" text="_cheily 2023     MIT License" />

@@ -54,8 +54,6 @@ public class ControllerUI implements Initializable {
     public RadioButton radio_p2_W;
     public ToggleButton GF_toggle;
     public List<RadioButton> radio_buttons = new ArrayList<>();
-    public ToggleButton scene_toggle_config;
-    public ToggleButton scene_toggle_players;
     public ToggleButton scene_toggle_controller;
 
     private AutocompleteWrapper ac_p1_name,
@@ -514,17 +512,15 @@ public class ControllerUI implements Initializable {
     /**
      * Prompts the {@link ScoreboardApplication} to display the corresponding scene.
      */
-    public void on_scene_toggle_config() {
-        scene_toggle_config.setSelected(false);
+    public void on_scene_set_config() {
         ScoreboardApplication.setConfigScene();
     }
 
-    public void on_scene_toggle_players() {
-        scene_toggle_players.setSelected(false);
+    public void on_scene_set_players() {
         ScoreboardApplication.setPlayersScene();
     }
 
-    public void on_scene_toggle_controller() {
+    public void on_scene_set_controller() {
         scene_toggle_controller.setSelected(true);
         ScoreboardApplication.setControllerScene();
     }

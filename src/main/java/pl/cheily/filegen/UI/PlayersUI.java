@@ -18,9 +18,7 @@ import java.util.ResourceBundle;
 
 public class PlayersUI implements Initializable {
     public AnchorPane bg_pane;
-    public ToggleButton scene_toggle_config;
     public ToggleButton scene_toggle_players;
-    public ToggleButton scene_toggle_controller;
     public TextField txt_url;
     public TextField txt_csv_path;
     public TableView player_table;
@@ -61,18 +59,16 @@ public class PlayersUI implements Initializable {
     /**
      * Prompts the {@link ScoreboardApplication} to display the corresponding scene.
      */
-    public void on_scene_toggle_config() {
-        scene_toggle_config.setSelected(false);
+    public void on_scene_set_config() {
         ScoreboardApplication.setConfigScene();
     }
 
-    public void on_scene_toggle_players() {
-        scene_toggle_players.setSelected(false);
+    public void on_scene_set_players() {
+        scene_toggle_players.setSelected(true);
         ScoreboardApplication.setPlayersScene();
     }
 
-    public void on_scene_toggle_controller() {
-        scene_toggle_controller.setSelected(true);
+    public void on_scene_set_controller() {
         ScoreboardApplication.setControllerScene();
     }
 
