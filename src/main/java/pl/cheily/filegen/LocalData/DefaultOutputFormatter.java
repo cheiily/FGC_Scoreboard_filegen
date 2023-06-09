@@ -57,7 +57,7 @@ public class DefaultOutputFormatter implements OutputFormatter {
         String ret;
         if ( !data[ 1 ].isEmpty() )
             ret = data[ 1 ] + tagSeparator + data[ 2 ];
-        else ret = data[ 1 ];
+        else ret = data[ 2 ];
 
         if ( data[ 3 ] != null )
             if ( data[ 0 ].toLowerCase().contains("p1") )
