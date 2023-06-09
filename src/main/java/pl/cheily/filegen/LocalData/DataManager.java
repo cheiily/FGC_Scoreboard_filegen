@@ -169,10 +169,12 @@ public class DataManager {
             failedSaves.add(ResourcePath.P1_SCORE);
         if ( !saveResource(ResourcePath.P2_SCORE, getMeta(SEC_ROUND, KEY_SCORE_2)) )
             failedSaves.add(ResourcePath.P2_SCORE);
-        if ( !saveResource(ResourcePath.P1_FLAG, (getMeta(SEC_P1, KEY_NATION) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
-            failedSaves.add(ResourcePath.P1_FLAG);
-        if ( !saveResource(ResourcePath.P2_FLAG, (getMeta(SEC_P2, KEY_NATION) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
-            failedSaves.add(ResourcePath.P2_FLAG);
+        if ( AppConfig.PUT_FLAGS() ) {
+            if ( !saveResource(ResourcePath.P1_FLAG, (getMeta(SEC_P1, KEY_NATION) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
+                failedSaves.add(ResourcePath.P1_FLAG);
+            if ( !saveResource(ResourcePath.P2_FLAG, (getMeta(SEC_P2, KEY_NATION) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
+                failedSaves.add(ResourcePath.P2_FLAG);
+        }
 
         if ( !saveResource(
                 ResourcePath.COMMS,
