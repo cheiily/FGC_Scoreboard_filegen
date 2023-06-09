@@ -138,6 +138,8 @@ public class ControllerUI implements Initializable {
                 combo_p2_name.getValue(),
                 combo_p2_nation.getValue()
         );
+        String score_1 = txt_p1_score.getText();
+        String score_2 = txt_p2_score.getText();
 
         for (AutocompleteWrapper wrapper : acWrappers) wrapper.clearSuggestions();
         combo_p1_name.setValue(p1.name());
@@ -146,6 +148,8 @@ public class ControllerUI implements Initializable {
         combo_p2_name.setValue(p2.name());
         txt_p2_tag.setText(p2.tag());
         combo_p2_nation.setValue(p2.nationality());
+        txt_p1_score.setText(score_1);
+        txt_p2_score.setText(score_2);
     }
 
     /**
