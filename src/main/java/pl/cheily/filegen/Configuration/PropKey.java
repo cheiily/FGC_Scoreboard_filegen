@@ -1,21 +1,39 @@
 package pl.cheily.filegen.Configuration;
 
+import java.nio.file.Path;
+import java.util.function.Function;
+
 /**
- * Set of defined configuration property keys complete with their stringified names for event-based subscription.
+ * Set of defined configuration property keys complete with their stringified names for event-based subscription,
+ * as well as parameter validation functionality.
  */
 public enum PropKey {
-    CHALLONGE_API("CHALLONGE_APi"),
-    AUTOCOMPLETE_ON("AUTOCOMPLETE_ON"),
-    MAKE_RAW_OUTPUT("MAKE_RAW_OUTPUT"),
-    MAKE_HTML_OUTPUT("MAKE_HTML_OUTPUT"),
-    PUT_FLAGS("PUT_FLAGS"),
-    FLAG_EXTENSION("FLAG_EXTENSION"),
-    FLAG_DIRECTORY("FLAG_DIRECTORY");
+    CHALLONGE_API("CHALLONGE_API", String.class, null),
+    AUTOCOMPLETE_ON("AUTOCOMPLETE_ON", Boolean.class, null),
+    MAKE_RAW_OUTPUT("MAKE_RAW_OUTPUT", Boolean.class, null),
+    MAKE_HTML_OUTPUT("MAKE_HTML_OUTPUT", Boolean.class, null),
+    PUT_FLAGS("PUT_FLAGS", Boolean.class, null),
+    FLAG_EXTENSION("FLAG_EXTENSION", String.class, null),
+    FLAG_DIRECTORY("FLAG_DIRECTORY", Path.class, null);
 
+    /**
+     * Stringified property name. May be used for issuing & subscribing to events, saving a configuration file, etc.
+     */
     public final String propName;
 
-    PropKey(String propName) {
+    /**
+     * Additional validation functionality, if more than a basic null & class check is required.
+     */
+    private final Function<Object, Boolean> validator;
+    /**
+     * Class of the configuration field.
+     */
+    private final Class paramType;
+
+    PropKey(String propName, Class paramType, Function<Object, Boolean> validateParamFunc) {
         this.propName = propName;
+        this.paramType = paramType;
+        this.validator = validateParamFunc;
     }
 
     /**
@@ -29,5 +47,21 @@ public enum PropKey {
             if ( key.propName.equals(value) ) return key;
         }
         return null;
+    }
+
+    /**
+     * Check whether {@code param} is a valid and acceptable configuration value.
+     * Checks for null and correct class.
+     * Uses {@link PropKey#validator} if assigned.
+     *
+     * @param param valid not-null, class-matching parameter
+     * @return true if valid, false otherwise
+     */
+    public boolean validateParam(Object param) {
+        if ( param == null ) return false;
+        if ( param.getClass() != this.paramType ) return false;
+        if ( validator != null )
+            return validator.apply(param);
+        else return true;
     }
 }

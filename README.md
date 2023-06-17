@@ -67,9 +67,9 @@ UI todo:
   - [ ] top 8 results highlight
   - [x] scene
   - [ ] controller
-- [ ] Config tab
+- [x] Config tab
   - [x] scene
-  - [ ] controller
+  - [x] controller
 - [ ] ResourceBundle localization
 
 Integration todo:

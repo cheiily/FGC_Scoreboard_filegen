@@ -72,7 +72,7 @@ public class RawOutputWriter implements OutputWriter {
 
             return true;
 
-        } catch (IOException ex) {
+        } catch (IOException | DataManagerNotInitializedException ex) {
             return false;
         }
     }

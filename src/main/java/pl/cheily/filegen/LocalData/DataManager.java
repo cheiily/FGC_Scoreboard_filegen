@@ -104,6 +104,7 @@ public class DataManager {
         loadCustomLists();
         saveLists();
         createCustomListsDir();
+        loadConfig();
 
         loadRoundsCSV();
         if ( roundSet.isEmpty() ) roundSet.addAll(DEFAULT_ROUND_SET);
@@ -137,7 +138,7 @@ public class DataManager {
 
         //Update the Websocket before we return.
         dataWebSocket.updateMetadata();
-        
+
         List<ResourcePath> failedResourceSaves = saveOutput();
         if ( failedResourceSaves.isEmpty() ) return;
 
@@ -237,7 +238,38 @@ public class DataManager {
 
             metadata.store(ResourcePath.METADATA.toPath().toFile());
             return true;
-        } catch (IOException e) {
+        } catch (IOException | DataManagerNotInitializedException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Attempts to save the currently applied app configuration to {@link ResourcePath#CONFIG}
+     * @return success value
+     * @see AppConfig#getAsIni()
+     */
+    public boolean saveConfig() {
+        try {
+            if ( !Files.exists(ResourcePath.CONFIG.toPath().getParent()) )
+                Files.createDirectories(ResourcePath.CONFIG.toPath().getParent());
+
+            AppConfig.getAsIni().store(ResourcePath.CONFIG.toPath().toFile());
+            return true;
+        } catch (IOException | DataManagerNotInitializedException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Attempts to load the app configuration from {@link ResourcePath#CONFIG}
+     * @return success value
+     * @see AppConfig#loadFromIni(Ini ini)
+     */
+    public boolean loadConfig() {
+        try {
+            Ini cfg = new Ini(ResourcePath.CONFIG.toPath().toFile());
+            return AppConfig.loadFromIni(cfg);
+        } catch (IOException | DataManagerNotInitializedException e) {
             return false;
         }
     }
@@ -257,12 +289,12 @@ public class DataManager {
         try {
             if ( !Files.exists(ResourcePath.PLAYER_LIST.toPath().getParent()) )
                 Files.createDirectories(ResourcePath.PLAYER_LIST.toPath().getParent());
-        } catch (IOException e) {
+        } catch (IOException | DataManagerNotInitializedException e) {
             return false;
         }
         try {
             playerList.store(ResourcePath.PLAYER_LIST.toPath().toFile());
-        } catch (IOException e) {
+        } catch (IOException | DataManagerNotInitializedException e) {
             success = false;
         }
         try ( BufferedWriter bw = Files.newBufferedWriter(ResourcePath.COMMS_LIST.toPath()) ) {
@@ -272,7 +304,7 @@ public class DataManager {
                     .forEach(sb::append);
 
             bw.write(sb.toString().trim());
-        } catch (IOException e) {
+        } catch (IOException | DataManagerNotInitializedException e) {
             success = false;
         }
 
@@ -289,7 +321,7 @@ public class DataManager {
         try {
             metadata.load(ResourcePath.METADATA.toPath().toFile());
             return true;
-        } catch (IOException e) {
+        } catch (IOException | DataManagerNotInitializedException e) {
             return false;
         }
     }
@@ -320,7 +352,7 @@ public class DataManager {
                 putPlayer(new Player(line[ 0 ], line[ 1 ], line[ 2 ]));
 
             return true;
-        } catch (IOException | CsvValidationException e) {
+        } catch (IOException | CsvValidationException | DataManagerNotInitializedException e) {
             return false;
         }
     }
@@ -341,7 +373,7 @@ public class DataManager {
                 commsList.add(line);
 
             return true;
-        } catch (IOException e) {
+        } catch (IOException | DataManagerNotInitializedException e) {
             return false;
         }
     }
@@ -361,7 +393,7 @@ public class DataManager {
             }
 
             return true;
-        } catch (IOException e) {
+        } catch (IOException | DataManagerNotInitializedException e) {
             return false;
         }
     }
@@ -378,7 +410,7 @@ public class DataManager {
             playerList.load(ResourcePath.PLAYER_LIST.toPath().toFile());
             loadCommsCSV(ResourcePath.COMMS_LIST);
             return true;
-        } catch (IOException e) {
+        } catch (IOException | DataManagerNotInitializedException e) {
             return false;
         }
     }

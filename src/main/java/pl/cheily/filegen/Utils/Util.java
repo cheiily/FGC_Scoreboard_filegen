@@ -45,33 +45,36 @@ public class Util {
         return value;
     }
 
-    public static Comparator<String> roundComparator = new Comparator<String>() {
+    /**
+     * Round list ordering pattern.
+     */
+    public static Comparator<String> roundComparator = new Comparator<>() {
         final Pattern rPattern = Pattern.compile("r\\d");
 
         private int getOrderIndex(String rLabel) {
             rLabel = rLabel.toLowerCase();
-            if (rLabel.contains("gran")) return 0;
-            if (rLabel.contains("loser")) {
-                if (rLabel.contains("final")) return 1;
-                if (rLabel.contains("semi")) return 2;
+            if ( rLabel.contains("gran") ) return 0;
+            if ( rLabel.contains("loser") ) {
+                if ( rLabel.contains("final") ) return 1;
+                if ( rLabel.contains("semi") ) return 2;
 
-                if (rLabel.contains("quarter") || rLabel.contains("eight")) return 5;
+                if ( rLabel.contains("quarter") || rLabel.contains("eight") ) return 5;
 
-                if (rLabel.contains("r1")) return 10;
-                if (rLabel.contains("r2")) return 11;
-                if (rLabel.contains("r3")) return 12;
-                if (rLabel.contains("r4")) return 13;
+                if ( rLabel.contains("r1") ) return 10;
+                if ( rLabel.contains("r2") ) return 11;
+                if ( rLabel.contains("r3") ) return 12;
+                if ( rLabel.contains("r4") ) return 13;
             }
-            if (rLabel.contains("winner")) {
-                if (rLabel.contains("final")) return 3;
-                if (rLabel.contains("semi")) return 4;
+            if ( rLabel.contains("winner") ) {
+                if ( rLabel.contains("final") ) return 3;
+                if ( rLabel.contains("semi") ) return 4;
 
-                if (rLabel.contains("r1")) return 6;
-                if (rLabel.contains("r2")) return 7;
-                if (rLabel.contains("r3")) return 8;
-                if (rLabel.contains("r4")) return 9;
+                if ( rLabel.contains("r1") ) return 6;
+                if ( rLabel.contains("r2") ) return 7;
+                if ( rLabel.contains("r3") ) return 8;
+                if ( rLabel.contains("r4") ) return 9;
             }
-            if (rPattern.matcher(rLabel).find()) return 14;
+            if ( rPattern.matcher(rLabel).find() ) return 14;
             return 15;
         }
 

@@ -42,8 +42,11 @@ public enum ResourcePath {
 
     /**
      * @return valid absolute {@link Path}
+     * @throws DataManagerNotInitializedException if {@link DataManager#isInitialized()} returns false
      */
-    public Path toPath() {
+    public Path toPath() throws DataManagerNotInitializedException {
+        if ( !ScoreboardApplication.dataManager.isInitialized() ) throw new DataManagerNotInitializedException();
+
         return Path.of(ScoreboardApplication.dataManager.targetDir + "/" + this.fileName);
     }
 
