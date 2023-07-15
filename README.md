@@ -50,6 +50,7 @@ App-core todo:
 - [ ] Make html output
 - [x] Move output writing to DataManager (V0.2)
 - [ ] UI-Meta bindings
+- [ ] Adjust check to allow different extensions
 
 Config todo:
 - [x] Ignoring case when searching player name by manual input

@@ -116,7 +116,7 @@ public class AppConfig {
         Boolean newHtmlOut = cfg_sec.get(MAKE_HTML_OUTPUT.propName, Boolean.class);
         Boolean newPutFlags = cfg_sec.get(PUT_FLAGS.propName, Boolean.class);
         String newFlagExt = cfg_sec.get(FLAG_EXTENSION.propName, String.class);
-        Path newFlagPth = cfg_sec.get(FLAG_DIRECTORY.propName, Path.class);
+        String strFlagPth = cfg_sec.get(FLAG_DIRECTORY.propName, String.class);
 
         boolean correct = CHALLONGE_API.validateParam(newApi)
                         && AUTOCOMPLETE_ON.validateParam(newAutocomplete)
@@ -124,9 +124,11 @@ public class AppConfig {
                         && MAKE_HTML_OUTPUT.validateParam(newHtmlOut)
                         && PUT_FLAGS.validateParam(newPutFlags)
                         && FLAG_EXTENSION.validateParam(newFlagExt)
-                        && FLAG_DIRECTORY.validateParam(newFlagPth);
+                        && FLAG_DIRECTORY.validateParam(strFlagPth);
 
         if ( !correct ) return false;
+
+        Path newFlagPth = Path.of(strFlagPth);
 
         String oldApi;
         Boolean oldAutocomplete;

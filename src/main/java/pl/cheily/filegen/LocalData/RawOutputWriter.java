@@ -58,12 +58,18 @@ public class RawOutputWriter implements OutputWriter {
             } else {
                 Path sourceFlag = Path.of(dataManager.flagsDir + "/" + formatted);
 
-                if ( !Files.exists(sourceFlag) ) {
+                if ( sourceFlag.toString().equals(AppConfig.FLAG_EXTENSION()) ) {
+                    //empty nationality field - assign null flag
                     sourceFlag = dataManager.nullFlag;
-                    //if the UI field was empty, the filename will be just the extension
+                }
+                else if ( !Files.exists(sourceFlag) ) {
+                    //nationality was a valid string but unable to find such file - message & assign null flag
                     String t = sourceFlag.getFileName().toString();
                     if ( !t.isEmpty() && !t.equals(AppConfig.FLAG_EXTENSION()) )
                         new Alert(Alert.AlertType.WARNING, "Unable to find corresponding file image: " + t, ButtonType.OK).show();
+
+
+                    sourceFlag = dataManager.nullFlag;
                 }
 
                 Files.copy(sourceFlag, filePath, StandardCopyOption.REPLACE_EXISTING);

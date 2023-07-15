@@ -14,7 +14,9 @@ public enum PropKey {
     MAKE_HTML_OUTPUT("MAKE_HTML_OUTPUT", Boolean.class, null),
     PUT_FLAGS("PUT_FLAGS", Boolean.class, null),
     FLAG_EXTENSION("FLAG_EXTENSION", String.class, null),
-    FLAG_DIRECTORY("FLAG_DIRECTORY", Path.class, null);
+    FLAG_DIRECTORY( "FLAG_DIRECTORY", Path.class, obj ->
+            obj != null && (obj.getClass() == String.class || obj.getClass() == Path.of("").getClass())
+    );
 
     /**
      * Stringified property name. May be used for issuing & subscribing to events, saving a configuration file, etc.
@@ -30,10 +32,10 @@ public enum PropKey {
      */
     private final Class paramType;
 
-    PropKey(String propName, Class paramType, Function<Object, Boolean> validateParamFunc) {
+    PropKey(String propName, Class paramType, Function<Object, Boolean> validator) {
         this.propName = propName;
         this.paramType = paramType;
-        this.validator = validateParamFunc;
+        this.validator = validator;
     }
 
     /**
@@ -58,10 +60,12 @@ public enum PropKey {
      * @return true if valid, false otherwise
      */
     public boolean validateParam(Object param) {
-        if ( param == null ) return false;
-        if ( param.getClass() != this.paramType ) return false;
         if ( validator != null )
             return validator.apply(param);
-        else return true;
+        else return defaultValidator(param);
+    }
+
+    public boolean defaultValidator(Object param) {
+        return param != null && param.getClass() == this.paramType;
     }
 }

@@ -22,6 +22,6 @@ public class Defaults {
 
     public static final String FLAG_EXTENSION = ".png";
 
-    public static final Path FLAG_DIRECTORY = Path.of("./flags").toAbsolutePath();
+    public static final Path FLAG_DIRECTORY = Path.of("flags").toAbsolutePath();
 
 }
