@@ -55,12 +55,12 @@
       <Button layoutX="512.0" layoutY="39.0" mnemonicParsing="false" onAction="#on_csv_export" prefHeight="25.0" prefWidth="96.0" text="Export to csv" />
        <TableView fx:id="player_table" layoutX="49.0" layoutY="72.0" prefHeight="316.0" prefWidth="558.0">
           <columns>
-            <TableColumn prefWidth="33.0" text="Seed" />
-            <TableColumn minWidth="0.0" prefWidth="31.0" text="Icon" />
-            <TableColumn minWidth="0.0" prefWidth="92.0" text="Tag" />
-            <TableColumn prefWidth="256.0" text="Name" />
-            <TableColumn minWidth="0.0" prefWidth="88.0" text="Nationality" />
-            <TableColumn minWidth="0.0" prefWidth="57.0" text="Check-in" />
+            <TableColumn fx:id="seed_col" prefWidth="33.0" text="Seed" />
+            <TableColumn fx:id="icon_col" minWidth="0.0" prefWidth="31.0" text="Icon" />
+            <TableColumn fx:id="tag_col" minWidth="0.0" prefWidth="92.0" text="Tag" />
+            <TableColumn fx:id="name_col" prefWidth="256.0" text="Name" />
+            <TableColumn fx:id="nat_col" minWidth="0.0" prefWidth="88.0" text="Nationality" />
+            <TableColumn fx:id="chkin_col" minWidth="0.0" prefWidth="57.0" text="Check-in" />
         </columns>
       </TableView>
    </children>
