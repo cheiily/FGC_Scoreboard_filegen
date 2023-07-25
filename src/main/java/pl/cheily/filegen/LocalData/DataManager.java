@@ -450,11 +450,11 @@ public class DataManager {
      * @param player to store within the {@link DataManager#playerList}
      */
     public void putPlayer(Player player) {
-        playerList.put(player.name(), KEY_TAG.toString(), player.tag());
-        playerList.put(player.name(), KEY_NATION.toString(), player.nationality());
-        playerList.put(player.name(), KEY_SEED.toString(), player.seed());
-        playerList.put(player.name(), KEY_ICON.toString(), player.icon_url());
-        playerList.put(player.name(), KEY_CHK_IN.toString(), player.chk_in());
+        playerList.put(player.getName(), KEY_TAG.toString(), player.getTag());
+        playerList.put(player.getName(), KEY_NATION.toString(), player.getNationality());
+        playerList.put(player.getName(), KEY_SEED.toString(), player.getSeed());
+        playerList.put(player.getName(), KEY_ICON.toString(), player.getIconUrl());
+        playerList.put(player.getName(), KEY_CHK_IN.toString(), player.isCheckedIn());
     }
 
     /**
@@ -473,7 +473,7 @@ public class DataManager {
                 sec_player.getName(),
                 sec_player.get(KEY_NATION.toString()),
                 sec_player.get(KEY_SEED.toString(), int.class),
-                sec_player.get(KEY_ICON.toString(), URL.class),
+                sec_player.get(KEY_ICON.toString(), String.class),
                 sec_player.get(KEY_CHK_IN.toString(), boolean.class)
         ));
     }
@@ -493,7 +493,7 @@ public class DataManager {
                     sec_player.getName(),
                     sec_player.get(KEY_NATION.toString()),
                     sec_player.get(KEY_SEED.toString(), int.class),
-                    sec_player.get(KEY_ICON.toString(), URL.class),
+                    sec_player.get(KEY_ICON.toString(), String.class),
                     sec_player.get(KEY_CHK_IN.toString(), boolean.class)
             ));
         }

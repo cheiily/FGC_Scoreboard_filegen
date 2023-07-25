@@ -1,23 +1,22 @@
 package pl.cheily.filegen.UI;
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
+import javafx.scene.layout.*;
+import javafx.util.StringConverter;
+import javafx.util.converter.IntegerStringConverter;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.ScoreboardApplication;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -34,8 +33,10 @@ public class PlayersUI implements Initializable {
     public TableColumn<Player, Image> icon_col;
     public TableColumn<Player, String> tag_col;
     public TableColumn<Player, String> name_col;
-    public TableColumn<Player, ImageView> nat_col;
-    public TableColumn<Player, CheckBox> chkin_col;
+    public TableColumn<Player, String> nat_col;
+    public TableColumn<Player, Boolean> chkin_col;
+
+    private final IntegerStringConverter _ISConverter = new IntegerStringConverter();
 
 
     @Override
@@ -44,33 +45,74 @@ public class PlayersUI implements Initializable {
         player_table.getColumns().forEach(c -> c.setStyle("-fx-alignment: CENTER"));
         player_table.setItems(playerList);
 
-        seed_col.setCellValueFactory(playerIntegerCellDataFeatures -> new ReadOnlyObjectWrapper<>(playerIntegerCellDataFeatures.getValue().seed()));
-        icon_col.setCellValueFactory(playerImageCellDataFeatures -> {
-            if (playerImageCellDataFeatures.getValue().icon_url() != null)
-                return new ReadOnlyObjectWrapper<>(new Image(String.valueOf(playerImageCellDataFeatures.getValue().icon_url())));
-            else return null;
-        });
-        tag_col.setCellValueFactory(playerStringCellDataFeatures -> new ReadOnlyObjectWrapper<>(playerStringCellDataFeatures.getValue().tag()));
-        name_col.setCellValueFactory(playerStringCellDataFeatures -> new ReadOnlyObjectWrapper<>(playerStringCellDataFeatures.getValue().name()));
-        nat_col.setCellValueFactory(playerImageCellDataFeatures -> {
-            ImageView imgView = new ImageView(dataManager.getFlag(playerImageCellDataFeatures.getValue().nationality()));
-            imgView.preserveRatioProperty().set(true);
-            imgView.setFitHeight(20);
-            return new ReadOnlyObjectWrapper<>(imgView);
-        });
-        chkin_col.setCellValueFactory(playerBooleanCellDataFeatures -> {
-            CheckBox cbox = new CheckBox();
-            cbox.setSelected(playerBooleanCellDataFeatures.getValue().chk_in());
-            cbox.setDisable(true);
-            return new ReadOnlyObjectWrapper<>(cbox);
-        });
+        seed_col.setCellFactory(TextFieldTableCell.forTableColumn(_ISConverter));
+        seed_col.setCellValueFactory(new PropertyValueFactory<>("seed"));
 
+//        icon_col.setCellValueFactory(playerImageCellDataFeatures -> {
+//            if (playerImageCellDataFeatures.getValue().getIconUrl() != null)
+//                return new ReadOnlyObjectWrapper<>(new Image(String.valueOf(playerImageCellDataFeatures.getValue().getIconUrl())));
+//            else return null;
+//        });
+
+        tag_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        tag_col.setCellValueFactory(new PropertyValueFactory<>("tag"));
+
+        name_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+
+        nat_col.setCellFactory(playerStringTableColumn -> {
+//            ImageView imgView = new ImageView(dataManager.getFlag(playerImageCellDataFeatures.getValue().getNationality()));
+//            imgView.preserveRatioProperty().set(true);
+//            imgView.setFitHeight(20);
+
+            TextFieldTableCell<Player, String> cell = new TextFieldTableCell<>() {
+                @Override
+                public void updateItem(String val, boolean emptyRow) {
+                    super.updateItem(val, emptyRow);
+                    if (emptyRow) return;
+
+                    setBackground(new Background(
+                            new BackgroundImage(
+                                    dataManager.getFlag(val),
+                                    BackgroundRepeat.NO_REPEAT,
+                                    BackgroundRepeat.NO_REPEAT,
+                                    BackgroundPosition.CENTER,
+                                    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false))
+                    ));
+                }
+            };
+
+            //this is necessary
+            cell.setConverter(new StringConverter<>() {
+                @Override
+                public String toString(String s) {
+                    return s;
+                }
+
+                @Override
+                public String fromString(String s) {
+                    return s;
+                }
+            });
+
+            cell.setStyle("-fx-alignment: center; -fx-font-weight: bold");
+            return cell;
+        });
+        nat_col.setCellValueFactory(new PropertyValueFactory<>("nationality"));
+
+
+        chkin_col.setCellFactory(CheckBoxTableCell.forTableColumn(chkin_col));
+        chkin_col.setCellValueFactory(new PropertyValueFactory<>("checkedIn"));
+
+        player_table.setEditable(true);
     }
 
     public void on_challonge_import(ActionEvent actionEvent) {
     }
 
     public void on_save(ActionEvent actionEvent) {
+        System.out.println(playerList);
     }
 
     public void on_pull(ActionEvent actionEvent) {

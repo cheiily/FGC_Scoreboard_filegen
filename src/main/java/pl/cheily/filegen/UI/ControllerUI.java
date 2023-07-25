@@ -142,12 +142,12 @@ public class ControllerUI implements Initializable {
         String score_2 = txt_p2_score.getText();
 
         for (AutocompleteWrapper wrapper : acWrappers) wrapper.clearSuggestions();
-        combo_p1_name.setValue(p1.name());
-        txt_p1_tag.setText(p1.tag());
-        combo_p1_nation.setValue(p1.nationality());
-        combo_p2_name.setValue(p2.name());
-        txt_p2_tag.setText(p2.tag());
-        combo_p2_nation.setValue(p2.nationality());
+        combo_p1_name.setValue(p1.getName());
+        txt_p1_tag.setText(p1.getTag());
+        combo_p1_nation.setValue(p1.getNationality());
+        combo_p2_name.setValue(p2.getName());
+        txt_p2_tag.setText(p2.getTag());
+        combo_p2_nation.setValue(p2.getNationality());
         txt_p1_score.setText(score_1);
         txt_p2_score.setText(score_2);
     }
@@ -316,8 +316,8 @@ public class ControllerUI implements Initializable {
                 .orElse(Player.EMPTY);
 
         if ( selected != Player.EMPTY ) {
-            txt_p1_tag.setText(selected.tag());
-            combo_p1_nation.setValue(selected.nationality());
+            txt_p1_tag.setText(selected.getTag());
+            combo_p1_nation.setValue(selected.getNationality());
         }
     }
 
@@ -334,8 +334,8 @@ public class ControllerUI implements Initializable {
                 .orElse(Player.EMPTY);
 
         if ( selected != Player.EMPTY ) {
-            txt_p2_tag.setText(selected.tag());
-            combo_p2_nation.setValue(selected.nationality());
+            txt_p2_tag.setText(selected.getTag());
+            combo_p2_nation.setValue(selected.getNationality());
         }
     }
 
