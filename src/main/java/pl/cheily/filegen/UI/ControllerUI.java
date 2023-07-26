@@ -305,7 +305,7 @@ public class ControllerUI implements Initializable {
 
     /**
      * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
-     * If no such player is found within the defined set (i.e. equal to {@link Player#EMPTY}),
+     * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
      */
@@ -313,9 +313,9 @@ public class ControllerUI implements Initializable {
         txt_p1_score.setText("0");
 
         Player selected = dataManager.getPlayer(combo_p1_name.getValue())
-                .orElse(Player.EMPTY);
+                .orElse(Player.empty());
 
-        if ( selected != Player.EMPTY ) {
+        if ( selected != Player.empty() ) {
             txt_p1_tag.setText(selected.getTag());
             combo_p1_nation.setValue(selected.getNationality());
         }
@@ -323,7 +323,7 @@ public class ControllerUI implements Initializable {
 
     /**
      * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
-     * If no such player is found within the defined set (i.e. equal to {@link Player#EMPTY}),
+     * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
      */
@@ -331,9 +331,9 @@ public class ControllerUI implements Initializable {
         txt_p2_score.setText("0");
 
         Player selected = dataManager.getPlayer(combo_p2_name.getValue())
-                .orElse(Player.EMPTY);
+                .orElse(Player.empty());
 
-        if ( selected != Player.EMPTY ) {
+        if ( selected != Player.empty() ) {
             txt_p2_tag.setText(selected.getTag());
             combo_p2_nation.setValue(selected.getNationality());
         }

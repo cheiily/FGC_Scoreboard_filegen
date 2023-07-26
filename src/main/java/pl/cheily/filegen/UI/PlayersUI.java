@@ -19,6 +19,8 @@ import pl.cheily.filegen.ScoreboardApplication;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
@@ -59,7 +61,11 @@ public class PlayersUI implements Initializable {
 
         name_col.setCellFactory(TextFieldTableCell.forTableColumn());
         name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-
+        name_col.setOnEditCommit(evt -> {
+            if (evt.getOldValue().equals(evt.getNewValue())) return;
+            Set<Player> s = playerList.stream().filter(player -> player.getName().equals(evt.getOldValue())).collect(Collectors.toSet());
+            playerList.stream().filter(player -> player.getName().equals(evt.getOldValue())).forEach(playerList::remove);
+        });
 
         nat_col.setCellFactory(playerStringTableColumn -> {
 //            ImageView imgView = new ImageView(dataManager.getFlag(playerImageCellDataFeatures.getValue().getNationality()));
@@ -113,6 +119,10 @@ public class PlayersUI implements Initializable {
 
     public void on_save(ActionEvent actionEvent) {
         System.out.println(playerList);
+        System.out.println(Player.empty());
+
+        //remove all players?
+        dataManager.putAllPlayers(playerList);
     }
 
     public void on_pull(ActionEvent actionEvent) {
@@ -122,14 +132,22 @@ public class PlayersUI implements Initializable {
     }
 
     public void on_add(ActionEvent actionEvent) {
+        playerList.add(Player.empty());
+        player_table.refresh();
     }
 
     public void on_remove(ActionEvent actionEvent) {
+        Player selected = player_table.getSelectionModel().getSelectedItem();
+        if (selected == null)
+            return;
+        playerList.remove(selected);
+        player_table.refresh();
     }
 
     public void on_reload(ActionEvent actionEvent) {
         playerList.clear();
         playerList.addAll(dataManager.getAllPlayers());
+        player_table.refresh();
     }
 
     public void on_csv_load(ActionEvent actionEvent) {

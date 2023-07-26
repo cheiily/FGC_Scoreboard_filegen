@@ -457,6 +457,12 @@ public class DataManager {
         playerList.put(player.getName(), KEY_CHK_IN.toString(), player.isCheckedIn());
     }
 
+    public void putAllPlayers(List<Player> players) {
+        for (Player player : players) {
+            putPlayer(player);
+        }
+    }
+
     /**
      * Returns an optional value, depending on if such a {@link Player} is contained within the {@link DataManager#playerList}.
      *

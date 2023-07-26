@@ -1,16 +1,13 @@
 package pl.cheily.filegen.LocalData;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 /**
  * Represents a player with all of their related local data
  */
 public class Player {
+    private static final Player _EMPTY = empty();
+    private static final Player _EMPTY_NULL = empty_null();
     private final StringProperty tag;
     private final StringProperty name;
     private final StringProperty nationality;
@@ -29,6 +26,14 @@ public class Player {
 
     public Player(String tag, String name, String nationality) {
         this(tag, name, nationality, 0, null, false);
+    }
+
+    public static Player empty() {
+        return new Player("", "", "");
+    }
+
+    public static Player empty_null() {
+        return new Player(null, null, null);
     }
 
     public String getTag() {
@@ -115,6 +120,7 @@ public class Player {
                 '}';
     }
 
-    public static final Player EMPTY = new Player("", "", "");
-    public static final Player EMPTY_NULL = new Player(null, null, null);
+    public boolean isEmpty() {
+        return this == _EMPTY || this == _EMPTY_NULL;
+    }
 }
