@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static pl.cheily.filegen.LocalData.MetaKey.*;
 import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
@@ -108,6 +109,10 @@ public class DataManager {
 
         loadRoundsCSV();
         if ( roundSet.isEmpty() ) roundSet.addAll(DEFAULT_ROUND_SET);
+    }
+
+    public void reinitialize() {
+        initialize(this.targetDir);
     }
 
     /**
@@ -283,7 +288,7 @@ public class DataManager {
      * @see Ini#store(File)
      * @see BufferedWriter
      */
-    private boolean saveLists() {
+    public boolean saveLists() {
         boolean success = true;
 
         try {
@@ -461,6 +466,14 @@ public class DataManager {
         for (Player player : players) {
             putPlayer(player);
         }
+    }
+
+    public void removePlayer(Player player) {
+        playerList.remove(player.getName());
+    }
+
+    public void removeAllPlayers() {
+        playerList.clear();
     }
 
     /**

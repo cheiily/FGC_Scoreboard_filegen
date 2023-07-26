@@ -61,11 +61,6 @@ public class PlayersUI implements Initializable {
 
         name_col.setCellFactory(TextFieldTableCell.forTableColumn());
         name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-        name_col.setOnEditCommit(evt -> {
-            if (evt.getOldValue().equals(evt.getNewValue())) return;
-            Set<Player> s = playerList.stream().filter(player -> player.getName().equals(evt.getOldValue())).collect(Collectors.toSet());
-            playerList.stream().filter(player -> player.getName().equals(evt.getOldValue())).forEach(playerList::remove);
-        });
 
         nat_col.setCellFactory(playerStringTableColumn -> {
 //            ImageView imgView = new ImageView(dataManager.getFlag(playerImageCellDataFeatures.getValue().getNationality()));
@@ -118,11 +113,10 @@ public class PlayersUI implements Initializable {
     }
 
     public void on_save(ActionEvent actionEvent) {
-        System.out.println(playerList);
-        System.out.println(Player.empty());
-
-        //remove all players?
+        dataManager.removeAllPlayers();
         dataManager.putAllPlayers(playerList);
+        if (!dataManager.saveLists())
+            new Alert(Alert.AlertType.ERROR, "Failed to save player/commentary list. Changes have been applied to the cached lists.", ButtonType.OK).show();
     }
 
     public void on_pull(ActionEvent actionEvent) {
@@ -145,6 +139,7 @@ public class PlayersUI implements Initializable {
     }
 
     public void on_reload(ActionEvent actionEvent) {
+        dataManager.reinitialize();
         playerList.clear();
         playerList.addAll(dataManager.getAllPlayers());
         player_table.refresh();
