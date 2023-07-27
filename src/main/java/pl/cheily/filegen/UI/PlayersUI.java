@@ -14,9 +14,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
+import pl.cheily.filegen.LocalData.DataManager;
+import pl.cheily.filegen.LocalData.DataManager.EventProp;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.ScoreboardApplication;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -39,6 +43,10 @@ public class PlayersUI implements Initializable {
     public TableColumn<Player, Boolean> chkin_col;
 
     private final IntegerStringConverter _ISConverter = new IntegerStringConverter();
+    private final PropertyChangeListener _listener = evt -> refresh_table();
+    {
+        dataManager.subscribe(EventProp.INIT, _listener);
+    }
 
 
     @Override
@@ -140,6 +148,10 @@ public class PlayersUI implements Initializable {
 
     public void on_reload(ActionEvent actionEvent) {
         dataManager.reinitialize();
+        refresh_table();
+    }
+
+    private void refresh_table() {
         playerList.clear();
         playerList.addAll(dataManager.getAllPlayers());
         player_table.refresh();

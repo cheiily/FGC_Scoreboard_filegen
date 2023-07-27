@@ -16,6 +16,8 @@ import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.AutocompleteWrapper;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -65,6 +67,20 @@ public class ControllerUI implements Initializable {
             ac_comm1,
             ac_comm2;
     private List<AutocompleteWrapper> acWrappers;
+    private final PropertyChangeListener listener = new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            List<String> pNames = dataManager.getAllPlayerNames();
+            ac_p1_name.loadOriginList(pNames);
+            ac_p2_name.loadOriginList(pNames);
+            ac_p1_name.clearSuggestions();
+            ac_p2_name.clearSuggestions();
+        }
+    };
+    {
+        dataManager.subscribe(DataManager.EventProp.PLAYER_LIST, listener);
+    }
+
 
     /**
      * Loads a hardcoded preset of round opts, attempts to load flag/nationality opts, sets the default flag as null,

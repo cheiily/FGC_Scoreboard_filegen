@@ -11,16 +11,17 @@ import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.UI.ControllerUI;
 import pl.cheily.filegen.Utils.Util;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Consumer;
 
+import static pl.cheily.filegen.LocalData.DataManager.EventProp.*;
 import static pl.cheily.filegen.LocalData.MetaKey.*;
 import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
 
@@ -47,6 +48,34 @@ public class DataManager {
             "Top 8", "Winners' top 8", "Losers' top 8", "Losers' top 6", "Losers' top 4",
             "Winners' Eights", "Winners' Quarters", "Pools"
     );
+    public enum EventProp {
+        INIT("init"),
+        SAVE("save"),
+        SAVE_CONFIG("save-config"),
+        SAVE_LISTS("save-lists"),
+        PLAYER_LIST("lists-players"),
+        METADATA("metadata"),
+        OUTPUT_WRITERS("writers-output");
+
+        private final String prop;
+
+        @Override
+        public String toString() {
+            return prop;
+        }
+        
+        public static EventProp of(String property) {
+            for (EventProp evtProp : EventProp.values()) {
+                if (evtProp.prop.equals(property))
+                    return evtProp;
+            }
+            return null;
+        }
+
+        EventProp(String prop) {
+            this.prop = prop;
+        }
+    }
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
 
@@ -55,6 +84,41 @@ public class DataManager {
     private final Set<String> commsList = new HashSet<>();
     private final Set<String> roundSet = new HashSet<>();
     private boolean initialized;
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+   /**
+     * @param toProp   property to subscribe to
+     * @param listener listener to add as a subscriber
+     */
+    public void subscribe(EventProp toProp, PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(toProp.toString(), listener);
+    }
+
+    /**
+     * Subscribes to all properties.
+     *
+     * @param listener listener to add as a subscriber
+     */
+    public void subscribeAll(PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * @param fromProp property to unsubscribe from
+     * @param listener listener to remove from subscribers
+     */
+    public void unsubscribe(EventProp fromProp, PropertyChangeListener listener) {
+        pcs.removePropertyChangeListener(fromProp.toString(), listener);
+    }
+
+    /**
+     * Unsubscribes from all properties.
+     *
+     * @param listener listener to remove from subscribers
+     */
+    public void unsubscribeAll(PropertyChangeListener listener) {
+        pcs.removePropertyChangeListener(listener);
+    }
 
 
     /**
@@ -109,6 +173,7 @@ public class DataManager {
 
         loadRoundsCSV();
         if ( roundSet.isEmpty() ) roundSet.addAll(DEFAULT_ROUND_SET);
+        pcs.firePropertyChange(INIT.toString(), null, null);
     }
 
     public void reinitialize() {
@@ -152,6 +217,7 @@ public class DataManager {
         sb.append(failedResourceSaves);
 
         new Alert(Alert.AlertType.ERROR, sb.toString(), ButtonType.OK).show();
+        pcs.firePropertyChange(SAVE.toString(), null, null);
     }
 
     /**
@@ -259,6 +325,8 @@ public class DataManager {
                 Files.createDirectories(ResourcePath.CONFIG.toPath().getParent());
 
             AppConfig.getAsIni().store(ResourcePath.CONFIG.toPath().toFile());
+
+            pcs.firePropertyChange(SAVE_CONFIG.toString(), null, null);
             return true;
         } catch (IOException | DataManagerNotInitializedException e) {
             return false;
@@ -313,6 +381,7 @@ public class DataManager {
             success = false;
         }
 
+        pcs.firePropertyChange(SAVE_LISTS.toString(), null, null);
         return success;
     }
 
@@ -455,25 +524,37 @@ public class DataManager {
      * @param player to store within the {@link DataManager#playerList}
      */
     public void putPlayer(Player player) {
+        putPlayer(player, true);
+    }
+
+    private void putPlayer(Player player, boolean fireEvent) {
         playerList.put(player.getName(), KEY_TAG.toString(), player.getTag());
         playerList.put(player.getName(), KEY_NATION.toString(), player.getNationality());
         playerList.put(player.getName(), KEY_SEED.toString(), player.getSeed());
         playerList.put(player.getName(), KEY_ICON.toString(), player.getIconUrl());
         playerList.put(player.getName(), KEY_CHK_IN.toString(), player.isCheckedIn());
+
+        if (fireEvent) pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
     }
 
     public void putAllPlayers(List<Player> players) {
         for (Player player : players) {
-            putPlayer(player);
+            putPlayer(player, false);
         }
+
+        pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
     }
 
     public void removePlayer(Player player) {
         playerList.remove(player.getName());
+
+        pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
     }
 
     public void removeAllPlayers() {
         playerList.clear();
+
+        pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
     }
 
     /**
@@ -627,6 +708,8 @@ public class DataManager {
      */
     public void putMeta(MetaKey section, MetaKey key, String value) {
         metadata.put(section.toString(), key.toString(), value);
+
+        pcs.firePropertyChange(METADATA.toString(), null, null);
     }
 
     /**
@@ -673,6 +756,8 @@ public class DataManager {
      */
     public void addWriter(OutputWriter writer) {
         writers.add(writer);
+
+        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
@@ -685,6 +770,8 @@ public class DataManager {
      */
     public void enableWriter(String byName) {
         writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(OutputWriter::enable);
+
+        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
@@ -696,6 +783,8 @@ public class DataManager {
      */
     public <T extends OutputWriter> void enableWriters(Class<T> ofClass) {
         writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(OutputWriter::enable);
+
+        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
@@ -708,6 +797,8 @@ public class DataManager {
      */
     public void disableWriter(String byName) {
         writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(OutputWriter::disable);
+
+        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
@@ -719,6 +810,8 @@ public class DataManager {
      */
     public <T extends OutputWriter> void disableWriters(Class<T> ofClass) {
         writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(OutputWriter::disable);
+
+        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
     }
 
 }
