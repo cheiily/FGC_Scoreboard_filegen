@@ -1,6 +1,5 @@
 package pl.cheily.filegen.UI;
 
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,21 +9,17 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
-import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.DataManager.EventProp;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.ScoreboardApplication;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URL;
+import java.util.Collections;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
@@ -44,8 +39,25 @@ public class PlayersUI implements Initializable {
 
     private final IntegerStringConverter _ISConverter = new IntegerStringConverter();
     private final PropertyChangeListener _listener = evt -> refresh_table();
+    public Button buttonDown;
+    public Button buttonUp;
+
     {
         dataManager.subscribe(EventProp.INIT, _listener);
+    }
+
+    private void hideMoveButtons() {
+        buttonUp.setVisible(false);
+        buttonDown.setVisible(false);
+        buttonUp.setDisable(true);
+        buttonDown.setDisable(true);
+    }
+
+    private void showMoveButtons() {
+        buttonUp.setVisible(true);
+        buttonDown.setVisible(true);
+        buttonUp.setDisable(false);
+        buttonDown.setDisable(false);
     }
 
 
@@ -57,12 +69,8 @@ public class PlayersUI implements Initializable {
 
         seed_col.setCellFactory(TextFieldTableCell.forTableColumn(_ISConverter));
         seed_col.setCellValueFactory(new PropertyValueFactory<>("seed"));
-
-//        icon_col.setCellValueFactory(playerImageCellDataFeatures -> {
-//            if (playerImageCellDataFeatures.getValue().getIconUrl() != null)
-//                return new ReadOnlyObjectWrapper<>(new Image(String.valueOf(playerImageCellDataFeatures.getValue().getIconUrl())));
-//            else return null;
-//        });
+        seed_col.setSortType(TableColumn.SortType.ASCENDING);
+        player_table.getSortOrder().add(seed_col);
 
         tag_col.setCellFactory(TextFieldTableCell.forTableColumn());
         tag_col.setCellValueFactory(new PropertyValueFactory<>("tag"));
@@ -71,15 +79,11 @@ public class PlayersUI implements Initializable {
         name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
 
         nat_col.setCellFactory(playerStringTableColumn -> {
-//            ImageView imgView = new ImageView(dataManager.getFlag(playerImageCellDataFeatures.getValue().getNationality()));
-//            imgView.preserveRatioProperty().set(true);
-//            imgView.setFitHeight(20);
-
             TextFieldTableCell<Player, String> cell = new TextFieldTableCell<>() {
                 @Override
                 public void updateItem(String val, boolean emptyRow) {
                     super.updateItem(val, emptyRow);
-                    if (emptyRow) return;
+                    if ( emptyRow ) return;
 
                     setBackground(new Background(
                             new BackgroundImage(
@@ -114,6 +118,39 @@ public class PlayersUI implements Initializable {
         chkin_col.setCellFactory(CheckBoxTableCell.forTableColumn(chkin_col));
         chkin_col.setCellValueFactory(new PropertyValueFactory<>("checkedIn"));
 
+        player_table.setRowFactory(playerTableView -> {
+            TableRow<Player> row = new TableRow<>();
+
+            row.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
+                if ( t1 ) {
+                    buttonUp.setLayoutX(
+                            player_table.getLayoutX() - buttonUp.getWidth()
+                    );
+                    buttonUp.setLayoutY(
+                            row.localToScene(row.getBoundsInLocal()).getMinY() - 0.5 * row.getHeight()
+                    );
+
+                    buttonDown.setLayoutX(
+                            player_table.getLayoutX() - buttonDown.getWidth()
+                    );
+                    buttonDown.setLayoutY(
+                            row.localToScene(row.getBoundsInLocal()).getMinY() + 0.5 * row.getHeight()
+                    );
+
+                    showMoveButtons();
+                }
+
+            });
+
+            return row;
+        });
+
+        player_table.setOnSort(tableViewSortEvent -> {
+            if ( player_table.getSortOrder().isEmpty() || player_table.getSortOrder().get(0).equals(seed_col) )
+                showMoveButtons();
+            else hideMoveButtons();
+        });
+
         player_table.setEditable(true);
     }
 
@@ -123,7 +160,7 @@ public class PlayersUI implements Initializable {
     public void on_save(ActionEvent actionEvent) {
         dataManager.removeAllPlayers();
         dataManager.putAllPlayers(playerList);
-        if (!dataManager.saveLists())
+        if ( !dataManager.saveLists() )
             new Alert(Alert.AlertType.ERROR, "Failed to save player/commentary list. Changes have been applied to the cached lists.", ButtonType.OK).show();
     }
 
@@ -140,7 +177,7 @@ public class PlayersUI implements Initializable {
 
     public void on_remove(ActionEvent actionEvent) {
         Player selected = player_table.getSelectionModel().getSelectedItem();
-        if (selected == null)
+        if ( selected == null )
             return;
         playerList.remove(selected);
         player_table.refresh();
@@ -155,6 +192,8 @@ public class PlayersUI implements Initializable {
         playerList.clear();
         playerList.addAll(dataManager.getAllPlayers());
         player_table.refresh();
+        player_table.sort();
+        hideMoveButtons();
     }
 
     public void on_csv_load(ActionEvent actionEvent) {
@@ -184,5 +223,39 @@ public class PlayersUI implements Initializable {
      */
     public void on_bg_click() {
         bg_pane.requestFocus();
+    }
+
+    public void onButtonDown(ActionEvent actionEvent) {
+        int selectedI = player_table.getSelectionModel().getSelectedIndex();
+        if ( selectedI == player_table.getItems().size() - 1 ) return;
+
+        Player selected = player_table.getItems().get(selectedI);
+        Player next = player_table.getItems().get(selectedI + 1);
+        int oldSeed = selected.getSeed();
+
+        if ( selected.getSeed() == next.getSeed() ) {
+            Collections.swap(playerList, selectedI, selectedI + 1);
+        } else {
+            selected.setSeed(next.getSeed());
+            next.setSeed(oldSeed);
+        }
+        player_table.sort();
+    }
+
+    public void onButtonUp(ActionEvent actionEvent) {
+        int selectedI = player_table.getSelectionModel().getSelectedIndex();
+        if ( selectedI == 0 ) return;
+
+        Player selected = player_table.getItems().get(selectedI);
+        Player previous = player_table.getItems().get(selectedI - 1);
+        int oldSeed = selected.getSeed();
+
+        if ( selected.getSeed() == previous.getSeed() ) {
+            Collections.swap(playerList, selectedI, selectedI - 1);
+        } else {
+            selected.setSeed(previous.getSeed());
+            previous.setSeed(oldSeed);
+        }
+        player_table.sort();
     }
 }
