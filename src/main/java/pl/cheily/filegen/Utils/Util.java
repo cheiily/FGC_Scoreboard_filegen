@@ -3,8 +3,10 @@ package pl.cheily.filegen.Utils;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.input.ScrollEvent;
+import pl.cheily.filegen.LocalData.Player;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class Util {
@@ -84,5 +86,30 @@ public class Util {
             return diff == 15 ? o1.compareTo(o2) : diff;
         }
     };
+
+    /**
+     * Adjusts seeds for other players in a list to avoid seed collision with the newly inserted player.
+     * @param players list of players
+     * @param newPlayer to be inserted
+     */
+    public static void adjustSeeds(List<Player> players, Player newPlayer) {
+        while (true) {
+            Player collidingPlayer = null;
+
+            for (Player player : players) {
+                if (player != newPlayer && player.getSeed() == newPlayer.getSeed()) {
+                    collidingPlayer = player;
+                    break;
+                }
+            }
+
+            if (collidingPlayer == null) {
+                break; // No colliding player, end algorithm
+            } else {
+                collidingPlayer.setSeed(collidingPlayer.getSeed() + 1);
+                newPlayer = collidingPlayer;
+            }
+        }
+    }
 
 }

@@ -15,10 +15,12 @@ import javafx.util.converter.IntegerStringConverter;
 import pl.cheily.filegen.LocalData.DataManager.EventProp;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.ScoreboardApplication;
+import pl.cheily.filegen.Utils.Util;
 
 import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.ResourceBundle;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
@@ -38,7 +40,7 @@ public class PlayersUI implements Initializable {
     public TableColumn<Player, Boolean> chkin_col;
 
     private final IntegerStringConverter _ISConverter = new IntegerStringConverter();
-    private final PropertyChangeListener _listener = evt -> refresh_table();
+    private final PropertyChangeListener _listener = evt -> reload_table();
     public Button buttonDown;
     public Button buttonUp;
 
@@ -71,6 +73,13 @@ public class PlayersUI implements Initializable {
         seed_col.setCellValueFactory(new PropertyValueFactory<>("seed"));
         seed_col.setSortType(TableColumn.SortType.ASCENDING);
         player_table.getSortOrder().add(seed_col);
+        seed_col.setOnEditCommit(
+                seedChangeEvent -> {
+                    seedChangeEvent.getRowValue().setSeed(seedChangeEvent.getNewValue());
+                    Util.adjustSeeds(playerList, seedChangeEvent.getRowValue());
+                    player_table.sort();
+                }
+        );
 
         tag_col.setCellFactory(TextFieldTableCell.forTableColumn());
         tag_col.setCellValueFactory(new PropertyValueFactory<>("tag"));
@@ -171,8 +180,16 @@ public class PlayersUI implements Initializable {
     }
 
     public void on_add(ActionEvent actionEvent) {
-        playerList.add(Player.empty());
+        int newSeed = playerList.stream()
+                .max(Comparator.comparingInt(Player::getSeed))
+                .orElseGet(Player::empty)
+                .getSeed() + 1;
+        Player newPlayer = Player.empty();
+        newPlayer.setSeed(newSeed);
+        playerList.add(newPlayer);
+
         player_table.refresh();
+        hideMoveButtons();
     }
 
     public void on_remove(ActionEvent actionEvent) {
@@ -180,15 +197,17 @@ public class PlayersUI implements Initializable {
         if ( selected == null )
             return;
         playerList.remove(selected);
+
         player_table.refresh();
+        hideMoveButtons();
     }
 
     public void on_reload(ActionEvent actionEvent) {
         dataManager.reinitialize();
-        refresh_table();
+        reload_table();
     }
 
-    private void refresh_table() {
+    private void reload_table() {
         playerList.clear();
         playerList.addAll(dataManager.getAllPlayers());
         player_table.refresh();
