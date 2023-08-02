@@ -15,7 +15,7 @@ import javafx.util.converter.IntegerStringConverter;
 import pl.cheily.filegen.LocalData.DataManager.EventProp;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.ScoreboardApplication;
-import pl.cheily.filegen.Utils.Util;
+import pl.cheily.filegen.Utils.PlayerTableUtil;
 
 import java.beans.PropertyChangeListener;
 import java.net.URL;
@@ -76,7 +76,7 @@ public class PlayersUI implements Initializable {
         seed_col.setOnEditCommit(
                 seedChangeEvent -> {
                     seedChangeEvent.getRowValue().setSeed(seedChangeEvent.getNewValue());
-                    Util.adjustSeeds(playerList, seedChangeEvent.getRowValue());
+                    PlayerTableUtil.adjustSeeds(playerList, seedChangeEvent.getRowValue());
                     player_table.sort();
                 }
         );
@@ -245,36 +245,14 @@ public class PlayersUI implements Initializable {
     }
 
     public void onButtonDown(ActionEvent actionEvent) {
-        int selectedI = player_table.getSelectionModel().getSelectedIndex();
-        if ( selectedI == player_table.getItems().size() - 1 ) return;
-
-        Player selected = player_table.getItems().get(selectedI);
-        Player next = player_table.getItems().get(selectedI + 1);
-        int oldSeed = selected.getSeed();
-
-        if ( selected.getSeed() == next.getSeed() ) {
-            Collections.swap(playerList, selectedI, selectedI + 1);
-        } else {
-            selected.setSeed(next.getSeed());
-            next.setSeed(oldSeed);
-        }
-        player_table.sort();
+        if (seed_col.getSortType() == TableColumn.SortType.ASCENDING)
+            PlayerTableUtil.incrementSelectedSeedAndSwap(player_table);
+        else PlayerTableUtil.decrementSelectedSeedAndSwap(player_table);
     }
 
     public void onButtonUp(ActionEvent actionEvent) {
-        int selectedI = player_table.getSelectionModel().getSelectedIndex();
-        if ( selectedI == 0 ) return;
-
-        Player selected = player_table.getItems().get(selectedI);
-        Player previous = player_table.getItems().get(selectedI - 1);
-        int oldSeed = selected.getSeed();
-
-        if ( selected.getSeed() == previous.getSeed() ) {
-            Collections.swap(playerList, selectedI, selectedI - 1);
-        } else {
-            selected.setSeed(previous.getSeed());
-            previous.setSeed(oldSeed);
-        }
-        player_table.sort();
+        if (seed_col.getSortType() == TableColumn.SortType.ASCENDING)
+            PlayerTableUtil.decrementSelectedSeedAndSwap(player_table);
+        else PlayerTableUtil.incrementSelectedSeedAndSwap(player_table);
     }
 }
