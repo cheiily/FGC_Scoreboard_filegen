@@ -63,8 +63,8 @@ UI todo:
   - [x] Set radio buttons on load if it's a grand final round 
   - [x] Quick player switch button (V0.2)
 - [ ] Players tab
-  - [ ] drag to seed manip
-  - [ ] check-in button
+  - [x] drag to seed manip (arrow buttons)
+  - [x] check-in button
   - [ ] top 8 results highlight
   - [x] scene
   - [ ] controller

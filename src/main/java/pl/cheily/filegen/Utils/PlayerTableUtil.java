@@ -1,11 +1,25 @@
 package pl.cheily.filegen.Utils;
 
+import javafx.event.ActionEvent;
 import javafx.scene.control.TableView;
 import pl.cheily.filegen.LocalData.Player;
+import pl.cheily.filegen.UI.PlayersUI;
 
+import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 
 public class PlayerTableUtil {
+
+    /**
+     * Increments the seed of the selected element by 1.
+     * If there is overlap of the new seed with another element - decrements that element's seed by 1 resulting in a seed/position swap.
+     * <p>
+     * Table must be sorted by seed beforehand for this to work correctly.
+     * @param player_table table containing the selected element.
+     * @see PlayersUI#onButtonDown(ActionEvent)
+     * @see PlayersUI#onButtonUp(ActionEvent)
+     */
     public static void incrementSelectedSeedAndSwap(TableView<Player> player_table) {
         int selectedI = player_table.getSelectionModel().getSelectedIndex();
         Player selected = player_table.getItems().get(selectedI);
@@ -24,6 +38,15 @@ public class PlayerTableUtil {
         player_table.sort();
     }
 
+    /**
+     * Decrements the seed of the selected element by 1.
+     * If there is overlap of the new seed with another element - increments that element's seed by 1 resulting in a seed/position swap.
+     * <p>
+     * Table must be sorted by seed beforehand for this to work correctly.
+     * @param player_table table containing the selected element.
+     * @see PlayersUI#onButtonDown(ActionEvent)
+     * @see PlayersUI#onButtonUp(ActionEvent)
+     */
     public static void decrementSelectedSeedAndSwap(TableView<Player> player_table) {
         int selectedI = player_table.getSelectionModel().getSelectedIndex();
         Player selected = player_table.getItems().get(selectedI);
@@ -46,6 +69,7 @@ public class PlayerTableUtil {
      * Adjusts seeds for other players in a list to avoid seed collision with the newly inserted player.
      * @param players list of players
      * @param newPlayer to be inserted
+     * @see PlayersUI#initialize(URL, ResourceBundle)
      */
     public static void adjustSeeds(List<Player> players, Player newPlayer) {
         while (true) {

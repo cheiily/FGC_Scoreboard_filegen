@@ -19,7 +19,6 @@ import pl.cheily.filegen.Utils.PlayerTableUtil;
 
 import java.beans.PropertyChangeListener;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.ResourceBundle;
 
@@ -39,6 +38,7 @@ public class PlayersUI implements Initializable {
     public TableColumn<Player, String> nat_col;
     public TableColumn<Player, Boolean> chkin_col;
 
+
     private final IntegerStringConverter _ISConverter = new IntegerStringConverter();
     private final PropertyChangeListener _listener = evt -> reload_table();
     public Button buttonDown;
@@ -48,6 +48,9 @@ public class PlayersUI implements Initializable {
         dataManager.subscribe(EventProp.INIT, _listener);
     }
 
+    /**
+     * Hides & disables {@link #buttonDown}, {@link #buttonUp}
+     */
     private void hideMoveButtons() {
         buttonUp.setVisible(false);
         buttonDown.setVisible(false);
@@ -55,6 +58,9 @@ public class PlayersUI implements Initializable {
         buttonDown.setDisable(true);
     }
 
+    /**
+     * Shows & enables {@link #buttonDown}, {@link #buttonUp}
+     */
     private void showMoveButtons() {
         buttonUp.setVisible(true);
         buttonDown.setVisible(true);
@@ -166,6 +172,11 @@ public class PlayersUI implements Initializable {
     public void on_challonge_import(ActionEvent actionEvent) {
     }
 
+    /**
+     * Submits changes by completely overwriting {@link ScoreboardApplication#dataManager}'s player list with the new list.
+     * Prompts the manager to save the new list to a resource file and displays an alert if the operation fails.
+     * @param actionEvent
+     */
     public void on_save(ActionEvent actionEvent) {
         dataManager.removeAllPlayers();
         dataManager.putAllPlayers(playerList);
@@ -179,6 +190,10 @@ public class PlayersUI implements Initializable {
     public void on_push(ActionEvent actionEvent) {
     }
 
+    /**
+     * Appends a new empty player to the table. Sets their initial seed as the highest present seed + 1.
+     * @param actionEvent
+     */
     public void on_add(ActionEvent actionEvent) {
         int newSeed = playerList.stream()
                 .max(Comparator.comparingInt(Player::getSeed))
@@ -192,6 +207,10 @@ public class PlayersUI implements Initializable {
         hideMoveButtons();
     }
 
+    /**
+     * Removes the selected player.
+     * @param actionEvent
+     */
     public void on_remove(ActionEvent actionEvent) {
         Player selected = player_table.getSelectionModel().getSelectedItem();
         if ( selected == null )
@@ -202,11 +221,18 @@ public class PlayersUI implements Initializable {
         hideMoveButtons();
     }
 
+    /**
+     * Re-initializes the {@link ScoreboardApplication#dataManager} and refreshes the table.
+     * @param actionEvent
+     */
     public void on_reload(ActionEvent actionEvent) {
         dataManager.reinitialize();
         reload_table();
     }
 
+    /**
+     * Clears and reloads the table data, refreshes and sorts the table.
+     */
     private void reload_table() {
         playerList.clear();
         playerList.addAll(dataManager.getAllPlayers());
@@ -244,12 +270,24 @@ public class PlayersUI implements Initializable {
         bg_pane.requestFocus();
     }
 
+    /**
+     * A single press of the up/down button will adjust the player's seed by one step up/down depending on the current sorting method.
+     * In case there is overlap, adjusts the other player's seed to cause a functional swap.
+     *
+     * @param actionEvent
+     */
     public void onButtonDown(ActionEvent actionEvent) {
         if (seed_col.getSortType() == TableColumn.SortType.ASCENDING)
             PlayerTableUtil.incrementSelectedSeedAndSwap(player_table);
         else PlayerTableUtil.decrementSelectedSeedAndSwap(player_table);
     }
 
+    /**
+     * A single press of the up/down button will adjust the player's seed by one step up/down depending on the current sorting method.
+     * In case there is overlap, adjusts the other player's seed to cause a functional swap.
+     *
+     * @param actionEvent
+     */
     public void onButtonUp(ActionEvent actionEvent) {
         if (seed_col.getSortType() == TableColumn.SortType.ASCENDING)
             PlayerTableUtil.decrementSelectedSeedAndSwap(player_table);
