@@ -12,6 +12,7 @@ public enum PropKey {
     AUTOCOMPLETE_ON("AUTOCOMPLETE_ON", Boolean.class, null),
     MAKE_RAW_OUTPUT("MAKE_RAW_OUTPUT", Boolean.class, null),
     MAKE_HTML_OUTPUT("MAKE_HTML_OUTPUT", Boolean.class, null),
+    GF_RADIO_ON_LABEL_MATCH("GF_RADIO_ON_LABEL_MATCH", Boolean.class, null),
     PUT_FLAGS("PUT_FLAGS", Boolean.class, null),
     FLAG_EXTENSION("FLAG_EXTENSION", String.class, null),
     FLAG_DIRECTORY( "FLAG_DIRECTORY", Path.class, obj ->

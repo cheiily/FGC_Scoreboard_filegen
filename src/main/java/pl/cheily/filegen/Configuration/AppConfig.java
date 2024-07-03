@@ -23,6 +23,7 @@ public class AppConfig {
     private static boolean _autocompleteOn = Defaults.AUTOCOMPLETE_ON;
     private static boolean _makeRawOutput = Defaults.MAKE_RAW_OUTPUT;
     private static boolean _makeHtmlOutput = Defaults.MAKE_HTML_OUTPUT;
+    private static boolean _gfRadio = Defaults.GF_RADIO_ON_LABEL_MATCH;
     private static boolean _putFlags = Defaults.PUT_FLAGS;
     private static String _flagExtension = Defaults.FLAG_EXTENSION;
     private static Path _flagDirectory = Defaults.FLAG_DIRECTORY;
@@ -38,6 +39,7 @@ public class AppConfig {
         AUTOCOMPLETE_ON(Defaults.AUTOCOMPLETE_ON);
         MAKE_RAW_OUTPUT(Defaults.MAKE_RAW_OUTPUT);
         MAKE_HTML_OUTPUT(Defaults.MAKE_HTML_OUTPUT);
+        GF_RADIO_ON_LABEL_MATCH(Defaults.GF_RADIO_ON_LABEL_MATCH);
         PUT_FLAGS(Defaults.PUT_FLAGS);
         FLAG_EXTENSION(Defaults.FLAG_EXTENSION);
         FLAG_DIRECTORY(Defaults.FLAG_DIRECTORY);
@@ -88,6 +90,7 @@ public class AppConfig {
         ini.put(SECTION_NAME, AUTOCOMPLETE_ON.propName, AUTOCOMPLETE_ON());
         ini.put(SECTION_NAME, MAKE_RAW_OUTPUT.propName, MAKE_RAW_OUTPUT());
         ini.put(SECTION_NAME, MAKE_HTML_OUTPUT.propName, MAKE_HTML_OUTPUT());
+        ini.put(SECTION_NAME, GF_RADIO_ON_LABEL_MATCH.propName, GF_RADIO_ON_LABEL_MATCH());
         ini.put(SECTION_NAME, PUT_FLAGS.propName, PUT_FLAGS());
         ini.put(SECTION_NAME, FLAG_EXTENSION.propName, FLAG_EXTENSION());
         ini.put(SECTION_NAME, FLAG_DIRECTORY.propName, FLAG_DIRECTORY());
@@ -114,6 +117,7 @@ public class AppConfig {
         Boolean newAutocomplete = cfg_sec.get(AUTOCOMPLETE_ON.propName, Boolean.class);
         Boolean newRawOut = cfg_sec.get(MAKE_RAW_OUTPUT.propName, Boolean.class);
         Boolean newHtmlOut = cfg_sec.get(MAKE_HTML_OUTPUT.propName, Boolean.class);
+        Boolean newGFRadio = cfg_sec.get(GF_RADIO_ON_LABEL_MATCH.propName, Boolean.class);
         Boolean newPutFlags = cfg_sec.get(PUT_FLAGS.propName, Boolean.class);
         String newFlagExt = cfg_sec.get(FLAG_EXTENSION.propName, String.class);
         String strFlagPth = cfg_sec.get(FLAG_DIRECTORY.propName, String.class);
@@ -122,6 +126,7 @@ public class AppConfig {
                         && AUTOCOMPLETE_ON.validateParam(newAutocomplete)
                         && MAKE_RAW_OUTPUT.validateParam(newRawOut)
                         && MAKE_HTML_OUTPUT.validateParam(newHtmlOut)
+                        && GF_RADIO_ON_LABEL_MATCH.validateParam(newGFRadio)
                         && PUT_FLAGS.validateParam(newPutFlags)
                         && FLAG_EXTENSION.validateParam(newFlagExt)
                         && FLAG_DIRECTORY.validateParam(strFlagPth);
@@ -134,6 +139,7 @@ public class AppConfig {
         Boolean oldAutocomplete;
         Boolean oldRawOut;
         Boolean oldHtmlOut;
+        Boolean oldGFRadio;
         Boolean oldPutFlags;
         String oldFlagExt;
         Path oldFlagPth;
@@ -143,6 +149,7 @@ public class AppConfig {
             oldAutocomplete = _autocompleteOn;
             oldRawOut = _makeRawOutput;
             oldHtmlOut = _makeHtmlOutput;
+            oldGFRadio = _gfRadio;
             oldPutFlags = _putFlags;
             oldFlagExt = _flagExtension;
             oldFlagPth = _flagDirectory;
@@ -151,6 +158,7 @@ public class AppConfig {
             _autocompleteOn = newAutocomplete;
             _makeRawOutput = newRawOut;
             _makeHtmlOutput = newHtmlOut;
+            _gfRadio = newGFRadio;
             _putFlags = newPutFlags;
             _flagExtension = newFlagExt;
             _flagDirectory = newFlagPth;
@@ -160,6 +168,7 @@ public class AppConfig {
         _pcs.firePropertyChange(AUTOCOMPLETE_ON.propName, oldAutocomplete, newAutocomplete);
         _pcs.firePropertyChange(MAKE_RAW_OUTPUT.propName, oldRawOut, newRawOut);
         _pcs.firePropertyChange(MAKE_HTML_OUTPUT.propName, oldHtmlOut, newHtmlOut);
+        _pcs.firePropertyChange(GF_RADIO_ON_LABEL_MATCH.propName, oldGFRadio, newGFRadio);
         _pcs.firePropertyChange(PUT_FLAGS.propName, oldPutFlags, newPutFlags);
         _pcs.firePropertyChange(FLAG_EXTENSION.propName, oldFlagExt, newFlagExt);
         _pcs.firePropertyChange(FLAG_DIRECTORY.propName, oldFlagPth, newFlagPth);
@@ -298,6 +307,36 @@ public class AppConfig {
             _makeHtmlOutput = newValue;
         }
         _pcs.firePropertyChange(MAKE_HTML_OUTPUT.propName, old, _makeHtmlOutput);
+
+        return true;
+    }
+
+    /**
+     * Getter method for {@link PropKey#GF_RADIO_ON_LABEL_MATCH}.
+     *
+     * @return whether the GF radio will be automatically turned on depending on the current round label.
+     */
+    public synchronized static boolean GF_RADIO_ON_LABEL_MATCH() { return _gfRadio; }
+
+    /**
+     * Setter method for {@link PropKey#GF_RADIO_ON_LABEL_MATCH}.
+     * No changes applied if the value is invalid.
+     *
+     * @param newValue
+     * @return true if value was valid & was applied, false otherwise
+     * @see #GF_RADIO_ON_LABEL_MATCH()
+     */
+    public static boolean GF_RADIO_ON_LABEL_MATCH(Boolean newValue) {
+        if ( !GF_RADIO_ON_LABEL_MATCH.validateParam(newValue) ) return false;
+
+        boolean old;
+        synchronized (GF_RADIO_ON_LABEL_MATCH) {
+            if ( newValue == _gfRadio ) return true;
+
+            old = _gfRadio;
+            _gfRadio = newValue;
+        }
+        _pcs.firePropertyChange(GF_RADIO_ON_LABEL_MATCH.propName, old, _gfRadio);
 
         return true;
     }

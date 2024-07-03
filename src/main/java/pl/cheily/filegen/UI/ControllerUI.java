@@ -10,6 +10,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
@@ -426,10 +427,12 @@ public class ControllerUI implements Initializable {
      * Otherwise - they all become disabled.
      */
     public void on_round_select() {
-        String temp = combo_round.getValue() == null ? "" : combo_round.getValue();
-        if ( (temp.toLowerCase().contains("gran") && !GF_toggle.isSelected())
-                || (!temp.toLowerCase().contains("gran") && GF_toggle.isSelected())
-        ) GF_toggle.fire();
+        if (AppConfig.GF_RADIO_ON_LABEL_MATCH()) {
+            String temp = combo_round.getValue() == null ? "" : combo_round.getValue();
+            if ((temp.toLowerCase().contains("gran") && !GF_toggle.isSelected())
+                    || (!temp.toLowerCase().contains("gran") && GF_toggle.isSelected())
+            ) GF_toggle.fire();
+        }
     }
 
 
