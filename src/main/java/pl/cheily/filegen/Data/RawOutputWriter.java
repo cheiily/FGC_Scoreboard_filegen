@@ -1,4 +1,4 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.Data;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

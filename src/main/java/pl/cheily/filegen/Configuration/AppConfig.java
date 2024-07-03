@@ -2,6 +2,9 @@ package pl.cheily.filegen.Configuration;
 
 import org.ini4j.Ini;
 import org.ini4j.Profile;
+import pl.cheily.filegen.Data.DataManager;
+import pl.cheily.filegen.Data.OutputWriter;
+import pl.cheily.filegen.Data.RawOutputWriter;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -238,8 +241,8 @@ public class AppConfig {
      * Getter method for {@link PropKey#MAKE_RAW_OUTPUT}.
      *
      * @return whether the app should make "raw" file output.
-     * @see pl.cheily.filegen.LocalData.RawOutputWriter
-     * @see pl.cheily.filegen.LocalData.DataManager
+     * @see RawOutputWriter
+     * @see DataManager
      */
     public synchronized static boolean MAKE_RAW_OUTPUT() {
         return _makeRawOutput;
@@ -272,8 +275,8 @@ public class AppConfig {
      * Getter method for {@link PropKey#MAKE_HTML_OUTPUT}.
      *
      * @return whether the app should make browser source output.
-     * @see pl.cheily.filegen.LocalData.OutputWriter
-     * @see pl.cheily.filegen.LocalData.DataManager
+     * @see OutputWriter
+     * @see DataManager
      */
     public synchronized static boolean MAKE_HTML_OUTPUT() {
         return _makeHtmlOutput;

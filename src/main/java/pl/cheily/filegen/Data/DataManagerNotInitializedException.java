@@ -1,4 +1,4 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.Data;
 
 /**
  * Indicates that an operation has been issued, where a valid path is required, while the {@link DataManager} has not yet been initialized with such.

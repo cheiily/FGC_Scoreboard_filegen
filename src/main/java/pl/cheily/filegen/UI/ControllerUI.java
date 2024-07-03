@@ -10,9 +10,9 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import pl.cheily.filegen.LocalData.DataManager;
-import pl.cheily.filegen.LocalData.Player;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.Data.DataManager;
+import pl.cheily.filegen.Data.Structures.MatchData.Player;
+import pl.cheily.filegen.Data.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.AutocompleteWrapper;
 
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
-import static pl.cheily.filegen.LocalData.MetaKey.*;
+import static pl.cheily.filegen.Data.MetaKey.*;
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 import static pl.cheily.filegen.Utils.Util.scrollOpt;
 
@@ -305,7 +305,7 @@ public class ControllerUI implements Initializable {
 
     /**
      * Tries to load a related flag file into the coupled {@link ImageView}, loads the null flag if no related file is found.
-     * See {@link pl.cheily.filegen.LocalData.DataManager#getFlag(String)}
+     * See {@link DataManager#getFlag(String)}
      */
     public void on_p1_nation_selection() {
         img_p1_flag.setImage(dataManager.getFlag(combo_p1_nation.getValue()));
@@ -313,14 +313,14 @@ public class ControllerUI implements Initializable {
 
     /**
      * Tries to load a related flag file into the coupled {@link ImageView}, loads the null flag if no related file is found.
-     * See {@link pl.cheily.filegen.LocalData.DataManager#getFlag(String)}
+     * See {@link DataManager#getFlag(String)}
      */
     public void on_p2_nation_selection() {
         img_p2_flag.setImage(dataManager.getFlag(combo_p2_nation.getValue()));
     }
 
     /**
-     * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
+     * Searches for the selected player via {@link DataManager#getPlayer(String)}.
      * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
@@ -338,7 +338,7 @@ public class ControllerUI implements Initializable {
     }
 
     /**
-     * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
+     * Searches for the selected player via {@link DataManager#getPlayer(String)}.
      * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.

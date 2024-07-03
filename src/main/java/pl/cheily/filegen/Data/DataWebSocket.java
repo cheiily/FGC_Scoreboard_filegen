@@ -1,4 +1,4 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.Data;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -9,7 +9,7 @@ import org.java_websocket.server.WebSocketServer;
 import org.json.JSONObject;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
-import static pl.cheily.filegen.LocalData.MetaKey.*;
+import static pl.cheily.filegen.Data.MetaKey.*;
 
 /**
  * A WebSocket from which data, fetched from the DataManager, can be recieved upon saving.

@@ -1,15 +1,13 @@
 package pl.cheily.filegen;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import pl.cheily.filegen.LocalData.DataManager;
-import pl.cheily.filegen.LocalData.DataWebSocket;
-import pl.cheily.filegen.LocalData.DefaultOutputFormatter;
-import pl.cheily.filegen.LocalData.RawOutputWriter;
+import pl.cheily.filegen.Data.DataManager;
+import pl.cheily.filegen.Data.DataWebSocket;
+import pl.cheily.filegen.Data.DefaultOutputFormatter;
+import pl.cheily.filegen.Data.RawOutputWriter;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

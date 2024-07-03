@@ -1,4 +1,4 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.Data;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import pl.cheily.filegen.Configuration.AppConfig;
+import pl.cheily.filegen.Data.Structures.MatchData.Player;
 import pl.cheily.filegen.UI.ControllerUI;
 import pl.cheily.filegen.Utils.Util;
 
@@ -21,8 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static pl.cheily.filegen.LocalData.DataManager.EventProp.*;
-import static pl.cheily.filegen.LocalData.MetaKey.*;
+import static pl.cheily.filegen.Data.DataManager.EventProp.*;
+import static pl.cheily.filegen.Data.MetaKey.*;
 import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
 
 public class DataManager {

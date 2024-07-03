@@ -1,0 +1,55 @@
+changes
+--------
+
+METADATA -> MATCH_DATA
+MATCH_DATA
+	SECTION round
+	SECTION player 1
+	SECTION player 2
+	SECTION commentary
+
+CONSEQUENCES:
+gets rid of getMeta / setMeta → look into all uses and refactor
+→ UI bindings (properties)
+
+saveOutput() → get rid of saveResource() -> use ResourcePath internally within RawOutputWriter
+	OutputWriter::write(Section dataSection)
+	OutputWriter::writeAll()
+	optional? OutputWriter::write(MetaKey sec, MetaKey key)
+
+RawOutputWriter -> (Default)LocalOutputWriter
+	some sort of a mapping based on section key, to an array of ResourcePaths
+	then a map of writing functions based on relevant ResourcePath taking String... data
+
+ARCHITECTURE:
+Section is a property-bound javabean
+firstly:
+offers access on the basis of Metadata.round.label
+
+secondly:
+offers getSection(MetaKey section)
+offers get(MetaKey section, MetaKey key)
+
+thirdly:
+offers getAll() 
+
+batch getters (getsection, getall) return maps or arrays
+	getSection -> Map<MetaKey, String> or String[]/List<String>
+	getAll -> Map< MetaKey, forwarding to getSection >
+
+properties can be different types, that way normal access gets the underlying type for validation on bounds
+	get() returns String for easier printing/storing
+	offers getAs(Class<T>) -> T
+
+all fields are property-backed
+sections can be different classes - maybe all static, maybe all structs
+
+
+--- OPTION: Easier to implement for now, more convenient; can be refactored to hold and offer a repository on its own ---
+MatchData itself WILL be static access, section classes themselves do not have to, they can just be static fields
+
+--- OPTION: Future-feature to hold multiple match data for tournaments, for it to be held in some sort of Repository ---
+MatchData itself should NOT be a singleton, for future purposes :)
+Should also NOT be static or private
+It MUST however only be handled by DataManager, at least currently, it should have a single field of this type
+

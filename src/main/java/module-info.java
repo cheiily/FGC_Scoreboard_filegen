@@ -14,6 +14,8 @@ module pl.cheily.filegen {
     opens pl.cheily.filegen.Utils to javafx.fxml;
     exports pl.cheily.filegen.UI;
     opens pl.cheily.filegen.UI to javafx.fxml;
-    exports pl.cheily.filegen.LocalData;
-    opens pl.cheily.filegen.LocalData to javafx.fxml;
+    exports pl.cheily.filegen.Data;
+    opens pl.cheily.filegen.Data to javafx.fxml;
+    exports pl.cheily.filegen.Data.Structures.MatchData;
+    opens pl.cheily.filegen.Data.Structures.MatchData to javafx.fxml;
 }

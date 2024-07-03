@@ -1,4 +1,4 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.Data.Structures.MatchData;
 
 import javafx.beans.property.*;
 

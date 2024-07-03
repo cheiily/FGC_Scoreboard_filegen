@@ -1,4 +1,4 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.Data;
 
 /**
  * Set of predefined section and key names, to facilitate operating on .ini files.

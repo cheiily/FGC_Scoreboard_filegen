@@ -8,8 +8,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.PropKey;
-import pl.cheily.filegen.LocalData.DataManager;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.Data.DataManager;
+import pl.cheily.filegen.Data.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.beans.PropertyChangeEvent;

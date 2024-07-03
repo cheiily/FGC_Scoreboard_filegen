@@ -1,4 +1,4 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.Data;
 
 import pl.cheily.filegen.ScoreboardApplication;
 

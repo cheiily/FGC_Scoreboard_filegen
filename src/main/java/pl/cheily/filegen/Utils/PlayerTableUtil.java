@@ -2,7 +2,7 @@ package pl.cheily.filegen.Utils;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.TableView;
-import pl.cheily.filegen.LocalData.Player;
+import pl.cheily.filegen.Data.Structures.MatchData.Player;
 import pl.cheily.filegen.UI.PlayersUI;
 
 import java.net.URL;

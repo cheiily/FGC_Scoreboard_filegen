@@ -12,8 +12,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
-import pl.cheily.filegen.LocalData.DataManager.EventProp;
-import pl.cheily.filegen.LocalData.Player;
+import pl.cheily.filegen.Data.DataManager.EventProp;
+import pl.cheily.filegen.Data.Structures.MatchData.Player;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.PlayerTableUtil;
 
