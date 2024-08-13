@@ -267,7 +267,7 @@ public class DataManager {
                 isGF ? Boolean.toString(winnerSide) : null
         ) ) failedSaves.add(ResourcePath.P1_NAME);
 
-        winnerSide = !winnerSide;
+        winnerSide = isReset ? false : !winnerSide;
 
         if ( !saveResource(
                 ResourcePath.P2_NAME,
