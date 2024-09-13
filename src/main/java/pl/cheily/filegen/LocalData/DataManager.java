@@ -43,22 +43,8 @@ public class DataManager {
     public Path targetDir;
     public final Path flagsDir = Path.of("flags").toAbsolutePath();
     //TODO hook this up to AppConfig#Flagsdir via listener
+    // todo move nullflag to resources, make flag module entirely optional
     public final Path nullFlag = Path.of(flagsDir + "/null.png");
-    public final static Set<String> DEFAULT_ROUND_SET = Set.of(
-            //w rounds
-            "Winners' R1", "Winners' R2", "Winners' R3", "Winners' R4",
-            //l rounds
-            "Losers' R1", "Losers' R2", "Losers' R3", "Losers' R4",
-            //w top 8
-            "Winners' Semis", "Winners' Finals",
-            //l top 8
-            "Losers' Eights", "Losers' Quarters", "Losers' Semis", "Losers' Finals",
-            //gf
-            "Grand Finals",
-            //Extra
-            "Top 8", "Winners' top 8", "Losers' top 8", "Losers' top 6", "Losers' top 4",
-            "Winners' Eights", "Winners' Quarters", "Pools"
-    );
     public enum EventProp {
         INIT("init"),
         SAVE("save"),
@@ -96,10 +82,6 @@ public class DataManager {
     private PlayersDAO commentaryDAO;
     private RoundLabelDAO roundLabelDAO;
 
-    private final Ini metadata = new Ini();
-    private final Ini playerList = new Ini();
-    private final Set<String> commsList = new HashSet<>();
-    private final Set<String> roundSet = new HashSet<>();
     private boolean initialized;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 

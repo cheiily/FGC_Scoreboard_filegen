@@ -11,6 +11,7 @@ import pl.cheily.filegen.LocalData.ResourcePath;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
 
 public abstract class CachedIniDAOBase {
     protected final Logger logger;
@@ -44,7 +45,12 @@ public abstract class CachedIniDAOBase {
 
     protected void store() {
         try {
-            //todo folders!
+            if ( !Files.exists(path.toPath()) ) {
+                if (path.toPath().getParent() != null && !Files.exists(path.toPath().getParent()))
+                    Files.createDirectories(path.toPath().getParent());
+                Files.createFile(path.toPath());
+            }
+
             cache.store(this.path.toPath().toFile());
         } catch (DataManagerNotInitializedException e) {
             logger.warn("Attempted write to {} while Data Manager isn't initialized.", this.path, e);
