@@ -148,12 +148,14 @@ public class ControllerUI implements Initializable {
         Player p1 = new Player(
                 txt_p1_tag.getText(),
                 combo_p1_name.getValue(),
-                combo_p1_nation.getValue()
+                combo_p1_nation.getValue(),
+                "" // todo
         );
         Player p2 = new Player(
                 txt_p2_tag.getText(),
                 combo_p2_name.getValue(),
-                combo_p2_nation.getValue()
+                combo_p2_nation.getValue(),
+                "" // todo
         );
         String score_1 = txt_p1_score.getText();
         String score_2 = txt_p2_score.getText();

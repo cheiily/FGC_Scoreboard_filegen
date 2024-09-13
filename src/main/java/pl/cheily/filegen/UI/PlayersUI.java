@@ -81,7 +81,7 @@ public class PlayersUI implements Initializable {
         player_table.getSortOrder().add(seed_col);
         seed_col.setOnEditCommit(
                 seedChangeEvent -> {
-                    seedChangeEvent.getRowValue().setSeed(seedChangeEvent.getNewValue());
+                    seedChangeEvent.getRowValue().setRemoteSeed(seedChangeEvent.getNewValue());
                     PlayerTableUtil.adjustSeeds(playerList, seedChangeEvent.getRowValue());
                     player_table.sort();
                 }
@@ -196,11 +196,11 @@ public class PlayersUI implements Initializable {
      */
     public void on_add(ActionEvent actionEvent) {
         int newSeed = playerList.stream()
-                .max(Comparator.comparingInt(Player::getSeed))
+                .max(Comparator.comparingInt(Player::getRemoteSeed))
                 .orElseGet(Player::empty)
-                .getSeed() + 1;
+                .getRemoteSeed() + 1;
         Player newPlayer = Player.empty();
-        newPlayer.setSeed(newSeed);
+        newPlayer.setRemoteSeed(newSeed);
         playerList.add(newPlayer);
 
         player_table.refresh();
@@ -222,6 +222,7 @@ public class PlayersUI implements Initializable {
     }
 
     /**
+     * todo investigate this
      * Re-initializes the {@link ScoreboardApplication#dataManager} and refreshes the table.
      * @param actionEvent
      */

@@ -8,7 +8,18 @@ import javafx.scene.image.Image;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import pl.cheily.filegen.Configuration.AppConfig;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayerPropKey;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Output.OutputWriter;
 import pl.cheily.filegen.UI.ControllerUI;
+import pl.cheily.filegen.UI.PlayersUI;
 import pl.cheily.filegen.Utils.Util;
 
 import java.beans.PropertyChangeListener;
@@ -78,6 +89,12 @@ public class DataManager {
     }
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
+
+    private ConfigDAO configDAO;
+    private MatchDAO matchDAO;
+    private PlayersDAO playersDAO;
+    private PlayersDAO commentaryDAO;
+    private RoundLabelDAO roundLabelDAO;
 
     private final Ini metadata = new Ini();
     private final Ini playerList = new Ini();
@@ -159,8 +176,15 @@ public class DataManager {
         initialized = true;
         this.targetDir = targetDir;
 
+        // todo change resourcepaths to ini
+        configDAO = new ConfigDAOIni(ResourcePath.CONFIG);
+        matchDAO = new MatchDAOIni(ResourcePath.METADATA);
+        playersDAO = new PlayersDAOIni(ResourcePath.PLAYER_LIST);
+        commentaryDAO = new PlayersDAOIni(ResourcePath.COMMS_LIST);
+        roundLabelDAO = new RoundLabelDAOIni(ResourcePath.ROUND_LIST);
+
         metadata.clear();
-        playerList.clear();
+        playerList.clear(); // todo retain manually edited player list
         commsList.clear();
         roundSet.clear();
 
@@ -356,7 +380,7 @@ public class DataManager {
      * @see Ini#store(File)
      * @see BufferedWriter
      */
-    public boolean saveLists() {
+    public boolean saveLists() { // todo change
         boolean success = true;
 
         try {
@@ -423,7 +447,7 @@ public class DataManager {
         try ( CSVReader csvReader = new CSVReader(Files.newBufferedReader(ResourcePath.CUSTOM_PLAYER_LIST.toPath())) ) {
             String[] line;
             while ( (line = csvReader.readNext()) != null )
-                putPlayer(new Player(line[ 0 ], line[ 1 ], line[ 2 ]));
+                putPlayer(new Player(line[ 0 ], line[ 1 ], line[ 2 ], "")); // todo try determine column indices by header
 
             return true;
         } catch (IOException | CsvValidationException | DataManagerNotInitializedException e) {
@@ -528,11 +552,21 @@ public class DataManager {
     }
 
     private void putPlayer(Player player, boolean fireEvent) {
-        playerList.put(player.getName(), KEY_TAG.toString(), player.getTag());
-        playerList.put(player.getName(), KEY_NATION.toString(), player.getNationality());
-        playerList.put(player.getName(), KEY_SEED.toString(), player.getSeed());
-        playerList.put(player.getName(), KEY_ICON.toString(), player.getIconUrl());
-        playerList.put(player.getName(), KEY_CHK_IN.toString(), player.isCheckedIn());
+        playerList.put(player.getUuidStr(), PlayerPropKey.TAG.toString(), player.getTag());
+        playerList.put(player.getUuidStr(), PlayerPropKey.NAME.toString(), player.getName());
+        playerList.put(player.getUuidStr(), PlayerPropKey.NATIONALITY.toString(), player.getNationality());
+        playerList.put(player.getUuidStr(), PlayerPropKey.PRONOUNS.toString(), player.getPronouns());
+        playerList.put(player.getUuidStr(), PlayerPropKey.REMOTE_ID.toString(), player.getRemoteId());
+        playerList.put(player.getUuidStr(), PlayerPropKey.REMOTE_SEED.toString(), player.getRemoteSeed());
+        playerList.put(player.getUuidStr(), PlayerPropKey.REMOTE_NAME.toString(), player.getRemoteName());
+        playerList.put(player.getUuidStr(), PlayerPropKey.REMOTE_ICON_URL.toString(), player.getRemoteIconUrl());
+
+//
+//        playerList.put(player.getName(), KEY_TAG.toString(), player.getTag());
+//        playerList.put(player.getName(), KEY_NATION.toString(), player.getNationality());
+//        playerList.put(player.getName(), KEY_SEED.toString(), player.getRemoteSeed());
+//        playerList.put(player.getName(), KEY_ICON.toString(), player.getRemoteIconUrl());
+//        playerList.put(player.getName(), KEY_CHK_IN.toString(), player.isCheckedIn());
 
         if (fireEvent) pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
     }
@@ -564,18 +598,30 @@ public class DataManager {
      * @return valid {@link Player} if present, {@link Optional#empty()} if not.
      * @see Optional
      */
-    public Optional<Player> getPlayer(String playerName) {
+    public Optional<Player> getPlayer(String playerName) { // todo change all player-related searches and gets to be by uuid
         Profile.Section sec_player = playerList.get(playerName);
         if ( sec_player == null ) return Optional.empty();
 
-        return Optional.of(new Player(
-                sec_player.get(KEY_TAG.toString()),
+        return Optional.of(Player.deserialize(
+                sec_player.get(PlayerPropKey.ID.toString()),
+                sec_player.get(PlayerPropKey.TAG.toString()),
                 sec_player.getName(),
-                sec_player.get(KEY_NATION.toString()),
-                sec_player.get(KEY_SEED.toString(), int.class),
-                sec_player.get(KEY_ICON.toString(), String.class),
-                sec_player.get(KEY_CHK_IN.toString(), boolean.class)
+                sec_player.get(PlayerPropKey.NATIONALITY.toString()),
+                sec_player.get(PlayerPropKey.PRONOUNS.toString()),
+                sec_player.get(PlayerPropKey.REMOTE_ID.toString(), long.class),
+                sec_player.get(PlayerPropKey.REMOTE_SEED.toString(), int.class),
+                sec_player.get(PlayerPropKey.REMOTE_NAME.toString()),
+                sec_player.get(PlayerPropKey.REMOTE_ICON_URL.toString())
         ));
+
+//        return Optional.of(new Player(
+//                sec_player.get(KEY_TAG.toString()),
+//                sec_player.getName(),
+//                sec_player.get(KEY_NATION.toString()),
+//                sec_player.get(KEY_SEED.toString(), int.class),
+//                sec_player.get(KEY_ICON.toString(), String.class),
+//                sec_player.get(KEY_CHK_IN.toString(), boolean.class)
+//        ));
     }
 
     /**
@@ -588,13 +634,16 @@ public class DataManager {
         for (String playerName : playerList.keySet()) {
             Profile.Section sec_player = playerList.get(playerName);
 
-            ret.add(new Player(
-                    sec_player.get(KEY_TAG.toString()),
+            ret.add(Player.deserialize(
+                    sec_player.get(PlayerPropKey.ID.toString()),
+                    sec_player.get(PlayerPropKey.TAG.toString()),
                     sec_player.getName(),
-                    sec_player.get(KEY_NATION.toString()),
-                    sec_player.get(KEY_SEED.toString(), int.class),
-                    sec_player.get(KEY_ICON.toString(), String.class),
-                    sec_player.get(KEY_CHK_IN.toString(), boolean.class)
+                    sec_player.get(PlayerPropKey.NATIONALITY.toString()),
+                    sec_player.get(PlayerPropKey.PRONOUNS.toString()),
+                    sec_player.get(PlayerPropKey.REMOTE_ID.toString(), long.class),
+                    sec_player.get(PlayerPropKey.REMOTE_SEED.toString(), int.class),
+                    sec_player.get(PlayerPropKey.REMOTE_NAME.toString()),
+                    sec_player.get(PlayerPropKey.REMOTE_ICON_URL.toString())
             ));
         }
         return ret;

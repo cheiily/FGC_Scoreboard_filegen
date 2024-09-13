@@ -2,38 +2,65 @@ package pl.cheily.filegen.LocalData;
 
 import javafx.beans.property.*;
 
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Represents a player with all of their related local data
  */
 public class Player {
     private static final Player _EMPTY = empty();
-    private static final Player _EMPTY_NULL = empty_null();
+
+    private final UUID uuid;
+    private final ReadOnlyStringProperty uuidStr;
     private final StringProperty tag;
     private final StringProperty name;
     private final StringProperty nationality;
-    private final IntegerProperty seed;
-    private final StringProperty iconUrl;
-    private final BooleanProperty checkedIn;
+    private final StringProperty pronouns;
+    private final LongProperty remoteId;
+    private final IntegerProperty remoteSeed;
+    private final StringProperty remoteName;
+    private final StringProperty remoteIconUrl;
 
-    public Player(String tag, String name, String nationality, int seed, String iconUrl, boolean checkedIn) {
+    public Player(String tag, String name, String nationality, String pronouns, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
+        this(UUID.randomUUID(), tag, name, nationality, pronouns, remoteId, remoteSeed, remoteName, iconUrl);
+    }
+
+    private Player(UUID uuid, String tag, String name, String nationality, String pronouns, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
+        this.uuid = uuid;
+        this.uuidStr = new SimpleStringProperty(uuid.toString());
         this.tag = new SimpleStringProperty(tag);
         this.name = new SimpleStringProperty(name);
         this.nationality = new SimpleStringProperty(nationality);
-        this.seed = new SimpleIntegerProperty(seed);
-        this.iconUrl = new SimpleStringProperty(iconUrl);
-        this.checkedIn = new SimpleBooleanProperty(checkedIn);
+        this.pronouns = new SimpleStringProperty(pronouns);
+        this.remoteId = new SimpleLongProperty(remoteId);
+        this.remoteSeed = new SimpleIntegerProperty(remoteSeed);
+        this.remoteName = new SimpleStringProperty(remoteName);
+        this.remoteIconUrl = new SimpleStringProperty(iconUrl);
     }
 
-    public Player(String tag, String name, String nationality) {
-        this(tag, name, nationality, 0, null, false);
+    public static Player deserialize(String uuid, String tag, String name, String nationality, String pronouns, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
+        return new Player(UUID.fromString(uuid), tag, name, nationality, pronouns, remoteId, remoteSeed, remoteName, iconUrl);
+    }
+
+    public Player(String tag, String name, String nationality, String pronouns) {
+        this(tag, name, nationality, pronouns, 0, 0, null, "");
     }
 
     public static Player empty() {
-        return new Player("", "", "");
+        return new Player(new UUID(0, 0), "", "", "", "", 0, 0, "", "");
     }
 
-    public static Player empty_null() {
-        return new Player(null, null, null);
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public String getUuidStr() {
+        return uuidStr.get();
+    }
+
+    public ReadOnlyStringProperty uuidStrProperty() {
+        return uuidStr;
     }
 
     public String getTag() {
@@ -72,55 +99,94 @@ public class Player {
         return nationality;
     }
 
-    public int getSeed() {
-        return seed.get();
+    public String getPronouns() {
+        return pronouns.get();
     }
 
-    public void setSeed(int seed) {
-        this.seed.set(seed);
+    public void setPronouns(String pronouns) {
+        this.pronouns.set(pronouns);
     }
 
-    public IntegerProperty seedProperty() {
-        return seed;
+    public StringProperty pronounsProperty() {
+        return pronouns;
     }
 
-    public String getIconUrl() {
-        return iconUrl.get();
+    public long getRemoteId() {
+        return remoteId.get();
     }
 
-    public void setIconUrl(String iconUrl) {
-        this.iconUrl.set(iconUrl);
+    public void setRemoteId(long remoteId) {
+        this.remoteId.set(remoteId);
     }
 
-    public StringProperty iconUrlProperty() {
-        return iconUrl;
+    public LongProperty remoteIdProperty() {
+        return remoteId;
     }
 
-    public boolean isCheckedIn() {
-        return checkedIn.get();
+    public int getRemoteSeed() {
+        return remoteSeed.get();
     }
 
-    public void setCheckedIn(boolean checkedIn) {
-        this.checkedIn.set(checkedIn);
+    public void setRemoteSeed(int seed) {
+        this.remoteSeed.set(seed);
     }
 
-    public BooleanProperty checkedInProperty() {
-        return checkedIn;
+    public IntegerProperty remoteSeedProperty() {
+        return remoteSeed;
     }
+
+    public String getRemoteName() {
+        return remoteName.get();
+    }
+
+    public void setRemoteName(String remoteName) {
+        this.remoteName.set(remoteName);
+    }
+
+    public StringProperty remoteNameProperty() {
+        return remoteName;
+    }
+
+    public String getRemoteIconUrl() {
+        return remoteIconUrl.get();
+    }
+
+    public void setRemoteIconUrl(String iconUrl) {
+        this.remoteIconUrl.set(iconUrl);
+    }
+
+    public StringProperty remoteIconUrlProperty() {
+        return remoteIconUrl;
+    }
+
+
 
     @Override
     public String toString() {
         return "Player{" +
-                "tag='" + tag.get() + '\'' +
+                "uuid=" + uuid +
+                ", tag='" + tag.get() + '\'' +
                 ", name='" + name.get() + '\'' +
                 ", nationality='" + nationality.get() + '\'' +
-                ", seed=" + seed.get() +
-                ", iconUrl=" + iconUrl.get() +
-                ", checkedIn=" + checkedIn.get() +
+                ", pronouns='" + pronouns.get() + '\'' +
+                ", remoteId=" + remoteId.get() +
+                ", remoteSeed=" + remoteSeed.get() +
+                ", remoteName='" + remoteName.get() + '\'' +
+                ", remoteIconUrl='" + remoteIconUrl.get() + '\'' +
                 '}';
     }
 
     public boolean isEmpty() {
-        return this == _EMPTY || this == _EMPTY_NULL;
+        return this == _EMPTY || (
+                // dodge the uuid check
+                this.tag == _EMPTY.tag
+                && this.name == _EMPTY.name
+                && this.pronouns == _EMPTY.pronouns
+                && this.nationality == _EMPTY.nationality
+                && this.remoteId == _EMPTY.remoteId
+                && this.remoteSeed == _EMPTY.remoteSeed
+                && this.remoteName == _EMPTY.remoteName
+                && this.remoteIconUrl == _EMPTY.remoteIconUrl
+        );
     }
 }

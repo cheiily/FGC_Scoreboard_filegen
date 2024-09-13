@@ -2,10 +2,14 @@ package pl.cheily.filegen.Configuration;
 
 import org.ini4j.Ini;
 import org.ini4j.Profile;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Output.OutputWriter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.RawOutputWriter;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static pl.cheily.filegen.Configuration.PropKey.*;
 
@@ -85,6 +89,7 @@ public class AppConfig {
      * • The key of every property is its corresponding {@link PropKey#toString()}.
      */
     public synchronized static Ini getAsIni() {
+        //todo delete in favor of configdaoini
         Ini ini = new Ini();
         ini.put(SECTION_NAME, CHALLONGE_API.propName, CHALLONGE_API());
         ini.put(SECTION_NAME, AUTOCOMPLETE_ON.propName, AUTOCOMPLETE_ON());
@@ -110,6 +115,7 @@ public class AppConfig {
      * @implSpec The actions can be considered atomic - either all fields are loaded or none, as well as that no other action may access the data if the operation is not complete, by virtue of synchronization.
      */
     public static boolean loadFromIni(Ini ini) {
+        //todo delete in favor of configdaoini
         Profile.Section cfg_sec = ini.get(SECTION_NAME);
         if ( cfg_sec == null ) return false;
 
@@ -247,7 +253,7 @@ public class AppConfig {
      * Getter method for {@link PropKey#MAKE_RAW_OUTPUT}.
      *
      * @return whether the app should make "raw" file output.
-     * @see pl.cheily.filegen.LocalData.RawOutputWriter
+     * @see RawOutputWriter
      * @see pl.cheily.filegen.LocalData.DataManager
      */
     public synchronized static boolean MAKE_RAW_OUTPUT() {
@@ -281,7 +287,7 @@ public class AppConfig {
      * Getter method for {@link PropKey#MAKE_HTML_OUTPUT}.
      *
      * @return whether the app should make browser source output.
-     * @see pl.cheily.filegen.LocalData.OutputWriter
+     * @see OutputWriter
      * @see pl.cheily.filegen.LocalData.DataManager
      */
     public synchronized static boolean MAKE_HTML_OUTPUT() {
@@ -437,5 +443,52 @@ public class AppConfig {
 
         return true;
     }
+
+    /*==============================DAO FRIEND ACCESS METHODS==============================*/
+    public static PropertyChangeSupport getInternalPCS(ConfigDAO accessor) {
+        Objects.requireNonNull(accessor);
+        return _pcs;
+    }
+
+    public static void setInternalChallongeAPI(ConfigDAO accessor, String val) {
+        Objects.requireNonNull(accessor);
+        _challongeAPI = val;
+    }
+
+    public static void setInternalAutocompleteOn(ConfigDAO accessor, boolean val) {
+        Objects.requireNonNull(accessor);
+        _autocompleteOn = val;
+    }
+
+    public static void setInternalMakeRawOutput(ConfigDAO accessor, boolean val) {
+        Objects.requireNonNull(accessor);
+        _makeRawOutput = val;
+    }
+
+    public static void setInternalMakeHtmlOutput(ConfigDAO accessor, boolean val) {
+        Objects.requireNonNull(accessor);
+        _makeHtmlOutput = val;
+    }
+
+    public static void setInternalGfRadio(ConfigDAO accessor, boolean val) {
+        Objects.requireNonNull(accessor);
+        _gfRadio = val;
+    }
+
+    public static void setInternalPutFlags(ConfigDAO accessor, boolean val) {
+        Objects.requireNonNull(accessor);
+        _putFlags = val;
+    }
+
+    public static void setInternalFlagExtension(ConfigDAO accessor, String val) {
+        Objects.requireNonNull(accessor);
+        _flagExtension = val;
+    }
+
+    public static void setInternalFlagDirectory(ConfigDAO accessor, Path val) {
+        Objects.requireNonNull(accessor);
+        _flagDirectory = val;
+    }
+    /*==============================DAO FRIEND ACCESS METHODS==============================*/
 }
 

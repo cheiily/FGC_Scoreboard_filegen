@@ -1,9 +1,11 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.LocalData.FileManagement.Output;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.Defaults;
+import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
+import pl.cheily.filegen.LocalData.ResourcePath;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

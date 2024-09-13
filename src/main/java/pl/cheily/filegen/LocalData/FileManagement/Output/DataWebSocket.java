@@ -1,4 +1,4 @@
-package pl.cheily.filegen.LocalData;
+package pl.cheily.filegen.LocalData.FileManagement.Output;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

@@ -22,6 +22,7 @@ public enum ResourcePath {
     CUSTOM_ROUND_LIST("lists/round_list.csv"),
     PLAYER_LIST("meta/player_list.ini"),
     COMMS_LIST("meta/comms_list.csv"),
+    ROUND_LIST("meta/round_list.ini"),
     METADATA("meta/metadata.ini"),
     CONFIG("meta/config.ini");
 
@@ -75,4 +76,7 @@ public enum ResourcePath {
         return !this.fileName.startsWith("lists")
                 && !this.fileName.startsWith("meta");
     }
+
+    // todo .format() -> .ini(), .csv(), .db() | .folder() -> .local() .appdata()
+    // todo load config on boot from appdata
 }
