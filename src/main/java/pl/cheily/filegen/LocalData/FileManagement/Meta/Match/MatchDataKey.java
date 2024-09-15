@@ -15,9 +15,9 @@ public enum MatchDataKey {
     P1_SCORE("p1_score"),
     P2_SCORE("p2_score"),
     IS_GF("is_gf"),
-    GF_RESET("gf_reset"),
-    GF_P1_WINNER("gf_p1_winner"),
-    GF_P2_WINNER("gf_p2_winner"),
+    IS_GF_RESET("gf_reset"),
+    IS_GF_P1_WINNER("gf_p1_winner"),
+    IS_GF_P2_WINNER("gf_p2_winner"),
 
     COMM_TAG_TEMPLATE("commentator_tag_"),
     COMM_NAME_TEMPLATE("commentator_name_"),
