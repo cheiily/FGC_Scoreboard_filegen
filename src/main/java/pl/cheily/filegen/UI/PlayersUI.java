@@ -12,7 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
-import pl.cheily.filegen.LocalData.DataManager.EventProp;
+import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.PlayerTableUtil;
@@ -45,7 +45,7 @@ public class PlayersUI implements Initializable {
     public Button buttonUp;
 
     {
-        dataManager.subscribe(EventProp.INIT, _listener);
+        dataManager.subscribe(DataEventProp.INIT, _listener);
     }
 
     /**

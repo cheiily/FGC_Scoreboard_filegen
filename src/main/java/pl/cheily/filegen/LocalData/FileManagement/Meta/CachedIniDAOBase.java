@@ -5,6 +5,7 @@ import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.ResourcePath;
 
@@ -29,21 +30,24 @@ public abstract class CachedIniDAOBase {
         cache = new Ini();
         cache.setConfig(config);
         try {
+            if (!Files.exists(path.toPath()))
+                logger.debug("No pre-existing .ini file. Creating at {}", path);
+
             File file = path.toPath().toFile();
             cache.load(file);
             cacheChangeTime = file.lastModified();
         } catch (DataManagerNotInitializedException e) {
             logger.error("Attempted Ini-DAO creation for {} while Data Manager isn't initialized.", this.path, e);
         } catch (InvalidFileFormatException e) {
-            logger.error("Failed parsing of {} for data during INI-Dao construction.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed parsing of {} for data during INI-Dao construction.", this.path, e);
         } catch (SecurityException e) {
-            logger.error("Failed read from {} for data during INI-Dao construction. Access to file denied.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed read from {} for data during INI-Dao construction. Access to file denied.", this.path, e);
         } catch (IOException e) {
-            logger.error("Failed read from {} for data during INI-Dao construction.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed read from {} for data during INI-Dao construction.", this.path, e);
         }
     }
 
-    protected void store() {
+    protected boolean store() {
         try {
             if ( !Files.exists(path.toPath()) ) {
                 if (path.toPath().getParent() != null && !Files.exists(path.toPath().getParent()))
@@ -54,9 +58,12 @@ public abstract class CachedIniDAOBase {
             cache.store(this.path.toPath().toFile());
         } catch (DataManagerNotInitializedException e) {
             logger.warn("Attempted write to {} while Data Manager isn't initialized.", this.path, e);
+            return false;
         } catch (IOException e) {
-            logger.error("Failed write to {} for config data.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed write to {} for config data.", this.path, e);
+            return false;
         }
+        return true;
     }
 
     protected boolean cacheInvalid() {
@@ -68,7 +75,7 @@ public abstract class CachedIniDAOBase {
         } catch (DataManagerNotInitializedException e) {
             logger.warn("Attempted cache check from {} while Data Manager isn't initialized.", this.path, e);
         } catch (SecurityException e) {
-            logger.error("Failed read from {} for data during cache check. Access to file was denied.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed read from {} for data during cache check. Access to file was denied.", this.path, e);
         }
         return true;
     }
@@ -82,9 +89,9 @@ public abstract class CachedIniDAOBase {
         } catch (DataManagerNotInitializedException e) {
             logger.warn("Attempted read from {} while Data Manager isn't initialized.", this.path, e);
         } catch (InvalidFileFormatException e) {
-            logger.error("Failed parsing of {} for data.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed parsing of {} for data.", this.path, e);
         } catch (IOException e) {
-            logger.error("Failed read from {} for data.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed read from {} for data.", this.path, e);
         }
     }
 

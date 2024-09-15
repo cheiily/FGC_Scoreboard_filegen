@@ -11,6 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import pl.cheily.filegen.Configuration.AppConfig;
+import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
@@ -79,7 +80,7 @@ public class ControllerUI implements Initializable {
         }
     };
     {
-        dataManager.subscribe(DataManager.EventProp.PLAYER_LIST, listener);
+        dataManager.subscribe(DataEventProp.CHANGED_PLAYER_LIST, listener);
     }
 
 

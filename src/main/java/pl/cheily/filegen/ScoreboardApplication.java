@@ -3,7 +3,11 @@ package pl.cheily.filegen;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.FileManagement.Output.DataWebSocket;
 import pl.cheily.filegen.LocalData.FileManagement.Output.DefaultOutputFormatter;
@@ -35,6 +39,9 @@ public class ScoreboardApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        var rootlog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        rootlog.addAppender(new AlertingAppender());
+
         mainStage = stage;
         dataManager = new DataManager(new RawOutputWriter("default raw-output writer #1", new DefaultOutputFormatter()));
         controllerScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("controller_scene.fxml")).load());

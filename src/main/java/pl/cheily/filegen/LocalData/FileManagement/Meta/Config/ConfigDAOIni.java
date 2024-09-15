@@ -1,7 +1,10 @@
 package pl.cheily.filegen.LocalData.FileManagement.Meta.Config;
 
+import javafx.scene.control.Alert;
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.PropKey;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
@@ -9,7 +12,6 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
 import pl.cheily.filegen.LocalData.ResourcePath;
 
 import java.beans.PropertyChangeSupport;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -47,10 +49,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     public List<String> getAll() {
         if (cacheInvalid()) refresh();
         Profile.Section cfg_sec = cache.get(SECTION_NAME);
-        if (cfg_sec == null) {
-            logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-            return List.of();
-        }
+        if (verifyAndLogOnError(cfg_sec)) return List.of();
 
         List<String> vals = new ArrayList<>();
         vals.add(cfg_sec.get(CHALLONGE_API.propName, String.class));
@@ -85,10 +84,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     @Override
     public void set(String key, String value) {
         Profile.Section cfg_sec = cache.get(SECTION_NAME);
-        if (cfg_sec == null) {
-            logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-            return;
-        }
+        if (verifyAndLogOnError(cfg_sec)) return;
 
         cfg_sec.put(key, value);
         store();
@@ -102,10 +98,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     @Override
     public void delete(String key) {
         Profile.Section cfg_sec = cache.get(SECTION_NAME);
-        if (cfg_sec == null) {
-            logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-            return;
-        }
+        if (verifyAndLogOnError(cfg_sec)) return;
 
         cfg_sec.remove(key);
         store();
@@ -120,10 +113,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     public List<String> getKeys() {
         if (cacheInvalid()) refresh();
         Profile.Section cfg_sec = cache.get(SECTION_NAME);
-        if (cfg_sec == null) {
-            logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-            return List.of();
-        }
+        if (verifyAndLogOnError(cfg_sec)) return List.of();
 
         return cfg_sec.keySet().stream().toList();
     }
@@ -132,10 +122,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     public List<String> getVals() {
         if (cacheInvalid()) refresh();
         Profile.Section cfg_sec = cache.get(SECTION_NAME);
-        if (cfg_sec == null) {
-            logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-            return List.of();
-        }
+        if (verifyAndLogOnError(cfg_sec)) return List.of();
 
         return cfg_sec.values().stream().toList();
     }
@@ -144,10 +131,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     public Map<String, String> getAllAsMap() {
         if (cacheInvalid()) refresh();
         Profile.Section cfg_sec = cache.get(SECTION_NAME);
-        if (cfg_sec == null) {
-            logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-            return Map.of();
-        }
+        if (verifyAndLogOnError(cfg_sec)) return Map.of();
 
         return Map.copyOf(cfg_sec);
     }
@@ -165,10 +149,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
         }
 
         Profile.Section cfg_sec = cache.get(SECTION_NAME);
-        if (cfg_sec == null) {
-            logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-            return;
-        }
+        if (verifyAndLogOnError(cfg_sec)) return;
 
         for (int i = 0; i < keys.size(); i++) {
             cfg_sec.put(keys.get(i), values.get(i));
@@ -179,17 +160,14 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     @Override
     public void deleteAll() {
         Profile.Section cfg_sec = cache.get(SECTION_NAME);
-        if (cfg_sec == null) {
-            logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-            return;
-        }
+        if (verifyAndLogOnError(cfg_sec)) return;
 
         cfg_sec.clear();
         store();
     }
 
     @Override
-    public void saveAll() {
+    public boolean saveAll() {
         synchronized (AppConfig.class) {
             cache.put(SECTION_NAME, CHALLONGE_API.propName, CHALLONGE_API());
             cache.put(SECTION_NAME, AUTOCOMPLETE_ON.propName, AUTOCOMPLETE_ON());
@@ -200,21 +178,18 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             cache.put(SECTION_NAME, FLAG_EXTENSION.propName, FLAG_EXTENSION());
             cache.put(SECTION_NAME, FLAG_DIRECTORY.propName, FLAG_DIRECTORY());
         }
-        store();
+        return store();
     }
 
     @Override
-    public void loadAll() {
+    public boolean loadAll() {
         if (cacheInvalid()) refresh();
         try {
             cache.load(this.path.toPath().toFile());
             PropertyChangeSupport _pcs = AppConfig.getInternalPCS(this);
 
             Profile.Section cfg_sec = cache.get(SECTION_NAME);
-            if (cfg_sec == null) {
-                logger.error("Invalid config.ini file - missing \"{}\" section", SECTION_NAME);
-                return;
-            }
+            if (verifyAndLogOnError(cfg_sec)) return false;
 
             String newApi = cfg_sec.get(CHALLONGE_API.propName, String.class);
             Boolean newAutocomplete = cfg_sec.get(AUTOCOMPLETE_ON.propName, Boolean.class);
@@ -236,7 +211,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
 
             if (!correct) {
                 logger.error("Invalid config.ini file - loaded data didn't pass validation.");
-                return;
+                return false;
             }
 
             Path newFlagPth = Path.of(strFlagPth);
@@ -280,10 +255,22 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             _pcs.firePropertyChange(FLAG_DIRECTORY.propName, oldFlagPth, newFlagPth);
         } catch (DataManagerNotInitializedException e) {
             logger.warn("Attempted config read while Data Manager isn't initialized.", e);
+            return false;
         } catch (InvalidFileFormatException e) {
-            logger.error("Failed parsing of {} for config data.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed parsing of {} for config data.", this.path, e);
+            return false;
         } catch (IOException e) {
-            logger.error("Failed read from {} for config data.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed read from {} for config data.", this.path, e);
+            return false;
         }
+        return true;
+    }
+
+    private boolean verifyAndLogOnError(Profile.Section cfg_sec) {
+        if (cfg_sec == null) {
+            logger.error(MarkerFactory.getMarker("ALERT"), "Invalid config storage file ({}) - missing \"{}\" section", path, SECTION_NAME);
+            return true;
+        }
+        return false;
     }
 }

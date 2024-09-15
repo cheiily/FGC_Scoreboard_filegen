@@ -206,7 +206,7 @@ public class ConfigUI implements Initializable {
         } else {
             new Thread(displayNOK).start();
             Alert a = new Alert(AlertType.WARNING, "Couldn't store configuration to " + ResourcePath.CONFIG + ". Do you want to apply changes anyway?", ButtonType.APPLY, ButtonType.NO);
-            a.show();
+            a.showAndWait();
             if ( a.getResult() == ButtonType.APPLY )
                 onApplyConfig();
         }

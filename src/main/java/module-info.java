@@ -8,6 +8,8 @@ module pl.cheily.filegen {
     requires Java.WebSocket;
     requires java.desktop;
     requires org.slf4j;
+    requires ch.qos.logback.classic;
+    requires ch.qos.logback.core;
 
     opens pl.cheily.filegen to javafx.fxml;
     exports pl.cheily.filegen;

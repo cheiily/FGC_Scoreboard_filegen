@@ -10,8 +10,10 @@ import org.ini4j.Profile;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.EventfulCachedIniDAOWrapper;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayerPropKey;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAOIni;
@@ -19,21 +21,19 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Output.OutputWriter;
 import pl.cheily.filegen.UI.ControllerUI;
-import pl.cheily.filegen.UI.PlayersUI;
 import pl.cheily.filegen.Utils.Util;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static pl.cheily.filegen.LocalData.DataManager.EventProp.*;
+import static pl.cheily.filegen.LocalData.DataEventProp.*;
 import static pl.cheily.filegen.LocalData.MetaKey.*;
+import static pl.cheily.filegen.LocalData.ResourcePath.COMMS_LIST;
+import static pl.cheily.filegen.LocalData.ResourcePath.ROUND_LIST;
 import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
 
 public class DataManager {
@@ -45,42 +45,14 @@ public class DataManager {
     //TODO hook this up to AppConfig#Flagsdir via listener
     // todo move nullflag to resources, make flag module entirely optional
     public final Path nullFlag = Path.of(flagsDir + "/null.png");
-    public enum EventProp {
-        INIT("init"),
-        SAVE("save"),
-        SAVE_CONFIG("save-config"),
-        SAVE_LISTS("save-lists"),
-        PLAYER_LIST("lists-players"),
-        METADATA("metadata"),
-        OUTPUT_WRITERS("writers-output");
-
-        private final String prop;
-
-        @Override
-        public String toString() {
-            return prop;
-        }
-        
-        public static EventProp of(String property) {
-            for (EventProp evtProp : EventProp.values()) {
-                if (evtProp.prop.equals(property))
-                    return evtProp;
-            }
-            return null;
-        }
-
-        EventProp(String prop) {
-            this.prop = prop;
-        }
-    }
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
 
-    private ConfigDAO configDAO;
-    private MatchDAO matchDAO;
-    private PlayersDAO playersDAO;
-    private PlayersDAO commentaryDAO;
-    private RoundLabelDAO roundLabelDAO;
+    public ConfigDAO configDAO;
+    public MatchDAO matchDAO;
+    public PlayersDAO playersDAO;
+    public PlayersDAO commentaryDAO;
+    public RoundLabelDAO roundLabelDAO;
 
     private boolean initialized;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -89,8 +61,27 @@ public class DataManager {
      * @param toProp   property to subscribe to
      * @param listener listener to add as a subscriber
      */
-    public void subscribe(EventProp toProp, PropertyChangeListener listener) {
-        pcs.addPropertyChangeListener(toProp.toString(), listener);
+    public void subscribe(DataEventProp toProp, PropertyChangeListener listener) {
+        switch (toProp) {
+            case INIT, SAVE:
+                pcs.addPropertyChangeListener(toProp.toString(), listener);
+                break;
+            case CHANGED_CONFIG:
+                ((EventfulCachedIniDAOWrapper) configDAO).subscribe(listener);
+                break;
+            case CHANGED_PLAYER_LIST:
+                ((EventfulCachedIniDAOWrapper) playersDAO).subscribe(listener);
+                break;
+            case CHANGED_COMMENTARY_LIST:
+                ((EventfulCachedIniDAOWrapper) commentaryDAO).subscribe(listener);
+                break;
+            case CHANGED_MATCH_DATA:
+                ((EventfulCachedIniDAOWrapper) matchDAO).subscribe(listener);
+                break;
+            case CHANGED_ROUND_LABELS:
+                ((EventfulCachedIniDAOWrapper) roundLabelDAO).subscribe(listener);
+                break;
+        }
     }
 
     /**
@@ -99,6 +90,11 @@ public class DataManager {
      * @param listener listener to add as a subscriber
      */
     public void subscribeAll(PropertyChangeListener listener) {
+        ((EventfulCachedIniDAOWrapper) configDAO).subscribe(listener);
+        ((EventfulCachedIniDAOWrapper) playersDAO).subscribe(listener);
+        ((EventfulCachedIniDAOWrapper) commentaryDAO).subscribe(listener);
+        ((EventfulCachedIniDAOWrapper) matchDAO).subscribe(listener);
+        ((EventfulCachedIniDAOWrapper) roundLabelDAO).subscribe(listener);
         pcs.addPropertyChangeListener(listener);
     }
 
@@ -106,8 +102,27 @@ public class DataManager {
      * @param fromProp property to unsubscribe from
      * @param listener listener to remove from subscribers
      */
-    public void unsubscribe(EventProp fromProp, PropertyChangeListener listener) {
-        pcs.removePropertyChangeListener(fromProp.toString(), listener);
+    public void unsubscribe(DataEventProp fromProp, PropertyChangeListener listener) {
+        switch (fromProp) {
+            case INIT, SAVE:
+                pcs.removePropertyChangeListener(fromProp.toString(), listener);
+                break;
+            case CHANGED_CONFIG:
+                ((EventfulCachedIniDAOWrapper) configDAO).unsubscribe(listener);
+                break;
+            case CHANGED_PLAYER_LIST:
+                ((EventfulCachedIniDAOWrapper) playersDAO).unsubscribe(listener);
+                break;
+            case CHANGED_COMMENTARY_LIST:
+                ((EventfulCachedIniDAOWrapper) commentaryDAO).unsubscribe(listener);
+                break;
+            case CHANGED_MATCH_DATA:
+                ((EventfulCachedIniDAOWrapper) matchDAO).unsubscribe(listener);
+                break;
+            case CHANGED_ROUND_LABELS:
+                ((EventfulCachedIniDAOWrapper) roundLabelDAO).unsubscribe(listener);
+                break;
+        }
     }
 
     /**
@@ -116,6 +131,11 @@ public class DataManager {
      * @param listener listener to remove from subscribers
      */
     public void unsubscribeAll(PropertyChangeListener listener) {
+        ((EventfulCachedIniDAOWrapper) configDAO).unsubscribe(listener);
+        ((EventfulCachedIniDAOWrapper) playersDAO).unsubscribe(listener);
+        ((EventfulCachedIniDAOWrapper) commentaryDAO).unsubscribe(listener);
+        ((EventfulCachedIniDAOWrapper) matchDAO).unsubscribe(listener);
+        ((EventfulCachedIniDAOWrapper) roundLabelDAO).unsubscribe(listener);
         pcs.removePropertyChangeListener(listener);
     }
 
@@ -131,7 +151,6 @@ public class DataManager {
             throw new IllegalArgumentException("DataManager cannot be created without any writers");
 
         this.writers.addAll(List.of(writers));
-        roundSet.addAll(DEFAULT_ROUND_SET);
     }
 
     /**
@@ -159,46 +178,16 @@ public class DataManager {
         this.targetDir = targetDir;
 
         // todo change resourcepaths to ini
-        configDAO = new ConfigDAOIni(ResourcePath.CONFIG);
-        matchDAO = new MatchDAOIni(ResourcePath.METADATA);
-        playersDAO = new PlayersDAOIni(ResourcePath.PLAYER_LIST);
-        commentaryDAO = new PlayersDAOIni(ResourcePath.COMMS_LIST);
-        roundLabelDAO = new RoundLabelDAOIni(ResourcePath.ROUND_LIST);
+        configDAO = (ConfigDAO) new EventfulCachedIniDAOWrapper<>(new ConfigDAOIni(ResourcePath.CONFIG), ConfigDAO.class, CHANGED_CONFIG.name());
+        matchDAO = (MatchDAO) new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(ResourcePath.METADATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
+        playersDAO = (PlayersDAO) new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(ResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
+        commentaryDAO = (PlayersDAO) new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(COMMS_LIST), PlayersDAO.class, CHANGED_COMMENTARY_LIST.name());
+        roundLabelDAO = (RoundLabelDAO) new EventfulCachedIniDAOWrapper<>(new RoundLabelDAOIni(ROUND_LIST), RoundLabelDAO.class, CHANGED_ROUND_LABELS.name());
+        
+        // todo retain manually edited player list
 
-        metadata.clear();
-        playerList.clear(); // todo retain manually edited player list
-        commsList.clear();
-        roundSet.clear();
-
-        loadMetadata();
-        loadInternalLists();
-        loadCustomLists();
-        saveLists();
-        createCustomListsDir();
-        loadConfig();
-
-        loadRoundsCSV();
-        if ( roundSet.isEmpty() ) roundSet.addAll(DEFAULT_ROUND_SET);
         pcs.firePropertyChange(INIT.toString(), null, null);
     }
-
-    public void reinitialize() {
-        initialize(this.targetDir);
-    }
-
-    /**
-     * Prepares the folder for custom lists.
-     * @return success value
-     */
-    private boolean createCustomListsDir() {
-        try {
-            Files.createDirectory(Path.of(targetDir + "/lists"));
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
 
     /**
      * Writes the stored data to files.<br/>
@@ -209,9 +198,6 @@ public class DataManager {
      * See also: {@link DataManager#saveMeta()}, {@link DataManager#saveOutput()}
      */
     public void save() {
-        if ( !saveMeta() )
-            new Alert(Alert.AlertType.ERROR, "Couldn't save metadata.", ButtonType.OK).show();
-
         //Update the Websocket before we return.
         dataWebSocket.updateMetadata();
 
@@ -226,6 +212,7 @@ public class DataManager {
         pcs.firePropertyChange(SAVE.toString(), null, null);
     }
 
+    //todo big refactorrrrr
     /**
      * Writes the overlay output data to the corresponding files.
      * <p>
@@ -301,196 +288,23 @@ public class DataManager {
         return success;
     }
 
-    /**
-     * Attempts to store the metadata.
-     *
-     * @return success value
-     * @see Ini#store(File)
-     * @see ResourcePath#toPath()
-     */
-    private boolean saveMeta() {
-        try {
-            if ( !Files.exists(ResourcePath.METADATA.toPath().getParent()) )
-                Files.createDirectories(ResourcePath.METADATA.toPath().getParent());
-
-            metadata.store(ResourcePath.METADATA.toPath().toFile());
-            return true;
-        } catch (IOException | DataManagerNotInitializedException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Attempts to save the currently applied app configuration to {@link ResourcePath#CONFIG}
-     * @return success value
-     * @see AppConfig#getAsIni()
-     */
-    public boolean saveConfig() {
-        try {
-            if ( !Files.exists(ResourcePath.CONFIG.toPath().getParent()) )
-                Files.createDirectories(ResourcePath.CONFIG.toPath().getParent());
-
-            AppConfig.getAsIni().store(ResourcePath.CONFIG.toPath().toFile());
-
-            pcs.firePropertyChange(SAVE_CONFIG.toString(), null, null);
-            return true;
-        } catch (IOException | DataManagerNotInitializedException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Attempts to load the app configuration from {@link ResourcePath#CONFIG}
-     * @return success value
-     * @see AppConfig#loadFromIni(Ini ini)
-     */
-    public boolean loadConfig() {
-        try {
-            Ini cfg = new Ini(ResourcePath.CONFIG.toPath().toFile());
-            return AppConfig.loadFromIni(cfg);
-        } catch (IOException | DataManagerNotInitializedException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Attempts to write the internal data into "meta" files.
-     * Note that {@link OutputWriter} by contract is only designed to be able to save the overlay output data and not any other, undefined files.
-     * For that reason, this method must operate on such files manually.
-     *
-     * @return success value
-     * @see Ini#store(File)
-     * @see BufferedWriter
-     */
-    public boolean saveLists() { // todo change
-        boolean success = true;
-
-        try {
-            if ( !Files.exists(ResourcePath.PLAYER_LIST.toPath().getParent()) )
-                Files.createDirectories(ResourcePath.PLAYER_LIST.toPath().getParent());
-        } catch (IOException | DataManagerNotInitializedException e) {
-            return false;
-        }
-        try {
-            playerList.store(ResourcePath.PLAYER_LIST.toPath().toFile());
-        } catch (IOException | DataManagerNotInitializedException e) {
-            success = false;
-        }
-        try ( BufferedWriter bw = Files.newBufferedWriter(ResourcePath.COMMS_LIST.toPath()) ) {
-            StringBuilder sb = new StringBuilder();
-            commsList.stream()
-                    .map(s -> s + '\n')
-                    .forEach(sb::append);
-
-            bw.write(sb.toString().trim());
-        } catch (IOException | DataManagerNotInitializedException e) {
-            success = false;
-        }
-
-        pcs.firePropertyChange(SAVE_LISTS.toString(), null, null);
-        return success;
-    }
-
-    /**
-     * Attempts to load {@link ResourcePath#METADATA}
-     *
-     * @return success value
-     * @see Ini#load(File)
-     */
-    private boolean loadMetadata() {
-        try {
-            metadata.load(ResourcePath.METADATA.toPath().toFile());
-            return true;
-        } catch (IOException | DataManagerNotInitializedException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Attempts to load the custom lists, excluding the round list.
-     *
-     * @return propagated success value
-     * @see DataManager#loadCommsCSV(ResourcePath)
-     * @see DataManager#loadPlayersCSV()
-     * @see DataManager#loadRoundsCSV()
-     */
-    private boolean loadCustomLists() {
-        return loadCommsCSV(ResourcePath.CUSTOM_COMMS_LIST) && loadPlayersCSV();
-    }
 
     /**
      * Uses {@link CSVReader} to load the custom player list regardless of its CSV-style.
-     * Any such loaded line will be saved into {@link DataManager#playerList} via the {@link DataManager#putPlayer(Player)} method.
-     * If the line does not have 3 separate columns - the operation will except and return failure.
      *
      * @return success value, false if any read line is not correctly formatted
      */
-    private boolean loadPlayersCSV() {
+    private boolean loadPlayersFromChallongeCSV() { // todo move this into an integration module
         try ( CSVReader csvReader = new CSVReader(Files.newBufferedReader(ResourcePath.CUSTOM_PLAYER_LIST.toPath())) ) {
             String[] line;
-            while ( (line = csvReader.readNext()) != null )
-                putPlayer(new Player(line[ 0 ], line[ 1 ], line[ 2 ], "")); // todo try determine column indices by header
-
-            return true;
-        } catch (IOException | CsvValidationException | DataManagerNotInitializedException e) {
-            return false;
-        }
-    }
-
-    /**
-     * As both the custom and internal commentary lists are stored in the exact same way, this method has been adapted to operate on both.
-     * Note that {@link OutputWriter} by contract is only designed to be able to save the overlay output data and not any other, undefined files.
-     * For that reason, this method must operate on such files manually.
-     *
-     * @param rPath {@link ResourcePath} specifying which commentary list to load
-     * @return success value
-     * @see BufferedReader
-     */
-    private boolean loadCommsCSV(ResourcePath rPath) {
-        try ( BufferedReader bReader = Files.newBufferedReader(rPath.toPath()) ) {
-            String line;
-            while ( (line = bReader.readLine()) != null )
-                commsList.add(line);
-
-            return true;
-        } catch (IOException | DataManagerNotInitializedException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Attempts to read the custom round list.
-     * <p>
-     * As this is a more commonly failure-returning operation, it is not included with other lists in {@link DataManager#loadCustomLists()}
-     *
-     * @return success value
-     */
-    private boolean loadRoundsCSV() {
-        try ( BufferedReader bReader = Files.newBufferedReader(ResourcePath.CUSTOM_ROUND_LIST.toPath()) ) {
-            String line;
-            while ( (line = bReader.readLine()) != null ) {
-                roundSet.add(line);
+            while ( (line = csvReader.readNext()) != null ) {
+                // todo try determine column indices by header
+                Player player = new Player(line[ 0 ], line[ 1 ], line[ 2 ], "");
+                playersDAO.set(player.getUuidStr(), player);
             }
 
             return true;
-        } catch (IOException | DataManagerNotInitializedException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Attempts to load the internal lists.
-     *
-     * @return success value
-     * @see Ini#load(File)
-     * @see DataManager#loadCommsCSV(ResourcePath)
-     */
-    private boolean loadInternalLists() {
-        try {
-            playerList.load(ResourcePath.PLAYER_LIST.toPath().toFile());
-            loadCommsCSV(ResourcePath.COMMS_LIST);
-            return true;
-        } catch (IOException | DataManagerNotInitializedException e) {
+        } catch (IOException | CsvValidationException | DataManagerNotInitializedException e) {
             return false;
         }
     }
@@ -503,161 +317,30 @@ public class DataManager {
      * @see DataManager#putMeta(MetaKey, MetaKey, String)
      */
     public void loadMetadataFromUI(ControllerUI ui) {
-        putMeta(SEC_ROUND, KEY_ROUND_LABEL, ui.combo_round.getValue());
-        putMeta(SEC_ROUND, KEY_SCORE_1, ui.txt_p1_score.getText());
-        putMeta(SEC_ROUND, KEY_SCORE_2, ui.txt_p2_score.getText());
-        putMeta(SEC_ROUND, KEY_GF, String.valueOf(ui.GF_toggle.isSelected()));
-        putMeta(SEC_ROUND, KEY_GF_RESET, String.valueOf(ui.radio_reset.isSelected()));
-        putMeta(SEC_ROUND, KEY_GF_W1, String.valueOf(ui.radio_p1_W.isSelected()));
+        matchDAO.set(MatchDataKey.ROUND_LABEL.toString(), ui.combo_round.getValue());
+        matchDAO.set(MatchDataKey.P1_SCORE.toString(), ui.txt_p1_score.getText());
+        matchDAO.set(MatchDataKey.P2_SCORE.toString(), ui.txt_p2_score.getText());
+        matchDAO.set(MatchDataKey.IS_GF.toString(), Boolean.toString(ui.GF_toggle.isSelected()));
+        matchDAO.set(MatchDataKey.IS_GF_RESET.toString(), Boolean.toString(ui.radio_reset.isSelected()));
+        matchDAO.set(MatchDataKey.IS_GF_P1_WINNER.toString(), Boolean.toString(ui.radio_p1_W.isSelected()));
+        matchDAO.set(MatchDataKey.IS_GF_P2_WINNER.toString(), Boolean.toString(ui.radio_p2_W.isSelected()));
 
-        putMeta(SEC_P1, KEY_TAG, ui.txt_p1_tag.getText());
-        putMeta(SEC_P1, KEY_NAME, ui.combo_p1_name.getValue());
-        putMeta(SEC_P1, KEY_NATION, ui.combo_p1_nation.getValue());
+        matchDAO.set(MatchDataKey.P1_NAME.toString(), ui.txt_p1_tag.getText());
+        matchDAO.set(MatchDataKey.P1_TAG.toString(), ui.combo_p1_name.getValue());
+        matchDAO.set(MatchDataKey.P1_NATIONALITY.toString(), ui.combo_p1_nation.getValue());
+        //todo pronouns
 
-        putMeta(SEC_P2, KEY_TAG, ui.txt_p2_tag.getText());
-        putMeta(SEC_P2, KEY_NAME, ui.combo_p2_name.getValue());
-        putMeta(SEC_P2, KEY_NATION, ui.combo_p2_nation.getValue());
+        matchDAO.set(MatchDataKey.P2_NAME.toString(), ui.txt_p2_tag.getText());
+        matchDAO.set(MatchDataKey.P2_TAG.toString(), ui.combo_p2_name.getValue());
+        matchDAO.set(MatchDataKey.P2_NATIONALITY.toString(), ui.combo_p2_nation.getValue());
 
-        putMeta(SEC_COMMS, KEY_HOST, ui.combo_host.getValue());
-        putMeta(SEC_COMMS, KEY_COMM_1, ui.combo_comm1.getValue());
-        putMeta(SEC_COMMS, KEY_COMM_2, ui.combo_comm2.getValue());
+        //todo take from table or w/e
+        matchDAO.set(MatchDataKey.COMM_NAME_TEMPLATE + "0", ui.combo_host.getValue());
+        matchDAO.set(MatchDataKey.COMM_NAME_TEMPLATE + "1", ui.combo_comm1.getValue());
+        matchDAO.set(MatchDataKey.COMM_NAME_TEMPLATE + "2", ui.combo_comm2.getValue());
     }
 
-    /**
-     * Utility method. Wraps the action of storing all the Player-related data in one clean function call.
-     * Also, naturally ensures data correctness or predictability by utilizing the {@link Player} record.
-     *
-     * @param player to store within the {@link DataManager#playerList}
-     */
-    public void putPlayer(Player player) {
-        putPlayer(player, true);
-    }
-
-    private void putPlayer(Player player, boolean fireEvent) {
-        playerList.put(player.getUuidStr(), PlayerPropKey.TAG.toString(), player.getTag());
-        playerList.put(player.getUuidStr(), PlayerPropKey.NAME.toString(), player.getName());
-        playerList.put(player.getUuidStr(), PlayerPropKey.NATIONALITY.toString(), player.getNationality());
-        playerList.put(player.getUuidStr(), PlayerPropKey.PRONOUNS.toString(), player.getPronouns());
-        playerList.put(player.getUuidStr(), PlayerPropKey.REMOTE_ID.toString(), player.getRemoteId());
-        playerList.put(player.getUuidStr(), PlayerPropKey.REMOTE_SEED.toString(), player.getRemoteSeed());
-        playerList.put(player.getUuidStr(), PlayerPropKey.REMOTE_NAME.toString(), player.getRemoteName());
-        playerList.put(player.getUuidStr(), PlayerPropKey.REMOTE_ICON_URL.toString(), player.getRemoteIconUrl());
-
-//
-//        playerList.put(player.getName(), KEY_TAG.toString(), player.getTag());
-//        playerList.put(player.getName(), KEY_NATION.toString(), player.getNationality());
-//        playerList.put(player.getName(), KEY_SEED.toString(), player.getRemoteSeed());
-//        playerList.put(player.getName(), KEY_ICON.toString(), player.getRemoteIconUrl());
-//        playerList.put(player.getName(), KEY_CHK_IN.toString(), player.isCheckedIn());
-
-        if (fireEvent) pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
-    }
-
-    public void putAllPlayers(List<Player> players) {
-        for (Player player : players) {
-            putPlayer(player, false);
-        }
-
-        pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
-    }
-
-    public void removePlayer(Player player) {
-        playerList.remove(player.getName());
-
-        pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
-    }
-
-    public void removeAllPlayers() {
-        playerList.clear();
-
-        pcs.firePropertyChange(PLAYER_LIST.toString(), null, null);
-    }
-
-    /**
-     * Returns an optional value, depending on if such a {@link Player} is contained within the {@link DataManager#playerList}.
-     *
-     * @param playerName name of the player to search for
-     * @return valid {@link Player} if present, {@link Optional#empty()} if not.
-     * @see Optional
-     */
-    public Optional<Player> getPlayer(String playerName) { // todo change all player-related searches and gets to be by uuid
-        Profile.Section sec_player = playerList.get(playerName);
-        if ( sec_player == null ) return Optional.empty();
-
-        return Optional.of(Player.deserialize(
-                sec_player.get(PlayerPropKey.ID.toString()),
-                sec_player.get(PlayerPropKey.TAG.toString()),
-                sec_player.getName(),
-                sec_player.get(PlayerPropKey.NATIONALITY.toString()),
-                sec_player.get(PlayerPropKey.PRONOUNS.toString()),
-                sec_player.get(PlayerPropKey.REMOTE_ID.toString(), long.class),
-                sec_player.get(PlayerPropKey.REMOTE_SEED.toString(), int.class),
-                sec_player.get(PlayerPropKey.REMOTE_NAME.toString()),
-                sec_player.get(PlayerPropKey.REMOTE_ICON_URL.toString())
-        ));
-
-//        return Optional.of(new Player(
-//                sec_player.get(KEY_TAG.toString()),
-//                sec_player.getName(),
-//                sec_player.get(KEY_NATION.toString()),
-//                sec_player.get(KEY_SEED.toString(), int.class),
-//                sec_player.get(KEY_ICON.toString(), String.class),
-//                sec_player.get(KEY_CHK_IN.toString(), boolean.class)
-//        ));
-    }
-
-    /**
-     * Returns a list of all the {@link Player}s contained within the {@link DataManager#playerList}.
-     *
-     * @return list of players
-     */
-    public List<Player> getAllPlayers() {
-        List<Player> ret = new ArrayList<>();
-        for (String playerName : playerList.keySet()) {
-            Profile.Section sec_player = playerList.get(playerName);
-
-            ret.add(Player.deserialize(
-                    sec_player.get(PlayerPropKey.ID.toString()),
-                    sec_player.get(PlayerPropKey.TAG.toString()),
-                    sec_player.getName(),
-                    sec_player.get(PlayerPropKey.NATIONALITY.toString()),
-                    sec_player.get(PlayerPropKey.PRONOUNS.toString()),
-                    sec_player.get(PlayerPropKey.REMOTE_ID.toString(), long.class),
-                    sec_player.get(PlayerPropKey.REMOTE_SEED.toString(), int.class),
-                    sec_player.get(PlayerPropKey.REMOTE_NAME.toString()),
-                    sec_player.get(PlayerPropKey.REMOTE_ICON_URL.toString())
-            ));
-        }
-        return ret;
-    }
-
-    /**
-     * For utility and performance, this method returns names of all the stored players in an efficient way.
-     *
-     * @return list of player names
-     * @see DataManager#playerList
-     */
-    public List<String> getAllPlayerNames() {
-        return playerList.keySet().stream().toList();
-    }
-
-    /**
-     * @return list of commentators
-     * @see DataManager#commsList
-     */
-    public List<String> getAllCommentatorNames() {
-        return commsList.stream().toList();
-    }
-
-    /**
-     * @param playerName
-     * @return presence value
-     * @see Ini#containsKey(Object)
-     */
-    public boolean hasPlayer(String playerName) {
-        return playerList.containsKey(playerName);
-    }
-
+    // todo move to OPTIONAL flag module
     /**
      * Utility method, used for loading the UI elements. Copying of the actual files happens in other ways rather than with the help of this method.<br/>
      *
@@ -706,69 +389,6 @@ public class DataManager {
     }
 
     /**
-     * @return current round labels as immutable set
-     */
-    public Set<String> getRoundLabels() {
-        return Collections.unmodifiableSet(roundSet);
-    }
-
-    /**
-     * @return list of the current round labels, sorted with {@link Util#roundComparator}
-     */
-    public List<String> getRoundLabelsSorted() {
-        return getRoundLabelsSorted(Util.roundComparator);
-    }
-
-    /**
-     * @param comparator to apply
-     * @return list of the current round labels, sorted with the passed comparator
-     */
-    public List<String> getRoundLabelsSorted(Comparator<String> comparator) {
-        List<String> ret = new ArrayList<>(roundSet);
-        ret.sort(comparator);
-        return ret;
-    }
-
-    /**
-     * Puts a metadata entry within {@link DataManager#metadata}
-     *
-     * @param section
-     * @param key
-     * @param value
-     * @see Ini#put(String, String, Object)
-     */
-    public void putMeta(MetaKey section, MetaKey key, String value) {
-        metadata.put(section.toString(), key.toString(), value);
-
-        pcs.firePropertyChange(METADATA.toString(), null, null);
-    }
-
-    /**
-     * Wraps null values with an empty string literal.
-     *
-     * @param section
-     * @param key
-     * @return an entry from {@link DataManager#metadata}
-     * @see Ini#get(Object, Object)
-     */
-    public String getMeta(MetaKey section, MetaKey key) {
-        String ret = metadata.get(section.toString(), key.toString());
-        return ret == null ? "" : ret;
-    }
-
-    /**
-     * @param section
-     * @param key
-     * @param clazz
-     * @param <T>
-     * @return an entry from {@link DataManager#metadata} cast to the desired type
-     * @see Ini#get(Object, Object, Class)
-     */
-    public <T> T getMeta(MetaKey section, MetaKey key, Class<T> clazz) {
-        return metadata.get(section.toString(), key.toString(), clazz);
-    }
-
-    /**
      * @return the initialization state of the Manager.
      * @see DataManager#initialize(Path)
      */
@@ -788,7 +408,7 @@ public class DataManager {
     public void addWriter(OutputWriter writer) {
         writers.add(writer);
 
-        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
+        pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
@@ -802,7 +422,7 @@ public class DataManager {
     public void enableWriter(String byName) {
         writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(OutputWriter::enable);
 
-        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
+        pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
@@ -815,7 +435,7 @@ public class DataManager {
     public <T extends OutputWriter> void enableWriters(Class<T> ofClass) {
         writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(OutputWriter::enable);
 
-        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
+        pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
@@ -829,7 +449,7 @@ public class DataManager {
     public void disableWriter(String byName) {
         writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(OutputWriter::disable);
 
-        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
+        pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
@@ -842,7 +462,7 @@ public class DataManager {
     public <T extends OutputWriter> void disableWriters(Class<T> ofClass) {
         writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(OutputWriter::disable);
 
-        pcs.firePropertyChange(OUTPUT_WRITERS.toString(), null, null);
+        pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
 
 }

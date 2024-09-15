@@ -10,8 +10,8 @@ public interface ConfigDAO extends DAO<String> {
     public List<String> getKeys();
     public List<String> getVals();
     public Map<String, String> getAllAsMap();
-    public void saveAll();
-    public void loadAll();
+    public boolean saveAll();
+    public boolean loadAll();
 
     public void set(PropKey key, String value);
     public String get(PropKey key);
