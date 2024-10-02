@@ -12,21 +12,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public class RoundLabelDAOIni extends CachedIniDAOBase implements RoundLabelDAO {
-    private final static List<String> _DEFAULT_ROUNDS = List.of(
-            //w rounds
-            "Winners' R1", "Winners' R2", "Winners' R3", "Winners' R4",
-            //l rounds
-            "Losers' R1", "Losers' R2", "Losers' R3", "Losers' R4",
-            //w top 8
-            "Winners' Semis", "Winners' Finals",
-            //l top 8
-            "Losers' Eights", "Losers' Quarters", "Losers' Semis", "Losers' Finals",
-            //gf
-            "Grand Finals",
-            //Extra
-            "Top 8", "Winners' top 8", "Losers' top 8", "Losers' top 6", "Losers' top 4",
-            "Winners' Eights", "Winners' Quarters", "Pools"
-    );
 
     private static Config getConfig() {
         Config config = new Config();
@@ -37,7 +22,7 @@ public class RoundLabelDAOIni extends CachedIniDAOBase implements RoundLabelDAO 
     public RoundLabelDAOIni(ResourcePath path) {
         super(path, getConfig());
         if (cache.isEmpty()) {
-            setAll(_DEFAULT_ROUNDS);
+            setAll(RoundLabelDAO.getDefault());
         }
     }
 
@@ -100,10 +85,5 @@ public class RoundLabelDAOIni extends CachedIniDAOBase implements RoundLabelDAO 
     public void deleteAll() {
         cache.clear();
         store();
-    }
-
-    @Override
-    public List<String> getDefault() {
-        return _DEFAULT_ROUNDS;
     }
 }

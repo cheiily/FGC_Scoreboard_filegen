@@ -56,32 +56,14 @@ public class DataManager {
 
     private boolean initialized;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private final PropertyChangeListener propagator = evt -> pcs.firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
 
    /**
      * @param toProp   property to subscribe to
      * @param listener listener to add as a subscriber
      */
     public void subscribe(DataEventProp toProp, PropertyChangeListener listener) {
-        switch (toProp) {
-            case INIT, SAVE:
-                pcs.addPropertyChangeListener(toProp.toString(), listener);
-                break;
-            case CHANGED_CONFIG:
-                ((EventfulCachedIniDAOWrapper) configDAO).subscribe(listener);
-                break;
-            case CHANGED_PLAYER_LIST:
-                ((EventfulCachedIniDAOWrapper) playersDAO).subscribe(listener);
-                break;
-            case CHANGED_COMMENTARY_LIST:
-                ((EventfulCachedIniDAOWrapper) commentaryDAO).subscribe(listener);
-                break;
-            case CHANGED_MATCH_DATA:
-                ((EventfulCachedIniDAOWrapper) matchDAO).subscribe(listener);
-                break;
-            case CHANGED_ROUND_LABELS:
-                ((EventfulCachedIniDAOWrapper) roundLabelDAO).subscribe(listener);
-                break;
-        }
+        pcs.addPropertyChangeListener(toProp.toString(), listener);
     }
 
     /**
@@ -90,11 +72,6 @@ public class DataManager {
      * @param listener listener to add as a subscriber
      */
     public void subscribeAll(PropertyChangeListener listener) {
-        ((EventfulCachedIniDAOWrapper) configDAO).subscribe(listener);
-        ((EventfulCachedIniDAOWrapper) playersDAO).subscribe(listener);
-        ((EventfulCachedIniDAOWrapper) commentaryDAO).subscribe(listener);
-        ((EventfulCachedIniDAOWrapper) matchDAO).subscribe(listener);
-        ((EventfulCachedIniDAOWrapper) roundLabelDAO).subscribe(listener);
         pcs.addPropertyChangeListener(listener);
     }
 
@@ -103,26 +80,7 @@ public class DataManager {
      * @param listener listener to remove from subscribers
      */
     public void unsubscribe(DataEventProp fromProp, PropertyChangeListener listener) {
-        switch (fromProp) {
-            case INIT, SAVE:
-                pcs.removePropertyChangeListener(fromProp.toString(), listener);
-                break;
-            case CHANGED_CONFIG:
-                ((EventfulCachedIniDAOWrapper) configDAO).unsubscribe(listener);
-                break;
-            case CHANGED_PLAYER_LIST:
-                ((EventfulCachedIniDAOWrapper) playersDAO).unsubscribe(listener);
-                break;
-            case CHANGED_COMMENTARY_LIST:
-                ((EventfulCachedIniDAOWrapper) commentaryDAO).unsubscribe(listener);
-                break;
-            case CHANGED_MATCH_DATA:
-                ((EventfulCachedIniDAOWrapper) matchDAO).unsubscribe(listener);
-                break;
-            case CHANGED_ROUND_LABELS:
-                ((EventfulCachedIniDAOWrapper) roundLabelDAO).unsubscribe(listener);
-                break;
-        }
+        pcs.removePropertyChangeListener(fromProp.toString(), listener);
     }
 
     /**
@@ -131,11 +89,6 @@ public class DataManager {
      * @param listener listener to remove from subscribers
      */
     public void unsubscribeAll(PropertyChangeListener listener) {
-        ((EventfulCachedIniDAOWrapper) configDAO).unsubscribe(listener);
-        ((EventfulCachedIniDAOWrapper) playersDAO).unsubscribe(listener);
-        ((EventfulCachedIniDAOWrapper) commentaryDAO).unsubscribe(listener);
-        ((EventfulCachedIniDAOWrapper) matchDAO).unsubscribe(listener);
-        ((EventfulCachedIniDAOWrapper) roundLabelDAO).unsubscribe(listener);
         pcs.removePropertyChangeListener(listener);
     }
 
@@ -163,15 +116,10 @@ public class DataManager {
      * </ol>
      * The Manager will then attempt to save the loaded data into the internal files so as to store the updated configuration.<br/>
      * Afterwards, the directory for custom lists will be prepared.<br/>
-     * Additionally, the Manager will try to read a {@link ResourcePath#CUSTOM_ROUND_LIST}. If there is no such file found, the {@link DataManager#DEFAULT_ROUND_SET} is loaded instead.
+     * Additionally, the Manager will try to read a {@link ResourcePath#CUSTOM_ROUND_LIST}. If there is no such file found, the  is loaded instead.
      * As there is not much additional information to ever store about the round labels, the Manager does not store such lists in its "meta" files, but rather holds it in memory while active.
      *
      * @param targetDir {@link Path} representation of the target directory
-     * @see DataManager#loadMetadata()
-     * @see DataManager#loadInternalLists()
-     * @see DataManager#loadCustomLists()
-     * @see DataManager#saveLists()
-     * @see DataManager#loadRoundsCSV()
      */
     public void initialize(Path targetDir) {
         initialized = true;
@@ -183,7 +131,12 @@ public class DataManager {
         playersDAO = (PlayersDAO) new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(ResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
         commentaryDAO = (PlayersDAO) new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(COMMS_LIST), PlayersDAO.class, CHANGED_COMMENTARY_LIST.name());
         roundLabelDAO = (RoundLabelDAO) new EventfulCachedIniDAOWrapper<>(new RoundLabelDAOIni(ROUND_LIST), RoundLabelDAO.class, CHANGED_ROUND_LABELS.name());
-        
+
+        ((EventfulCachedIniDAOWrapper) configDAO).subscribe(propagator);
+        ((EventfulCachedIniDAOWrapper) matchDAO).subscribe(propagator);
+        ((EventfulCachedIniDAOWrapper) playersDAO).subscribe(propagator);
+        ((EventfulCachedIniDAOWrapper) commentaryDAO).subscribe(propagator);
+        ((EventfulCachedIniDAOWrapper) roundLabelDAO).subscribe(propagator);
         // todo retain manually edited player list
 
         pcs.firePropertyChange(INIT.toString(), null, null);
@@ -192,10 +145,10 @@ public class DataManager {
     /**
      * Writes the stored data to files.<br/>
      * Note that the manager will only write to the {@link ResourcePath#METADATA} and output files.
-     * The manager will NOT write any of the data contained within {@link DataManager#playerList} or {@link DataManager#commsList}.<br>
+     * The manager will NOT write any of the data contained within  or .<br>
      * In case any of the save operations failed, an {@link Alert} will be displayed, listing the filenames.
      * <p>
-     * See also: {@link DataManager#saveMeta()}, {@link DataManager#saveOutput()}
+     * See also: , {@link DataManager#saveOutput()}
      */
     public void save() {
         //Update the Websocket before we return.
@@ -223,51 +176,50 @@ public class DataManager {
      *
      * @return List of {@link ResourcePath}s, which failed to be saved.
      * @see DataManager#saveResource(ResourcePath, String...)
-     * @see DataManager#getMeta(MetaKey, MetaKey)
      */
     private List<ResourcePath> saveOutput() {
         List<ResourcePath> failedSaves = new ArrayList<>();
 
-        if ( !saveResource(ResourcePath.ROUND, getMeta(SEC_ROUND, KEY_ROUND_LABEL)) )
+        if ( !saveResource(ResourcePath.ROUND, matchDAO.get(MatchDataKey.ROUND_LABEL)) )
             failedSaves.add(ResourcePath.ROUND);
-        if ( !saveResource(ResourcePath.P1_SCORE, getMeta(SEC_ROUND, KEY_SCORE_1)) )
+        if ( !saveResource(ResourcePath.P1_SCORE, matchDAO.get(MatchDataKey.P1_SCORE)) )
             failedSaves.add(ResourcePath.P1_SCORE);
-        if ( !saveResource(ResourcePath.P2_SCORE, getMeta(SEC_ROUND, KEY_SCORE_2)) )
+        if ( !saveResource(ResourcePath.P2_SCORE, matchDAO.get(MatchDataKey.P2_SCORE)) )
             failedSaves.add(ResourcePath.P2_SCORE);
         if ( AppConfig.PUT_FLAGS() ) {
-            if ( !saveResource(ResourcePath.P1_FLAG, (getMeta(SEC_P1, KEY_NATION) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
+            if ( !saveResource(ResourcePath.P1_FLAG, (matchDAO.get(MatchDataKey.P1_NATIONALITY) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
                 failedSaves.add(ResourcePath.P1_FLAG);
-            if ( !saveResource(ResourcePath.P2_FLAG, (getMeta(SEC_P2, KEY_NATION) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
+            if ( !saveResource(ResourcePath.P2_FLAG, (matchDAO.get(MatchDataKey.P2_NATIONALITY) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
                 failedSaves.add(ResourcePath.P2_FLAG);
         }
 
         if ( !saveResource(
                 ResourcePath.COMMS,
-                getMeta(SEC_COMMS, KEY_HOST),
-                getMeta(SEC_COMMS, KEY_COMM_1),
-                getMeta(SEC_COMMS, KEY_COMM_2)
+                "", //host
+                matchDAO.get(MatchDataKey.COMM_NAME_TEMPLATE + "1"),
+                matchDAO.get(MatchDataKey.COMM_NAME_TEMPLATE + "2")
         ) ) failedSaves.add(ResourcePath.COMMS);
 
-        boolean isGF = getMeta(SEC_ROUND, KEY_GF, boolean.class);
-        boolean isReset = getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
-        boolean winnerSide = isReset ? false
-                : getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
+//        boolean isGF = getMeta(SEC_ROUND, KEY_GF, boolean.class);
+//        boolean isReset = getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
+//        boolean winnerSide = isReset ? false
+//                : getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
 
         if ( !saveResource(
                 ResourcePath.P1_NAME,
-                getMeta(SEC_P1, KEY_TAG),
-                getMeta(SEC_P1, KEY_NAME),
-                isGF ? Boolean.toString(winnerSide) : null
+                matchDAO.get(MatchDataKey.P1_TAG),
+                matchDAO.get(MatchDataKey.P1_NAME),
+                matchDAO.get(MatchDataKey.IS_GF_P1_WINNER)
         ) ) failedSaves.add(ResourcePath.P1_NAME);
 
-        winnerSide = isReset ? false : !winnerSide;
+//        winnerSide = isReset ? false : !winnerSide;
 
         if ( !saveResource(
                 ResourcePath.P2_NAME,
-                getMeta(SEC_P2, KEY_TAG),
-                getMeta(SEC_P2, KEY_NAME),
-                isGF ? Boolean.toString(winnerSide) : null
-        ) ) failedSaves.add(ResourcePath.P1_NAME);
+                matchDAO.get(MatchDataKey.P2_TAG),
+                matchDAO.get(MatchDataKey.P2_NAME),
+                matchDAO.get(MatchDataKey.IS_GF_P2_WINNER)
+        ) ) failedSaves.add(ResourcePath.P2_NAME);
 
         return failedSaves;
     }
@@ -314,7 +266,6 @@ public class DataManager {
      * This method wraps that operation in order to improve code clarity within the controller class, at the cost of exposing its members to the DataManager.
      *
      * @param ui {@link ControllerUI} to load data from its UI elements
-     * @see DataManager#putMeta(MetaKey, MetaKey, String)
      */
     public void loadMetadataFromUI(ControllerUI ui) {
         matchDAO.set(MatchDataKey.ROUND_LABEL.toString(), ui.combo_round.getValue());

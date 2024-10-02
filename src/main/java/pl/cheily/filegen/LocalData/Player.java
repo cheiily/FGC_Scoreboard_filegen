@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Represents a player with all of their related local data
  */
+// todo socials handle
 public class Player {
     private static final Player _EMPTY = empty();
 

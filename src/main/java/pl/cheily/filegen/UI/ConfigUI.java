@@ -200,7 +200,7 @@ public class ConfigUI implements Initializable {
      * @see ConfigUI#displayNOK
      */
     public void onSaveConfig() {
-        if ( dataManager.saveConfig() ) {
+        if ( dataManager.configDAO.saveAll() ) {
             onApplyConfig();
             new Thread(displayOK).start();
         } else {
@@ -220,9 +220,9 @@ public class ConfigUI implements Initializable {
      * @see ConfigUI#displayNOK
      */
     public void onReloadConfig() {
-        if ( !dataManager.loadConfig() ) {
+        if ( !dataManager.configDAO.loadAll() ) {
             new Thread(displayNOK).start();
-            new Alert(AlertType.WARNING, "Couldn't load configuration from " + ResourcePath.CONFIG + ".").show();
+//            new Alert(AlertType.WARNING, "Couldn't load configuration from " + ResourcePath.CONFIG + ".").show();
         } else
             new Thread(displayOK).start();
     }

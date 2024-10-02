@@ -60,7 +60,7 @@ public abstract class CachedIniDAOBase {
             logger.warn("Attempted write to {} while Data Manager isn't initialized.", this.path, e);
             return false;
         } catch (IOException e) {
-            logger.error(MarkerFactory.getMarker("ALERT"), "Failed write to {} for config data.", this.path, e);
+            logger.error(MarkerFactory.getMarker("ALERT"), "Failed write to {} for data.", this.path, e);
             return false;
         }
         return true;

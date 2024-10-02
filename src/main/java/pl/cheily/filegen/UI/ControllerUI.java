@@ -13,6 +13,8 @@ import javafx.stage.Stage;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.DataManager;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
@@ -72,7 +74,7 @@ public class ControllerUI implements Initializable {
     private final PropertyChangeListener listener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            List<String> pNames = dataManager.getAllPlayerNames();
+            List<String> pNames = dataManager.playersDAO.getAll().stream().map(Player::getName).toList();
             ac_p1_name.loadOriginList(pNames);
             ac_p2_name.loadOriginList(pNames);
             ac_p1_name.clearSuggestions();
@@ -90,7 +92,9 @@ public class ControllerUI implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        combo_round.getItems().addAll(dataManager.getRoundLabelsSorted());
+        if (!dataManager.isInitialized())
+            combo_round.getItems().addAll(RoundLabelDAO.getDefault());
+        else combo_round.getItems().addAll(dataManager.roundLabelDAO.getAllSorted());
 
         ObservableList<String> f1_opts = combo_p1_nation.getItems();
         ObservableList<String> f2_opts = combo_p2_nation.getItems();
@@ -243,12 +247,12 @@ public class ControllerUI implements Initializable {
     private void tryLoadData() {
 
         combo_round.getItems().clear();
-        List<String> rnds = dataManager.getRoundLabelsSorted();
+        List<String> rnds = dataManager.roundLabelDAO.getAllSorted();
         combo_round.getItems().addAll(rnds);
         ac_round.loadOriginList(rnds);
 
-        List<String> allPlayers = dataManager.getAllPlayerNames();
-        List<String> allComms = dataManager.getAllCommentatorNames();
+        List<String> allPlayers = dataManager.playersDAO.getAll().stream().map(Player::getName).toList();
+        List<String> allComms = dataManager.commentaryDAO.getAll().stream().map(Player::getName).toList();
         combo_p1_name.getItems().addAll(allPlayers);
         combo_p2_name.getItems().addAll(allPlayers);
         combo_host.getItems().addAll(allComms);
@@ -266,43 +270,43 @@ public class ControllerUI implements Initializable {
         }
 
         //round data
-        combo_round.setValue(dataManager.getMeta(SEC_ROUND, KEY_ROUND_LABEL));
-        txt_p1_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_1, int.class)));
-        txt_p2_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_2, int.class)));
+        combo_round.setValue(dataManager.matchDAO.get(MatchDataKey.ROUND_LABEL));
+        txt_p1_score.setText(String.valueOf(dataManager.matchDAO.get(MatchDataKey.P1_SCORE)));
+        txt_p2_score.setText(String.valueOf(dataManager.matchDAO.get(MatchDataKey.P2_SCORE)));
 
-        boolean is_reset = dataManager.getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
-        boolean is_p1_w = dataManager.getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
+//        boolean is_reset = dataManager.getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
+//        boolean is_p1_w = dataManager.getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
         //enable radio to allow "chained" setting
         radio_buttons.forEach(r -> r.setDisable(false));
 
-        if ( is_reset && !radio_reset.isSelected() )
+        if ( Boolean.parseBoolean(dataManager.matchDAO.get(MatchDataKey.IS_GF_RESET)) && !radio_reset.isSelected() )
             radio_reset.fire();
-        else if ( is_p1_w && !radio_p1_W.isSelected() )
+        else if ( Boolean.parseBoolean(dataManager.matchDAO.get(MatchDataKey.IS_GF_P1_WINNER)) && !radio_p1_W.isSelected() )
             radio_p1_W.fire();
-        else if ( !is_p1_w && radio_p1_W.isSelected() )
+        else if ( Boolean.parseBoolean(dataManager.matchDAO.get(MatchDataKey.IS_GF_P2_WINNER)) && radio_p1_W.isSelected() )
             radio_p1_W.fire();
 
         //disable radio
         GF_toggle.setSelected(false);
 
         //finally set radio in the proper state
-        boolean is_gf = dataManager.getMeta(SEC_ROUND, KEY_GF, boolean.class);
+        boolean is_gf = Boolean.parseBoolean(dataManager.matchDAO.get(MatchDataKey.IS_GF));
         GF_toggle.setSelected(is_gf);
 
         //p1 data
-        combo_p1_name.setValue(dataManager.getMeta(SEC_P1, KEY_NAME));
-        txt_p1_tag.setText(dataManager.getMeta(SEC_P1, KEY_TAG));
-        combo_p1_nation.setValue(dataManager.getMeta(SEC_P1, KEY_NATION));
+        combo_p1_name.setValue(dataManager.matchDAO.get(MatchDataKey.P1_NAME));
+        txt_p1_tag.setText(dataManager.matchDAO.get(MatchDataKey.P1_TAG));
+        combo_p1_nation.setValue(dataManager.matchDAO.get(MatchDataKey.P1_NATIONALITY));
 
         //p2 data
-        combo_p2_name.setValue(dataManager.getMeta(SEC_P2, KEY_NAME));
-        txt_p2_tag.setText(dataManager.getMeta(SEC_P2, KEY_TAG));
-        combo_p2_nation.setValue(dataManager.getMeta(SEC_P2, KEY_NATION));
+        combo_p2_name.setValue(dataManager.matchDAO.get(MatchDataKey.P2_NAME));
+        txt_p2_tag.setText(dataManager.matchDAO.get(MatchDataKey.P2_TAG));
+        combo_p2_nation.setValue(dataManager.matchDAO.get(MatchDataKey.P2_NATIONALITY));
 
         //comms data
-        combo_host.setValue(dataManager.getMeta(SEC_COMMS, KEY_HOST));
-        combo_comm1.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_1));
-        combo_comm2.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_2));
+        combo_host.setValue("DISABLED");
+        combo_comm1.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_TEMPLATE + "1"));
+        combo_comm2.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_TEMPLATE + "2"));
 
 
     }
@@ -324,7 +328,7 @@ public class ControllerUI implements Initializable {
     }
 
     /**
-     * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
+     * Searches for the selected player via .
      * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
@@ -332,17 +336,18 @@ public class ControllerUI implements Initializable {
     public void on_p1_selection() {
         txt_p1_score.setText("0");
 
-        Player selected = dataManager.getPlayer(combo_p1_name.getValue())
-                .orElse(Player.empty());
+        Player selected = dataManager.playersDAO.get(combo_p1_name.getValue());
+//        Player selected = dataManager.getPlayer(combo_p1_name.getValue())
+//                .orElse(Player.empty());
 
-        if ( selected != Player.empty() ) {
+        if ( selected != null && selected != Player.empty() ) {
             txt_p1_tag.setText(selected.getTag());
             combo_p1_nation.setValue(selected.getNationality());
         }
     }
 
     /**
-     * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
+     * Searches for the selected player via .
      * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
@@ -350,10 +355,11 @@ public class ControllerUI implements Initializable {
     public void on_p2_selection() {
         txt_p2_score.setText("0");
 
-        Player selected = dataManager.getPlayer(combo_p2_name.getValue())
-                .orElse(Player.empty());
+        Player selected = dataManager.playersDAO.get(combo_p2_name.getValue());
+//        Player selected = dataManager.getPlayer(combo_p2_name.getValue())
+//                .orElse(Player.empty());
 
-        if ( selected != Player.empty() ) {
+        if ( selected != null && selected != Player.empty() ) {
             txt_p2_tag.setText(selected.getTag());
             combo_p2_nation.setValue(selected.getNationality());
         }

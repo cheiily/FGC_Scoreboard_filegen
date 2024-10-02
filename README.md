@@ -37,58 +37,37 @@ Combo boxes are also fitted with search suggestions.
 
 
 
-### TODO's
+### TODO
 <details>
-<summary>Detailed</summary>
-
-App-core todo:
-- [x] Combobox autocomplete / suggestions (V0.2)
-- [ ] Attach a sample OBS scene
-- [x] Allow round names list file, if none is found - add the default opts (V0.2)
-- [x] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning, not err (V0.2)
-- [x] Make lists Ini-format to allow spaces in names (V0.2)
-- [ ] Make html output
-- [x] Move output writing to DataManager (V0.2)
-- [ ] UI-Meta bindings
-- [ ] Adjust check to allow different extensions
-
-Config todo:
-- [x] Ignoring case when searching player name by manual input
-- [x] API Key for challonge import
-- [ ] (maybe) splitting up the commentary file into separate files.
-- [x] Flag output toggle w/ directory selection & deduced-default file extension
-
-UI todo:
-- [x] Controller tab (V0.1)
-  - [x] Set radio buttons on load if it's a grand final round 
-  - [x] Quick player switch button (V0.2)
-- [ ] Players tab
-  - [x] drag to seed manip (arrow buttons)
-  - [x] check-in button
-  - [ ] top 8 results highlight
-  - [x] scene
-  - [ ] controller
-- [x] Config tab
-  - [x] scene
-  - [x] controller
-- [ ] ResourceBundle localization
-
-Integration todo:
-- [ ] Challonge: 
-  - [ ] import player list
-  - [ ] update participant status
-
-</details>
-
-<details>
-<summary>Roadmap / history</summary>
+<summary>Roadmap</summary>
 
 Fixes/Next commit/Minor todo:
-- [ ] V0.3
-  - [ ] Move null-flag & default flag collection to resource
-  - [x] Apply config settings
-  - [ ] Adjust the outputwriter architecture for fork merge
+- [ ] V0.5
+  - [ ] Challonge integration
+  - [ ] All controls working
+- [ ] V0.4
   - [ ] Merge and appropriate the websocket fork
+  - [ ] Offer a basic, free html overlay
+  - [ ] Offer a basic, free file-based obs overlay setup
+- [ ] V0.3
+  - [ ] get rid of custom lists outside the app
+    - [ ] Create appropriate scenes for each list edition
+  - [ ] Rework metadata storage
+    - [ ] DAO architecture
+      - [ ] ini impl
+      - [ ] db impl
+    - [ ] selectable save format 
+  - [ ] Rework output writer/formatter architecture to work with new meta storage
+    - [ ] offer writer-formatter config detailing which field should be formatted, with selectable formatter per-writer & selectable output resource (input data is bundled into output resource) per-formatter, optional per-option setting?
+    - [ ] split comms output
+    - [ ] make comms amount arbitrary
+    - [ ] get rid of [W] mark
+    - [ ] get rid of host
+    - [ ] get rid of emojis
+  - [ ] Move null-flag & default flag collection to resource
+    - [ ] collect basic pride flags
+  - [x] Apply config settings
+  ~~- [ ] Merge and appropriate the websocket fork~~ (moved to 0.4)
   - [x] Move P2 GF tag to the left
   - [x] Fix a bug where autcomplete clear on-save causes automated related-field load and loses changes
 - [x] V0.2

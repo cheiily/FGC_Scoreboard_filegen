@@ -20,6 +20,7 @@ import pl.cheily.filegen.Utils.PlayerTableUtil;
 import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.Comparator;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
@@ -30,7 +31,7 @@ public class PlayersUI implements Initializable {
     public TextField txt_url;
     public TextField txt_csv_path;
     public TableView<Player> player_table;
-    private final ObservableList<Player> playerList = FXCollections.observableList(dataManager.getAllPlayers());
+    private final ObservableList<Player> playerList = FXCollections.observableList(List.of());
     public TableColumn<Player, Integer> seed_col;
     public TableColumn<Player, Image> icon_col;
     public TableColumn<Player, String> tag_col;
@@ -178,10 +179,10 @@ public class PlayersUI implements Initializable {
      * @param actionEvent
      */
     public void on_save(ActionEvent actionEvent) {
-        dataManager.removeAllPlayers();
-        dataManager.putAllPlayers(playerList);
-        if ( !dataManager.saveLists() )
-            new Alert(Alert.AlertType.ERROR, "Failed to save player/commentary list. Changes have been applied to the cached lists.", ButtonType.OK).show();
+        dataManager.playersDAO.deleteAll();
+        dataManager.playersDAO.setAll(playerList.stream().map(Player::getUuidStr).toList(), playerList);
+//        if ( !dataManager.saveLists() )
+//            new Alert(Alert.AlertType.ERROR, "Failed to save player/commentary list. Changes have been applied to the cached lists.", ButtonType.OK).show();
     }
 
     public void on_pull(ActionEvent actionEvent) {
@@ -227,7 +228,7 @@ public class PlayersUI implements Initializable {
      * @param actionEvent
      */
     public void on_reload(ActionEvent actionEvent) {
-        dataManager.reinitialize();
+        dataManager.initialize(dataManager.targetDir);
         reload_table();
     }
 
@@ -236,7 +237,7 @@ public class PlayersUI implements Initializable {
      */
     private void reload_table() {
         playerList.clear();
-        playerList.addAll(dataManager.getAllPlayers());
+        playerList.addAll(dataManager.playersDAO.getAll());
         player_table.refresh();
         player_table.sort();
         hideMoveButtons();
