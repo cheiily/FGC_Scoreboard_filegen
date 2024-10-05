@@ -3,14 +3,13 @@ package pl.cheily.filegen.LocalData;
 import javafx.beans.property.*;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Represents a player with all of their related local data
  */
 // todo socials handle
 public class Player {
-    private static final Player _EMPTY = empty();
+    private static final Player _EMPTY = getInvalid();
 
     private final UUID uuid;
     private final ReadOnlyStringProperty uuidStr;
@@ -48,8 +47,11 @@ public class Player {
         this(tag, name, nationality, pronouns, 0, 0, null, "");
     }
 
-    public static Player empty() {
+    public static Player getInvalid() {
         return new Player(new UUID(0, 0), "", "", "", "", 0, 0, "", "");
+    }
+    public static Player newEmpty() {
+        return new Player("", "", "", "");
     }
 
     public UUID getUuid() {

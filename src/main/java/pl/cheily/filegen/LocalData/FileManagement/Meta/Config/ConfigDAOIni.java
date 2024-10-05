@@ -52,14 +52,14 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
         if (verifyAndLogOnError(cfg_sec)) return List.of();
 
         List<String> vals = new ArrayList<>();
-        vals.add(cfg_sec.get(CHALLONGE_API.propName, String.class));
-        vals.add(cfg_sec.get(AUTOCOMPLETE_ON.propName, String.class));
-        vals.add(cfg_sec.get(MAKE_RAW_OUTPUT.propName, String.class));
-        vals.add(cfg_sec.get(MAKE_HTML_OUTPUT.propName, String.class));
-        vals.add(cfg_sec.get(GF_RADIO_ON_LABEL_MATCH.propName, String.class));
-        vals.add(cfg_sec.get(PUT_FLAGS.propName, String.class));
-        vals.add(cfg_sec.get(FLAG_EXTENSION.propName, String.class));
-        vals.add(cfg_sec.get(FLAG_DIRECTORY.propName, String.class));
+        vals.add(cfg_sec.getOrDefault(CHALLONGE_API.propName, ""));
+        vals.add(cfg_sec.getOrDefault(AUTOCOMPLETE_ON.propName, ""));
+        vals.add(cfg_sec.getOrDefault(MAKE_RAW_OUTPUT.propName, ""));
+        vals.add(cfg_sec.getOrDefault(MAKE_HTML_OUTPUT.propName, ""));
+        vals.add(cfg_sec.getOrDefault(GF_RADIO_ON_LABEL_MATCH.propName, ""));
+        vals.add(cfg_sec.getOrDefault(PUT_FLAGS.propName, ""));
+        vals.add(cfg_sec.getOrDefault(FLAG_EXTENSION.propName, ""));
+        vals.add(cfg_sec.getOrDefault(FLAG_DIRECTORY.propName, ""));
 
         return vals;
     }
@@ -73,7 +73,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             return "";
         }
 
-        return cfg_sec.get(key);
+        return cfg_sec.getOrDefault(key, "");
     }
 
     @Override
@@ -191,6 +191,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             Profile.Section cfg_sec = cache.get(SECTION_NAME);
             if (verifyAndLogOnError(cfg_sec)) return false;
 
+            // purposefully don't return defaults to flow into the catch clause if there are invalid values saved
             String newApi = cfg_sec.get(CHALLONGE_API.propName, String.class);
             Boolean newAutocomplete = cfg_sec.get(AUTOCOMPLETE_ON.propName, Boolean.class);
             Boolean newRawOut = cfg_sec.get(MAKE_RAW_OUTPUT.propName, Boolean.class);

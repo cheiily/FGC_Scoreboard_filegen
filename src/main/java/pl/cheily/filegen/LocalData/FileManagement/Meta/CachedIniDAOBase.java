@@ -30,8 +30,13 @@ public abstract class CachedIniDAOBase {
         cache = new Ini();
         cache.setConfig(config);
         try {
-            if (!Files.exists(path.toPath()))
+            if ( !Files.exists(path.toPath()) ) {
                 logger.debug("No pre-existing .ini file. Creating at {}", path);
+                if (path.toPath().getParent() != null && !Files.exists(path.toPath().getParent()))
+                    Files.createDirectories(path.toPath().getParent());
+                Files.createFile(path.toPath());
+            }
+
 
             File file = path.toPath().toFile();
             cache.load(file);
@@ -50,6 +55,7 @@ public abstract class CachedIniDAOBase {
     protected boolean store() {
         try {
             if ( !Files.exists(path.toPath()) ) {
+                logger.debug("No existing .ini file. Creating at {}", path);
                 if (path.toPath().getParent() != null && !Files.exists(path.toPath().getParent()))
                     Files.createDirectories(path.toPath().getParent());
                 Files.createFile(path.toPath());

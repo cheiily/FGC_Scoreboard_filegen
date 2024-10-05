@@ -50,6 +50,7 @@ Fixes/Next commit/Minor todo:
   - [ ] Offer a basic, free html overlay
   - [ ] Offer a basic, free file-based obs overlay setup
 - [ ] V0.3
+  - [ ] add an "add player to list / save changes to player / add as new player" plus button on the controller
   - [ ] get rid of custom lists outside the app
     - [ ] Create appropriate scenes for each list edition
   - [ ] Rework metadata storage

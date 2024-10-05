@@ -19,8 +19,8 @@ import pl.cheily.filegen.Utils.PlayerTableUtil;
 
 import java.beans.PropertyChangeListener;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
@@ -31,7 +31,7 @@ public class PlayersUI implements Initializable {
     public TextField txt_url;
     public TextField txt_csv_path;
     public TableView<Player> player_table;
-    private final ObservableList<Player> playerList = FXCollections.observableList(List.of());
+    private final ObservableList<Player> playerList = FXCollections.observableList(new ArrayList<>());
     public TableColumn<Player, Integer> seed_col;
     public TableColumn<Player, Image> icon_col;
     public TableColumn<Player, String> tag_col;
@@ -198,9 +198,9 @@ public class PlayersUI implements Initializable {
     public void on_add(ActionEvent actionEvent) {
         int newSeed = playerList.stream()
                 .max(Comparator.comparingInt(Player::getRemoteSeed))
-                .orElseGet(Player::empty)
+                .orElseGet(Player::getInvalid)
                 .getRemoteSeed() + 1;
-        Player newPlayer = Player.empty();
+        Player newPlayer = Player.newEmpty();
         newPlayer.setRemoteSeed(newSeed);
         playerList.add(newPlayer);
 

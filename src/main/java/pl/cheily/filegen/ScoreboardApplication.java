@@ -40,7 +40,10 @@ public class ScoreboardApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         var rootlog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        rootlog.addAppender(new AlertingAppender());
+        var appender = new AlertingAppender();
+        appender.setContext(rootlog.getLoggerContext());
+//        appender.start();//?
+        rootlog.addAppender(appender);
 
         mainStage = stage;
         dataManager = new DataManager(new RawOutputWriter("default raw-output writer #1", new DefaultOutputFormatter()));

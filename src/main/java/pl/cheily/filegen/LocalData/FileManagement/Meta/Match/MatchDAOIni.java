@@ -34,7 +34,7 @@ public class MatchDAOIni extends CachedIniDAOBase implements MatchDAO {
 
         List<String> vals = new ArrayList<>();
         for (MatchDataKey key : MatchDataKey.values()) {
-            vals.add(mtch_sec.get(key.toString(), String.class));
+            vals.add(mtch_sec.getOrDefault(key.toString(), ""));
         }
 
         return vals;
@@ -46,7 +46,7 @@ public class MatchDAOIni extends CachedIniDAOBase implements MatchDAO {
         Profile.Section mtch_sec = cache.get(SECTION_NAME);
         if (verifyAndLogOnError(mtch_sec)) return "";
 
-        return mtch_sec.get(key, String.class);
+        return mtch_sec.getOrDefault(key, "");
     }
 
     @Override

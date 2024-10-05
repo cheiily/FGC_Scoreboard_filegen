@@ -78,4 +78,8 @@ public class EventfulCachedIniDAOWrapper<T extends DAO<S>, S> implements DAO<S> 
         dao.deleteAll();
         pcs.firePropertyChange(pcsPropertyName, null, null);
     }
+
+    public T getDAO() {
+        return (T)dao;
+    }
 }

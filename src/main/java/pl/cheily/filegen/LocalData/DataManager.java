@@ -126,17 +126,23 @@ public class DataManager {
         this.targetDir = targetDir;
 
         // todo change resourcepaths to ini
-        configDAO = (ConfigDAO) new EventfulCachedIniDAOWrapper<>(new ConfigDAOIni(ResourcePath.CONFIG), ConfigDAO.class, CHANGED_CONFIG.name());
-        matchDAO = (MatchDAO) new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(ResourcePath.METADATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
-        playersDAO = (PlayersDAO) new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(ResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
-        commentaryDAO = (PlayersDAO) new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(COMMS_LIST), PlayersDAO.class, CHANGED_COMMENTARY_LIST.name());
-        roundLabelDAO = (RoundLabelDAO) new EventfulCachedIniDAOWrapper<>(new RoundLabelDAOIni(ROUND_LIST), RoundLabelDAO.class, CHANGED_ROUND_LABELS.name());
+        var configDAOWrapper = new EventfulCachedIniDAOWrapper<>(new ConfigDAOIni(ResourcePath.CONFIG), ConfigDAO.class, CHANGED_CONFIG.name());
+        var matchDAOWrapper = new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(ResourcePath.METADATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
+        var playersDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(ResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
+        var commentaryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(COMMS_LIST), PlayersDAO.class, CHANGED_COMMENTARY_LIST.name());
+        var roundLabelDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RoundLabelDAOIni(ROUND_LIST), RoundLabelDAO.class, CHANGED_ROUND_LABELS.name());
 
-        ((EventfulCachedIniDAOWrapper) configDAO).subscribe(propagator);
-        ((EventfulCachedIniDAOWrapper) matchDAO).subscribe(propagator);
-        ((EventfulCachedIniDAOWrapper) playersDAO).subscribe(propagator);
-        ((EventfulCachedIniDAOWrapper) commentaryDAO).subscribe(propagator);
-        ((EventfulCachedIniDAOWrapper) roundLabelDAO).subscribe(propagator);
+        configDAOWrapper.subscribe(propagator);
+        matchDAOWrapper.subscribe(propagator);
+        playersDAOWrapper.subscribe(propagator);
+        commentaryDAOWrapper.subscribe(propagator);
+        roundLabelDAOWrapper.subscribe(propagator);
+
+        configDAO = configDAOWrapper.getDAO();
+        matchDAO = matchDAOWrapper.getDAO();
+        playersDAO = playersDAOWrapper.getDAO();
+        commentaryDAO = commentaryDAOWrapper.getDAO();
+        roundLabelDAO = roundLabelDAOWrapper.getDAO();
         // todo retain manually edited player list
 
         pcs.firePropertyChange(INIT.toString(), null, null);
@@ -276,13 +282,13 @@ public class DataManager {
         matchDAO.set(MatchDataKey.IS_GF_P1_WINNER.toString(), Boolean.toString(ui.radio_p1_W.isSelected()));
         matchDAO.set(MatchDataKey.IS_GF_P2_WINNER.toString(), Boolean.toString(ui.radio_p2_W.isSelected()));
 
-        matchDAO.set(MatchDataKey.P1_NAME.toString(), ui.txt_p1_tag.getText());
-        matchDAO.set(MatchDataKey.P1_TAG.toString(), ui.combo_p1_name.getValue());
+        matchDAO.set(MatchDataKey.P1_TAG.toString(), ui.txt_p1_tag.getText());
+        matchDAO.set(MatchDataKey.P1_NAME.toString(), ui.combo_p1_name.getValue());
         matchDAO.set(MatchDataKey.P1_NATIONALITY.toString(), ui.combo_p1_nation.getValue());
         //todo pronouns
 
-        matchDAO.set(MatchDataKey.P2_NAME.toString(), ui.txt_p2_tag.getText());
-        matchDAO.set(MatchDataKey.P2_TAG.toString(), ui.combo_p2_name.getValue());
+        matchDAO.set(MatchDataKey.P2_TAG.toString(), ui.txt_p2_tag.getText());
+        matchDAO.set(MatchDataKey.P2_NAME.toString(), ui.combo_p2_name.getValue());
         matchDAO.set(MatchDataKey.P2_NATIONALITY.toString(), ui.combo_p2_nation.getValue());
 
         //todo take from table or w/e

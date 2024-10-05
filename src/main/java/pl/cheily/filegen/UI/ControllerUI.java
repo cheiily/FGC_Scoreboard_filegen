@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
-import static pl.cheily.filegen.LocalData.MetaKey.*;
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 import static pl.cheily.filegen.Utils.Util.scrollOpt;
 
@@ -248,6 +247,7 @@ public class ControllerUI implements Initializable {
 
         combo_round.getItems().clear();
         List<String> rnds = dataManager.roundLabelDAO.getAllSorted();
+        if (rnds.isEmpty()) rnds = RoundLabelDAO.getDefault();
         combo_round.getItems().addAll(rnds);
         ac_round.loadOriginList(rnds);
 
@@ -329,7 +329,7 @@ public class ControllerUI implements Initializable {
 
     /**
      * Searches for the selected player via .
-     * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
+     * If no such player is found within the defined set (i.e. equal to {@link Player#getInvalid()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
      */
@@ -340,7 +340,7 @@ public class ControllerUI implements Initializable {
 //        Player selected = dataManager.getPlayer(combo_p1_name.getValue())
 //                .orElse(Player.empty());
 
-        if ( selected != null && selected != Player.empty() ) {
+        if ( selected != null && selected != Player.getInvalid() ) {
             txt_p1_tag.setText(selected.getTag());
             combo_p1_nation.setValue(selected.getNationality());
         }
@@ -348,7 +348,7 @@ public class ControllerUI implements Initializable {
 
     /**
      * Searches for the selected player via .
-     * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
+     * If no such player is found within the defined set (i.e. equal to {@link Player#getInvalid()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
      */
@@ -359,7 +359,7 @@ public class ControllerUI implements Initializable {
 //        Player selected = dataManager.getPlayer(combo_p2_name.getValue())
 //                .orElse(Player.empty());
 
-        if ( selected != null && selected != Player.empty() ) {
+        if ( selected != null && selected != Player.getInvalid() ) {
             txt_p2_tag.setText(selected.getTag());
             combo_p2_nation.setValue(selected.getNationality());
         }

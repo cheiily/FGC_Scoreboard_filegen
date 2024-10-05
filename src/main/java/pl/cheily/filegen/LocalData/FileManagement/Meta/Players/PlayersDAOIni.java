@@ -1,18 +1,10 @@
 package pl.cheily.filegen.LocalData.FileManagement.Meta.Players;
 
-import org.ini4j.Ini;
-import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
-import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAOIni;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -24,16 +16,17 @@ public class PlayersDAOIni extends CachedIniDAOBase implements PlayersDAO {
     }
 
     private static Player deserializeFromIni(Profile.Section sec_player) {
+        if (sec_player == null) return Player.getInvalid();
         return Player.deserialize(
                 sec_player.getName(),
-                sec_player.get(PlayerPropKey.TAG.toString()),
-                sec_player.get(PlayerPropKey.NAME.toString()),
-                sec_player.get(PlayerPropKey.NATIONALITY.toString()),
-                sec_player.get(PlayerPropKey.PRONOUNS.toString()),
-                sec_player.get(PlayerPropKey.REMOTE_ID.toString(), long.class),
-                sec_player.get(PlayerPropKey.REMOTE_SEED.toString(), int.class),
-                sec_player.get(PlayerPropKey.REMOTE_NAME.toString()),
-                sec_player.get(PlayerPropKey.REMOTE_ICON_URL.toString())
+                sec_player.getOrDefault(PlayerPropKey.TAG.toString(), ""),
+                sec_player.getOrDefault(PlayerPropKey.NAME.toString(), ""),
+                sec_player.getOrDefault(PlayerPropKey.NATIONALITY.toString(), ""),
+                sec_player.getOrDefault(PlayerPropKey.PRONOUNS.toString(), ""),
+                Long.parseLong(sec_player.getOrDefault(PlayerPropKey.REMOTE_ID.toString(), "0")),
+                Integer.parseInt(sec_player.getOrDefault(PlayerPropKey.REMOTE_SEED.toString(), "0")),
+                sec_player.getOrDefault(PlayerPropKey.REMOTE_NAME.toString(), ""),
+                sec_player.getOrDefault(PlayerPropKey.REMOTE_ICON_URL.toString(), "")
         );
     }
 
