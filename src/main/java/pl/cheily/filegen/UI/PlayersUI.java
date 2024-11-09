@@ -33,11 +33,12 @@ public class PlayersUI implements Initializable {
     public TableView<Player> player_table;
     private final ObservableList<Player> playerList = FXCollections.observableList(new ArrayList<>());
     public TableColumn<Player, Integer> seed_col;
-    public TableColumn<Player, Image> icon_col;
     public TableColumn<Player, String> tag_col;
     public TableColumn<Player, String> name_col;
     public TableColumn<Player, String> nat_col;
-    public TableColumn<Player, Boolean> chkin_col;
+    public TableColumn<Player, String> pron_col;
+    public TableColumn<Player, String> sns_col;
+
 
 
     private final IntegerStringConverter _ISConverter = new IntegerStringConverter();
@@ -77,7 +78,7 @@ public class PlayersUI implements Initializable {
         player_table.setItems(playerList);
 
         seed_col.setCellFactory(TextFieldTableCell.forTableColumn(_ISConverter));
-        seed_col.setCellValueFactory(new PropertyValueFactory<>("seed"));
+        seed_col.setCellValueFactory(new PropertyValueFactory<>("remoteSeed"));
         seed_col.setSortType(TableColumn.SortType.ASCENDING);
         player_table.getSortOrder().add(seed_col);
         seed_col.setOnEditCommit(
@@ -130,9 +131,11 @@ public class PlayersUI implements Initializable {
         });
         nat_col.setCellValueFactory(new PropertyValueFactory<>("nationality"));
 
+        pron_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        pron_col.setCellValueFactory(new PropertyValueFactory<>("pronouns"));
 
-        chkin_col.setCellFactory(CheckBoxTableCell.forTableColumn(chkin_col));
-        chkin_col.setCellValueFactory(new PropertyValueFactory<>("checkedIn"));
+        sns_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        sns_col.setCellValueFactory(new PropertyValueFactory<>("snsHandle"));
 
         player_table.setRowFactory(playerTableView -> {
             TableRow<Player> row = new TableRow<>();

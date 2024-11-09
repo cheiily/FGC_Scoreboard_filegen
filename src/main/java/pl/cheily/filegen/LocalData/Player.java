@@ -116,6 +116,18 @@ public class Player {
         return pronouns;
     }
 
+    public String getSnsHandle() {
+        return snsHandle.get();
+    }
+
+    public void setSnsHandle(String snsHandle) {
+        this.snsHandle.set(snsHandle);
+    }
+
+    public StringProperty snsHandleProperty() {
+        return snsHandle;
+    }
+
     public long getRemoteId() {
         return remoteId.get();
     }
@@ -174,6 +186,7 @@ public class Player {
                 ", name='" + name.get() + '\'' +
                 ", nationality='" + nationality.get() + '\'' +
                 ", pronouns='" + pronouns.get() + '\'' +
+                ", snsHandle='" + snsHandle.get() + '\'' +
                 ", remoteId=" + remoteId.get() +
                 ", remoteSeed=" + remoteSeed.get() +
                 ", remoteName='" + remoteName.get() + '\'' +
@@ -188,6 +201,7 @@ public class Player {
                 && this.name == _EMPTY.name
                 && this.pronouns == _EMPTY.pronouns
                 && this.nationality == _EMPTY.nationality
+                && this.snsHandle == _EMPTY.snsHandle
                 && this.remoteId == _EMPTY.remoteId
                 && this.remoteSeed == _EMPTY.remoteSeed
                 && this.remoteName == _EMPTY.remoteName

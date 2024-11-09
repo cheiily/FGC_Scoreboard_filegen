@@ -56,11 +56,11 @@
        <TableView fx:id="player_table" layoutX="49.0" layoutY="72.0" prefHeight="316.0" prefWidth="558.0">
           <columns>
             <TableColumn fx:id="seed_col" prefWidth="45.0" text="Seed" />
-            <TableColumn fx:id="icon_col" minWidth="0.0" prefWidth="43.0" text="Icon" />
             <TableColumn fx:id="tag_col" minWidth="0.0" prefWidth="62.0" text="Tag" />
-            <TableColumn fx:id="name_col" prefWidth="262.0" text="Name" />
-            <TableColumn fx:id="nat_col" minWidth="0.0" prefWidth="88.0" text="Nationality" />
-            <TableColumn fx:id="chkin_col" minWidth="0.0" prefWidth="57.0" text="Check-in" />
+            <TableColumn fx:id="name_col" prefWidth="215.0" text="Name" />
+            <TableColumn fx:id="nat_col" minWidth="0.0" prefWidth="53.0" text="Flag" />
+            <TableColumn fx:id="pron_col" prefWidth="70.0" text="Pronouns" />
+            <TableColumn fx:id="sns_col" prefWidth="112.0" text="Handle" />
         </columns>
       </TableView>
       <Button fx:id="buttonDown" disable="true" layoutX="36.0" layoutY="132.0" mnemonicParsing="false" onAction="#onButtonDown" text="↓" visible="false" />

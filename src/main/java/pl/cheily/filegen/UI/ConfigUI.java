@@ -18,6 +18,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
@@ -200,15 +202,20 @@ public class ConfigUI implements Initializable {
      * @see ConfigUI#displayNOK
      */
     public void onSaveConfig() {
+        if ( !dataManager.isInitialized() ) {
+            new Thread(displayNOK).start();
+            onApplyConfig();
+            new Alert(AlertType.WARNING, "No working directory selected - cannot save config to file! Changes were applied to the running configuration.").show();
+            return;
+        }
+
         if ( dataManager.configDAO.saveAll() ) {
             onApplyConfig();
             new Thread(displayOK).start();
         } else {
             new Thread(displayNOK).start();
-            Alert a = new Alert(AlertType.WARNING, "Couldn't store configuration to " + ResourcePath.CONFIG + ". Do you want to apply changes anyway?", ButtonType.APPLY, ButtonType.NO);
-            a.showAndWait();
-            if ( a.getResult() == ButtonType.APPLY )
-                onApplyConfig();
+            new Alert(AlertType.WARNING, "Couldn't store configuration to " + ResourcePath.CONFIG + "! Changes were applied.").show();
+            onApplyConfig();
         }
     }
 
@@ -220,9 +227,14 @@ public class ConfigUI implements Initializable {
      * @see ConfigUI#displayNOK
      */
     public void onReloadConfig() {
+        if ( !dataManager.isInitialized() ) {
+            new Alert(AlertType.ERROR, "No working directory selected - cannot reload configuration!").show();
+            return;
+        }
+
         if ( !dataManager.configDAO.loadAll() ) {
             new Thread(displayNOK).start();
-//            new Alert(AlertType.WARNING, "Couldn't load configuration from " + ResourcePath.CONFIG + ".").show();
+            new Alert(AlertType.WARNING, "Couldn't load configuration from " + ResourcePath.CONFIG + ".").show();
         } else
             new Thread(displayOK).start();
     }
