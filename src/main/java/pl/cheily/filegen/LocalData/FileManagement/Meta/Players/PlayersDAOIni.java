@@ -23,6 +23,7 @@ public class PlayersDAOIni extends CachedIniDAOBase implements PlayersDAO {
                 sec_player.getOrDefault(PlayerPropKey.NAME.toString(), ""),
                 sec_player.getOrDefault(PlayerPropKey.NATIONALITY.toString(), ""),
                 sec_player.getOrDefault(PlayerPropKey.PRONOUNS.toString(), ""),
+                sec_player.getOrDefault(PlayerPropKey.SNS_HANDLE.toString(), ""),
                 Long.parseLong(sec_player.getOrDefault(PlayerPropKey.REMOTE_ID.toString(), "0")),
                 Integer.parseInt(sec_player.getOrDefault(PlayerPropKey.REMOTE_SEED.toString(), "0")),
                 sec_player.getOrDefault(PlayerPropKey.REMOTE_NAME.toString(), ""),

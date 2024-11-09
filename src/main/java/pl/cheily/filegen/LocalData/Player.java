@@ -17,41 +17,43 @@ public class Player {
     private final StringProperty name;
     private final StringProperty nationality;
     private final StringProperty pronouns;
+    private final StringProperty snsHandle;
     private final LongProperty remoteId;
     private final IntegerProperty remoteSeed;
     private final StringProperty remoteName;
     private final StringProperty remoteIconUrl;
 
-    public Player(String tag, String name, String nationality, String pronouns, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
-        this(UUID.randomUUID(), tag, name, nationality, pronouns, remoteId, remoteSeed, remoteName, iconUrl);
+    public Player(String tag, String name, String nationality, String pronouns, String snsHandle, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
+        this(UUID.randomUUID(), tag, name, nationality, pronouns, snsHandle, remoteId, remoteSeed, remoteName, iconUrl);
     }
 
-    private Player(UUID uuid, String tag, String name, String nationality, String pronouns, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
+    private Player(UUID uuid, String tag, String name, String nationality, String pronouns, String snsHandle, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
         this.uuid = uuid;
         this.uuidStr = new SimpleStringProperty(uuid.toString());
         this.tag = new SimpleStringProperty(tag);
         this.name = new SimpleStringProperty(name);
         this.nationality = new SimpleStringProperty(nationality);
         this.pronouns = new SimpleStringProperty(pronouns);
+        this.snsHandle = new SimpleStringProperty(snsHandle);
         this.remoteId = new SimpleLongProperty(remoteId);
         this.remoteSeed = new SimpleIntegerProperty(remoteSeed);
         this.remoteName = new SimpleStringProperty(remoteName);
         this.remoteIconUrl = new SimpleStringProperty(iconUrl);
     }
 
-    public static Player deserialize(String uuid, String tag, String name, String nationality, String pronouns, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
-        return new Player(UUID.fromString(uuid), tag, name, nationality, pronouns, remoteId, remoteSeed, remoteName, iconUrl);
+    public static Player deserialize(String uuid, String tag, String name, String nationality, String snsHandle, String pronouns, long remoteId, int remoteSeed, String remoteName, String iconUrl) {
+        return new Player(UUID.fromString(uuid), tag, name, nationality, pronouns, snsHandle, remoteId, remoteSeed, remoteName, iconUrl);
     }
 
-    public Player(String tag, String name, String nationality, String pronouns) {
-        this(tag, name, nationality, pronouns, 0, 0, null, "");
+    public Player(String tag, String name, String nationality, String pronouns, String snsHandle) {
+        this(tag, name, nationality, pronouns, snsHandle, 0, 0, null, "");
     }
 
     public static Player getInvalid() {
-        return new Player(new UUID(0, 0), "", "", "", "", 0, 0, "", "");
+        return new Player(new UUID(0, 0), "", "", "", "", "", 0, 0, "", "");
     }
     public static Player newEmpty() {
-        return new Player("", "", "", "");
+        return new Player("", "", "", "", "");
     }
 
     public UUID getUuid() {

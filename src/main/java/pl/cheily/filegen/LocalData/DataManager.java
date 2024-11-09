@@ -257,7 +257,7 @@ public class DataManager {
             String[] line;
             while ( (line = csvReader.readNext()) != null ) {
                 // todo try determine column indices by header
-                Player player = new Player(line[ 0 ], line[ 1 ], line[ 2 ], "");
+                Player player = new Player(line[ 0 ], line[ 1 ], line[ 2 ], "", "");
                 playersDAO.set(player.getUuidStr(), player);
             }
 

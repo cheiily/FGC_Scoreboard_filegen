@@ -7,6 +7,7 @@ public enum PlayerPropKey {
     TAG("tag"),
     NATIONALITY("nationality"),
     PRONOUNS("pronouns"),
+    SNS_HANDLE("sns_handle"),
     REMOTE_ID("remote_id"),
     REMOTE_NAME("remote_name"),
     REMOTE_SEED("remote_seed"),
