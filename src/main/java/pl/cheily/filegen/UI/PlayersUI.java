@@ -45,27 +45,32 @@ public class PlayersUI implements Initializable {
     private final PropertyChangeListener _listener = evt -> reload_table();
     public Button buttonDown;
     public Button buttonUp;
+    public Button buttonCog;
 
     {
         dataManager.subscribe(DataEventProp.INIT, _listener);
     }
 
     /**
-     * Hides & disables {@link #buttonDown}, {@link #buttonUp}
+     * Hides & disables {@link #buttonDown}, {@link #buttonUp}, {@link #buttonCog}
      */
     private void hideMoveButtons() {
         buttonUp.setVisible(false);
         buttonDown.setVisible(false);
+        buttonCog.setVisible(false);
+        buttonCog.setDisable(true);
         buttonUp.setDisable(true);
         buttonDown.setDisable(true);
     }
 
     /**
-     * Shows & enables {@link #buttonDown}, {@link #buttonUp}
+     * Shows & enables {@link #buttonDown}, {@link #buttonUp}, {@link #buttonCog}
      */
     private void showMoveButtons() {
         buttonUp.setVisible(true);
         buttonDown.setVisible(true);
+        buttonCog.setVisible(true);
+        buttonCog.setDisable(false);
         buttonUp.setDisable(false);
         buttonDown.setDisable(false);
     }
@@ -146,14 +151,21 @@ public class PlayersUI implements Initializable {
                             player_table.getLayoutX() - buttonUp.getWidth()
                     );
                     buttonUp.setLayoutY(
-                            row.localToScene(row.getBoundsInLocal()).getMinY() - 0.5 * row.getHeight()
+                            row.localToScene(row.getBoundsInLocal()).getMinY() -  row.getHeight()
+                    );
+
+                    buttonCog.setLayoutX(
+                            player_table.getLayoutX() - buttonCog.getWidth()
+                    );
+                    buttonCog.setLayoutY(
+                            row.localToScene(row.getBoundsInLocal()).getMinY()
                     );
 
                     buttonDown.setLayoutX(
                             player_table.getLayoutX() - buttonDown.getWidth()
                     );
                     buttonDown.setLayoutY(
-                            row.localToScene(row.getBoundsInLocal()).getMinY() + 0.5 * row.getHeight()
+                            row.localToScene(row.getBoundsInLocal()).getMinY() + row.getHeight()
                     );
 
                     showMoveButtons();
@@ -297,5 +309,8 @@ public class PlayersUI implements Initializable {
         if (seed_col.getSortType() == TableColumn.SortType.ASCENDING)
             PlayerTableUtil.decrementSelectedSeedAndSwap(player_table);
         else PlayerTableUtil.incrementSelectedSeedAndSwap(player_table);
+    }
+
+    public void onButtonCog(ActionEvent actionEvent) {
     }
 }

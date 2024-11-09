@@ -63,7 +63,8 @@
             <TableColumn fx:id="sns_col" prefWidth="112.0" text="Handle" />
         </columns>
       </TableView>
-      <Button fx:id="buttonDown" disable="true" layoutX="36.0" layoutY="132.0" mnemonicParsing="false" onAction="#onButtonDown" text="↓" visible="false" />
-      <Button fx:id="buttonUp" disable="true" layoutX="36.0" layoutY="107.0" mnemonicParsing="false" onAction="#onButtonUp" text="↑" visible="false" />
+      <Button fx:id="buttonDown" disable="true" layoutX="34.0" layoutY="145.0" mnemonicParsing="false" onAction="#onButtonDown" prefWidth="27.0" text="↓" visible="false" />
+      <Button fx:id="buttonCog" disable="true" layoutX="34.0" layoutY="120.0" mnemonicParsing="false" onAction="#onButtonCog" prefWidth="27.0" text="⚙" visible="false" />
+      <Button fx:id="buttonUp" disable="true" layoutX="34.0" layoutY="95.0" mnemonicParsing="false" onAction="#onButtonUp" prefWidth="27.0" text="↑" visible="false" />
    </children>
 </AnchorPane>
