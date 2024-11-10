@@ -3,13 +3,17 @@ package pl.cheily.filegen.UI;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import pl.cheily.filegen.LocalData.DataEventProp;
@@ -194,6 +198,10 @@ public class PlayersUI implements Initializable {
      * @param actionEvent
      */
     public void on_save(ActionEvent actionEvent) {
+        if ( !dataManager.isInitialized() ) {
+            new Alert(Alert.AlertType.ERROR, "Working directory is not selected! Cannot save player list.").show();
+            return;
+        }
         dataManager.playersDAO.deleteAll();
         dataManager.playersDAO.setAll(playerList.stream().map(Player::getUuidStr).toList(), playerList);
 //        if ( !dataManager.saveLists() )
@@ -238,13 +246,15 @@ public class PlayersUI implements Initializable {
     }
 
     /**
-     * todo investigate this
      * Re-initializes the {@link ScoreboardApplication#dataManager} and refreshes the table.
      * @param actionEvent
      */
     public void on_reload(ActionEvent actionEvent) {
-        dataManager.initialize(dataManager.targetDir);
-        reload_table();
+        // re-init todo change this to just a playersdao reload maybe
+        if (dataManager.isInitialized()) {
+            dataManager.initialize(dataManager.targetDir);
+            reload_table();
+        }
     }
 
     /**
@@ -285,6 +295,7 @@ public class PlayersUI implements Initializable {
      */
     public void on_bg_click() {
         bg_pane.requestFocus();
+        hideMoveButtons();
     }
 
     /**
@@ -312,5 +323,21 @@ public class PlayersUI implements Initializable {
     }
 
     public void onButtonCog(ActionEvent actionEvent) {
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Player Details");
+
+        FXMLLoader loader = new FXMLLoader(ScoreboardApplication.class.getResource("player_edit_popup.fxml"));
+        try {
+            Parent root = loader.load();
+            PlayerEditPopupUI controller = loader.getController();
+            controller.open(player_table.getSelectionModel().getSelectedItem());
+            controller.stage = popupStage;
+            Scene scene = new Scene(root);
+            popupStage.setScene(scene);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        popupStage.show();
     }
 }

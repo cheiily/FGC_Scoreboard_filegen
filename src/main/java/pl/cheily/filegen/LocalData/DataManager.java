@@ -7,6 +7,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAOIni;
@@ -37,6 +39,8 @@ import static pl.cheily.filegen.LocalData.ResourcePath.ROUND_LIST;
 import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
 
 public class DataManager {
+    private final static Logger logger = LoggerFactory.getLogger(DataManager.class);
+
     /**
      * Target directory path
      */
@@ -122,6 +126,10 @@ public class DataManager {
      * @param targetDir {@link Path} representation of the target directory
      */
     public void initialize(Path targetDir) {
+        if (targetDir == null) {
+            logger.warn("Attempted to initialize DataManager with a null target directory. Cancelling.");
+        }
+
         initialized = true;
         this.targetDir = targetDir;
 
@@ -215,7 +223,7 @@ public class DataManager {
                 ResourcePath.P1_NAME,
                 matchDAO.get(MatchDataKey.P1_TAG),
                 matchDAO.get(MatchDataKey.P1_NAME),
-                matchDAO.get(MatchDataKey.IS_GF_P1_WINNER)
+                Boolean.parseBoolean(matchDAO.get(MatchDataKey.IS_GF)) ? matchDAO.get(MatchDataKey.IS_GF_P1_WINNER) : null
         ) ) failedSaves.add(ResourcePath.P1_NAME);
 
 //        winnerSide = isReset ? false : !winnerSide;
@@ -224,7 +232,7 @@ public class DataManager {
                 ResourcePath.P2_NAME,
                 matchDAO.get(MatchDataKey.P2_TAG),
                 matchDAO.get(MatchDataKey.P2_NAME),
-                matchDAO.get(MatchDataKey.IS_GF_P2_WINNER)
+                Boolean.parseBoolean(matchDAO.get(MatchDataKey.IS_GF)) ? matchDAO.get(MatchDataKey.IS_GF_P2_WINNER) : null
         ) ) failedSaves.add(ResourcePath.P2_NAME);
 
         return failedSaves;
