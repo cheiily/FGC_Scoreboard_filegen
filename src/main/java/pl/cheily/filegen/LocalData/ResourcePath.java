@@ -9,17 +9,46 @@ import java.nio.file.Path;
  */
 public enum ResourcePath {
 
+    //output
+    //todo rename to FILE_*
     ROUND("round.txt"),
+    P1_SCORE("p1_score.txt"),
+    P2_SCORE("p2_score.txt"),
+
+
     P1_NAME("p1_name.txt"),
     P1_FLAG("p1_flag.png"),
-    P1_SCORE("p1_score.txt"),
+    P1_PRONOUNS("p1_pronouns.txt"),
+    P1_HANDLE("p1_handle.txt"),
+
     P2_NAME("p2_name.txt"),
     P2_FLAG("p2_flag.png"),
-    P2_SCORE("p2_score.txt"),
-    COMMS("comms.txt"),
+    P2_PRONOUNS("p2_pronouns.txt"),
+    P2_HANDLE("p2_handle.txt"),
+
+    C1_NAME("comm1_name.txt"),
+    C1_FLAG("comm1_flag.png"),
+    C1_PRONOUNS("comm1_pronouns.txt"),
+    C1_HANDLE("comm1_handle.txt"),
+
+    C2_NAME("comm2_name.txt"),
+    C2_FLAG("comm2_flag.png"),
+    C2_PRONOUNS("comm2_pronouns.txt"),
+    C2_HANDLE("comm2_handle.txt"),
+
+    C3_NAME("comm3_name.txt"),
+    C3_FLAG("comm3_flag.png"),
+    C3_PRONOUNS("comm3_pronouns.txt"),
+    C3_HANDLE("comm3_handle.txt"),
+
+    DIV_ROUND("html/round"),
+
+    //lists todo remove in favor of UI loading csvs
     CUSTOM_PLAYER_LIST("lists/player_list.csv"),
     CUSTOM_COMMS_LIST("lists/comms_list.csv"),
     CUSTOM_ROUND_LIST("lists/round_list.csv"),
+
+    //meta
     PLAYER_LIST("meta/player_list.ini"),
     COMMS_LIST("meta/comms_list.csv"),
     ROUND_LIST("meta/round_list.ini"),
@@ -46,6 +75,7 @@ public enum ResourcePath {
      * @throws DataManagerNotInitializedException if {@link DataManager#isInitialized()} returns false
      */
     public Path toPath() throws DataManagerNotInitializedException {
+        // todo if key starts with DIV_, throw new exception
         if ( !ScoreboardApplication.dataManager.isInitialized() ) throw new DataManagerNotInitializedException();
 
         return Path.of(ScoreboardApplication.dataManager.targetDir + "/" + this.fileName);
@@ -69,12 +99,8 @@ public enum ResourcePath {
         return null;
     }
 
-    /**
-     * @return true if the resource is an overlay resource
-     */
-    public boolean isOutputResource() {
-        return !this.fileName.startsWith("lists")
-                && !this.fileName.startsWith("meta");
+    public boolean isHTML() {
+        return this.fileName.startsWith("html/");
     }
 
     // todo .format() -> .ini(), .csv(), .db() | .folder() -> .local() .appdata()

@@ -21,6 +21,8 @@ module pl.cheily.filegen {
     opens pl.cheily.filegen.LocalData to javafx.fxml;
     exports pl.cheily.filegen.LocalData.FileManagement.Meta;
     opens pl.cheily.filegen.LocalData.FileManagement.Meta to javafx.fxml;
-    exports pl.cheily.filegen.LocalData.FileManagement.Output;
-    opens pl.cheily.filegen.LocalData.FileManagement.Output to javafx.fxml;
+    exports pl.cheily.filegen.LocalData.FileManagement.Output.Formatting;
+    opens pl.cheily.filegen.LocalData.FileManagement.Output.Formatting to javafx.fxml;
+    exports pl.cheily.filegen.LocalData.FileManagement.Output.Writing;
+    opens pl.cheily.filegen.LocalData.FileManagement.Output.Writing to javafx.fxml;
 }

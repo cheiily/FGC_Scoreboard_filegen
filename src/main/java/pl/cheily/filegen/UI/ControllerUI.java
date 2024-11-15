@@ -307,8 +307,8 @@ public class ControllerUI implements Initializable {
 
         //comms data
         combo_host.setValue("DISABLED");
-        combo_comm1.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_TEMPLATE + "1"));
-        combo_comm2.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_TEMPLATE + "2"));
+        combo_comm1.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_1));
+        combo_comm2.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_2));
 
 
     }

@@ -3,8 +3,8 @@ package pl.cheily.filegen.Configuration;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAO;
-import pl.cheily.filegen.LocalData.FileManagement.Output.OutputWriter;
-import pl.cheily.filegen.LocalData.FileManagement.Output.RawOutputWriter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.RawOutputWriter;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

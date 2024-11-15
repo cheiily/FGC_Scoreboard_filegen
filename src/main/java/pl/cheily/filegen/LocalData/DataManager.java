@@ -1,12 +1,9 @@
 package pl.cheily.filegen.LocalData;
 
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
-import org.ini4j.Ini;
-import org.ini4j.Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.cheily.filegen.Configuration.AppConfig;
@@ -16,14 +13,12 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.EventfulCachedIniDAOWrapp
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
-import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayerPropKey;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAOIni;
-import pl.cheily.filegen.LocalData.FileManagement.Output.OutputWriter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.UI.ControllerUI;
-import pl.cheily.filegen.Utils.Util;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -33,7 +28,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static pl.cheily.filegen.LocalData.DataEventProp.*;
-import static pl.cheily.filegen.LocalData.MetaKey.*;
 import static pl.cheily.filegen.LocalData.ResourcePath.COMMS_LIST;
 import static pl.cheily.filegen.LocalData.ResourcePath.ROUND_LIST;
 import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
@@ -120,7 +114,7 @@ public class DataManager {
      * </ol>
      * The Manager will then attempt to save the loaded data into the internal files so as to store the updated configuration.<br/>
      * Afterwards, the directory for custom lists will be prepared.<br/>
-     * Additionally, the Manager will try to read a {@link ResourcePath#CUSTOM_ROUND_LIST}. If there is no such file found, the  is loaded instead.
+     * Additionally, the Manager will try to read a //custom round list//. If there is no such file found, the  is loaded instead.
      * As there is not much additional information to ever store about the round labels, the Manager does not store such lists in its "meta" files, but rather holds it in memory while active.
      *
      * @param targetDir {@link Path} representation of the target directory
@@ -162,118 +156,37 @@ public class DataManager {
      * The manager will NOT write any of the data contained within  or .<br>
      * In case any of the save operations failed, an {@link Alert} will be displayed, listing the filenames.
      * <p>
-     * See also: , {@link DataManager#saveOutput()}
      */
     public void save() {
         //Update the Websocket before we return.
-        dataWebSocket.updateMetadata();
+        // todo make it a writer
+//        dataWebSocket.updateMetadata();
 
-        List<ResourcePath> failedResourceSaves = saveOutput();
-        if ( failedResourceSaves.isEmpty() ) return;
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Couldn't save the following resources: ");
-        sb.append(failedResourceSaves);
-
-        new Alert(Alert.AlertType.ERROR, sb.toString(), ButtonType.OK).show();
+        for (OutputWriter writer : writers) {
+            writer.writeData();
+        }
         pcs.firePropertyChange(SAVE.toString(), null, null);
     }
-
-    //todo big refactorrrrr
-    /**
-     * Writes the overlay output data to the corresponding files.
-     * <p>
-     * As there is not yet implemented any easy method of mapping {@link ResourcePath}s and {@link MetaKey}s to one another, it is difficult to automate this task.
-     * Hence, in case of extension, if the modifier wishes to save any additional data or change the target locations, filenames, extensions, etc.
-     * - it is recommended to use {@link OutputWriter#writeData(String, String...)} directly with the desired target path,
-     * rather than attempting to extend the ResourcePath and/or MetaKey enums for usage with {@link DataManager#saveResource(ResourcePath, String...)}.
-     *
-     * @return List of {@link ResourcePath}s, which failed to be saved.
-     * @see DataManager#saveResource(ResourcePath, String...)
-     */
-    private List<ResourcePath> saveOutput() {
-        List<ResourcePath> failedSaves = new ArrayList<>();
-
-        if ( !saveResource(ResourcePath.ROUND, matchDAO.get(MatchDataKey.ROUND_LABEL)) )
-            failedSaves.add(ResourcePath.ROUND);
-        if ( !saveResource(ResourcePath.P1_SCORE, matchDAO.get(MatchDataKey.P1_SCORE)) )
-            failedSaves.add(ResourcePath.P1_SCORE);
-        if ( !saveResource(ResourcePath.P2_SCORE, matchDAO.get(MatchDataKey.P2_SCORE)) )
-            failedSaves.add(ResourcePath.P2_SCORE);
-        if ( AppConfig.PUT_FLAGS() ) {
-            if ( !saveResource(ResourcePath.P1_FLAG, (matchDAO.get(MatchDataKey.P1_NATIONALITY) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
-                failedSaves.add(ResourcePath.P1_FLAG);
-            if ( !saveResource(ResourcePath.P2_FLAG, (matchDAO.get(MatchDataKey.P2_NATIONALITY) + AppConfig.FLAG_EXTENSION()).toLowerCase()) )
-                failedSaves.add(ResourcePath.P2_FLAG);
-        }
-
-        if ( !saveResource(
-                ResourcePath.COMMS,
-                "", //host
-                matchDAO.get(MatchDataKey.COMM_NAME_TEMPLATE + "1"),
-                matchDAO.get(MatchDataKey.COMM_NAME_TEMPLATE + "2")
-        ) ) failedSaves.add(ResourcePath.COMMS);
-
-//        boolean isGF = getMeta(SEC_ROUND, KEY_GF, boolean.class);
-//        boolean isReset = getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
-//        boolean winnerSide = isReset ? false
-//                : getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
-
-        if ( !saveResource(
-                ResourcePath.P1_NAME,
-                matchDAO.get(MatchDataKey.P1_TAG),
-                matchDAO.get(MatchDataKey.P1_NAME),
-                Boolean.parseBoolean(matchDAO.get(MatchDataKey.IS_GF)) ? matchDAO.get(MatchDataKey.IS_GF_P1_WINNER) : null
-        ) ) failedSaves.add(ResourcePath.P1_NAME);
-
-//        winnerSide = isReset ? false : !winnerSide;
-
-        if ( !saveResource(
-                ResourcePath.P2_NAME,
-                matchDAO.get(MatchDataKey.P2_TAG),
-                matchDAO.get(MatchDataKey.P2_NAME),
-                Boolean.parseBoolean(matchDAO.get(MatchDataKey.IS_GF)) ? matchDAO.get(MatchDataKey.IS_GF_P2_WINNER) : null
-        ) ) failedSaves.add(ResourcePath.P2_NAME);
-
-        return failedSaves;
-    }
-
-    /**
-     * Utility method. Iterates over the assigned {@link OutputWriter}s and, if they're enabled, instructs them to save the passed data
-     *
-     * @param rp   {@link ResourcePath} representing the target file, passed via {@link ResourcePath#toString()}
-     * @param data vararg package of data to be formatted
-     * @return success value
-     * @see OutputWriter#writeData(String, String...)
-     */
-    private boolean saveResource(ResourcePath rp, String... data) {
-        boolean success = true;
-        for (OutputWriter writer : writers)
-            if ( writer.isEnabled() ) success &= writer.writeData(rp.toString(), data);
-
-        return success;
-    }
-
 
     /**
      * Uses {@link CSVReader} to load the custom player list regardless of its CSV-style.
      *
      * @return success value, false if any read line is not correctly formatted
      */
-    private boolean loadPlayersFromChallongeCSV() { // todo move this into an integration module
-        try ( CSVReader csvReader = new CSVReader(Files.newBufferedReader(ResourcePath.CUSTOM_PLAYER_LIST.toPath())) ) {
-            String[] line;
-            while ( (line = csvReader.readNext()) != null ) {
-                // todo try determine column indices by header
-                Player player = new Player(line[ 0 ], line[ 1 ], line[ 2 ], "", "");
-                playersDAO.set(player.getUuidStr(), player);
-            }
-
-            return true;
-        } catch (IOException | CsvValidationException | DataManagerNotInitializedException e) {
-            return false;
-        }
-    }
+//    private boolean loadPlayersFromChallongeCSV() { // todo move this into an integration module
+//        try ( CSVReader csvReader = new CSVReader(Files.newBufferedReader(ResourcePath.CUSTOM_PLAYER_LIST.toPath())) ) {
+//            String[] line;
+//            while ( (line = csvReader.readNext()) != null ) {
+//                // todo try determine column indices by header
+//                Player player = new Player(line[ 0 ], line[ 1 ], line[ 2 ], "", "");
+//                playersDAO.set(player.getUuidStr(), player);
+//            }
+//
+//            return true;
+//        } catch (IOException | CsvValidationException | DataManagerNotInitializedException e) {
+//            return false;
+//        }
+//    }
 
     /**
      * Utility method. As the stored metadata is only updated on-save, the most common scenario will be reading all of the related values.
@@ -300,19 +213,16 @@ public class DataManager {
         matchDAO.set(MatchDataKey.P2_NATIONALITY.toString(), ui.combo_p2_nation.getValue());
 
         //todo take from table or w/e
-        matchDAO.set(MatchDataKey.COMM_NAME_TEMPLATE + "0", ui.combo_host.getValue());
-        matchDAO.set(MatchDataKey.COMM_NAME_TEMPLATE + "1", ui.combo_comm1.getValue());
-        matchDAO.set(MatchDataKey.COMM_NAME_TEMPLATE + "2", ui.combo_comm2.getValue());
+        matchDAO.set(MatchDataKey.COMM_NAME_1, ui.combo_comm1.getValue());
+        matchDAO.set(MatchDataKey.COMM_NAME_2, ui.combo_comm2.getValue());
     }
 
     // todo move to OPTIONAL flag module
     /**
-     * Utility method, used for loading the UI elements. Copying of the actual files happens in other ways rather than with the help of this method.<br/>
+     * Utility method, used for loading the UI elements. Copying of the actual files happens in other ways.<br/>
      *
      * @param ISO2_code by standard but in actuality - an extension-less string representing the name of the related file within {@link DataManager#flagsDir}.
      * @return {@link Image} with the loaded flag, {@link DataManager#nullFlag} if the corresponding file cannot be found.
-     * @see DataManager#saveResource(ResourcePath, String...)
-     * @see OutputWriter#writeData(String, String...)
      */
     public Image getFlag(String ISO2_code) {
         if ( ISO2_code == null ) return new Image(nullFlag.toString());
@@ -330,8 +240,6 @@ public class DataManager {
      * @param ISO2_code by standard but in actuality - an extension-less string representing the name of the related file within {@link DataManager#flagsDir}.
      * @return Base64 String representation of the loaded flag, {@link DataManager#nullFlag} if the corresponding file cannot be found.
      * @see DataManager#getFlag(String)
-     * @see DataManager#saveResource(ResourcePath, String...)
-     * @see OutputWriter#writeData(String, String...)
      */
     public String getFlagBase64String(String ISO2_code) throws IOException {
 
