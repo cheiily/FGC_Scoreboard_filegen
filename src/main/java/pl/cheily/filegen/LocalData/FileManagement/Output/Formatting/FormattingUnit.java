@@ -32,6 +32,7 @@ public class FormattingUnit {
     }
     public static String findFlagFile(String... params) {
         // todo adjust this for bundled flags
+        if (params[0].isEmpty()) return params[0];
         try {
             Path flag = Files.find(Path.of(dataManager.flagsDir + "/"), 2, (path, basicFileAttributes) -> path.toFile().getName().startsWith(params[0]), FileVisitOption.FOLLOW_LINKS).findFirst().get();
             return flag.getFileName().toString();
