@@ -74,7 +74,7 @@ public class PlayersDAOIni extends CachedIniDAOBase implements PlayersDAO {
     public List<Player> findByName(String name) {
         if (cacheInvalid()) refresh();
         return cache.values().stream()
-                .filter(sec -> sec.getName().equals(name))
+                .filter(sec -> sec.get(PlayerPropKey.NAME.toString()).equals(name))
                 .map(PlayersDAOIni::deserializeFromIni)
                 .toList();
     }

@@ -340,7 +340,9 @@ public class ControllerUI implements Initializable {
 
         Player selected;
         if ( dataManager.isInitialized() ) {
-            selected = dataManager.playersDAO.get(combo_p1_name.getValue());
+            var found = dataManager.playersDAO.findByName(combo_p1_name.getValue());
+            if (found.isEmpty()) selected = Player.getInvalid();
+            else selected = found.get(0);
         } else {
             selected = Player.getInvalid();
         }
@@ -364,7 +366,9 @@ public class ControllerUI implements Initializable {
 
         Player selected;
         if ( dataManager.isInitialized() ) {
-            selected = dataManager.playersDAO.get(combo_p2_name.getValue());
+            var found = dataManager.playersDAO.findByName(combo_p2_name.getValue());
+            if (found.isEmpty()) selected = Player.getInvalid();
+            else selected = found.get(0);
         } else {
             selected = Player.getInvalid();
         }
