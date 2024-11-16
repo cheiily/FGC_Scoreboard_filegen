@@ -28,6 +28,7 @@ public class AppConfig {
     private static boolean _makeRawOutput = Defaults.MAKE_RAW_OUTPUT;
     private static boolean _makeHtmlOutput = Defaults.MAKE_HTML_OUTPUT;
     private static boolean _gfRadio = Defaults.GF_RADIO_ON_LABEL_MATCH;
+    private static boolean _comm3EmptyOut = Defaults.COMM3_EMPTY_OUT;
     private static boolean _putFlags = Defaults.PUT_FLAGS;
     private static String _flagExtension = Defaults.FLAG_EXTENSION;
     private static Path _flagDirectory = Defaults.FLAG_DIRECTORY;
@@ -343,6 +344,38 @@ public class AppConfig {
             _gfRadio = newValue;
         }
         _pcs.firePropertyChange(GF_RADIO_ON_LABEL_MATCH.propName, old, _gfRadio);
+
+        return true;
+    }
+
+    /**
+     * Getter method for {@link PropKey#COMM3_EMPTY_OUT}.
+     *
+     * @return whether the app should write output for commentator 3 even if there is non selected.
+     */
+    public synchronized static boolean COMM3_EMPTY_OUT() {
+        return _comm3EmptyOut;
+    }
+
+    /**
+     * Setter method for {@link PropKey#COMM3_EMPTY_OUT}.
+     * No changes applied if the value is invalid.
+     *
+     * @param newValue
+     * @return true if value was valid & was applied, false otherwise
+     * @see #COMM3_EMPTY_OUT()
+     */
+    public static boolean COMM3_EMPTY_OUT(Boolean newValue) {
+        if (!COMM3_EMPTY_OUT.validateParam(newValue)) return false;
+
+        boolean old;
+        synchronized (COMM3_EMPTY_OUT) {
+            if (newValue == _comm3EmptyOut) return true;
+
+            old = _comm3EmptyOut;
+            _comm3EmptyOut = newValue;
+        }
+        _pcs.firePropertyChange(COMM3_EMPTY_OUT.propName, old, _comm3EmptyOut);
 
         return true;
     }

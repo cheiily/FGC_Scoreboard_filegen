@@ -19,7 +19,7 @@
         </items>
       </ToolBar>
       <Label layoutX="453.0" layoutY="378.0" text="_cheily 2023     MIT License" />
-      <CheckBox fx:id="chk_out_raw" layoutX="49.0" layoutY="45.0" mnemonicParsing="false" text="Make &quot;raw&quot; output" />
+      <CheckBox fx:id="chk_out_raw" layoutX="49.0" layoutY="45.0" mnemonicParsing="false" text="Make file-based output" />
       <PasswordField fx:id="api_key" layoutX="49.0" layoutY="14.0" prefHeight="25.0" prefWidth="384.0" />
       <Label layoutX="439.0" layoutY="18.0" text="Challonge API Key" />
       <Button layoutX="245.0" layoutY="366.0" mnemonicParsing="false" onAction="#onResetConfig" text="❌Reset" />
@@ -31,5 +31,6 @@
       <Button layoutX="68.0" layoutY="366.0" mnemonicParsing="false" onAction="#onApplyConfig" text="✔Apply" />
       <ImageView fx:id="resultImgView" fitHeight="25.0" fitWidth="25.0" layoutX="37.0" layoutY="366.0" pickOnBounds="true" preserveRatio="true" />
       <CheckBox fx:id="chk_gf_radio" layoutX="49.0" layoutY="125.0" mnemonicParsing="false" text="Turn on GF radio toggle when round label matches &quot;gran(d)&quot;" />
+      <CheckBox fx:id="chk_comm3_out" layoutX="49.0" layoutY="145.0" mnemonicParsing="false" text="Make output files for a third commentator when not selected" />
    </children>
 </AnchorPane>

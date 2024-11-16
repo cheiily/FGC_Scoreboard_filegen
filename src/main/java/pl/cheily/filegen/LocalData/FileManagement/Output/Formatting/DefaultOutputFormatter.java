@@ -1,9 +1,12 @@
 package pl.cheily.filegen.LocalData.FileManagement.Output.Formatting;
 
+import pl.cheily.filegen.Configuration.AppConfig;
+import pl.cheily.filegen.Configuration.PropKey;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +18,7 @@ public class DefaultOutputFormatter implements OutputFormatter {
     protected static final String tagSeparator = " | ";
     protected static final String loserMarker = " [L] ";
     private ArrayList<FormattingUnit> units;
+    private PropertyChangeListener listener;
 
     public static List<FormattingUnit> getPreset() {
         ArrayList<FormattingUnit> ret = new ArrayList<>();
@@ -65,22 +69,40 @@ public class DefaultOutputFormatter implements OutputFormatter {
         ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_PRONOUNS_2), List.of(ResourcePath.C2_PRONOUNS), "she/her", FormattingUnit::oneToOnePass));
         ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_HANDLE_2), List.of(ResourcePath.C2_HANDLE), "@geekgirl", FormattingUnit::oneToOnePass));
 
-        ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_TAG_3, MatchDataKey.COMM_NAME_3), List.of(ResourcePath.C3_NAME), "CMMS | FrameWizard", format_comm_name));
-        ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_NATIONALITY_3), List.of(ResourcePath.C3_FLAG), "<a flag image>", FormattingUnit::findFlagFile));
-        ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_PRONOUNS_3), List.of(ResourcePath.C3_PRONOUNS), "they/them", FormattingUnit::oneToOnePass));
-        ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_HANDLE_3), List.of(ResourcePath.C3_HANDLE), "@frame_wizard", FormattingUnit::oneToOnePass));
+        FormattingUnit unit = new FormattingUnit(List.of(MatchDataKey.COMM_TAG_3, MatchDataKey.COMM_NAME_3), List.of(ResourcePath.C3_NAME), "CMMS | FrameWizard", format_comm_name);
+        unit.enabled = false;
+        ret.add(unit);
+        unit = new FormattingUnit(List.of(MatchDataKey.COMM_NATIONALITY_3), List.of(ResourcePath.C3_FLAG), "<a flag image>", FormattingUnit::findFlagFile);
+        unit.enabled = false;
+        ret.add(unit);
+        unit = new FormattingUnit(List.of(MatchDataKey.COMM_PRONOUNS_3), List.of(ResourcePath.C3_PRONOUNS), "they/them", FormattingUnit::oneToOnePass);
+        unit.enabled = false;
+        ret.add(unit);
+        unit = new FormattingUnit(List.of(MatchDataKey.COMM_HANDLE_3), List.of(ResourcePath.C3_HANDLE), "@frame_wizard", FormattingUnit::oneToOnePass);
+        unit.enabled = false;
+        ret.add(unit);
 
         return ret;
     }
 
     public DefaultOutputFormatter() {
         units = new ArrayList<>(getPreset());
+        listener = evt -> {
+            var fnd = units.stream().filter(unit -> {
+                for (var input : unit.inputKeys)
+                    if (input.toString().startsWith("commentator_") && input.toString().endsWith("_3"))
+                        return true;
+                return false;
+            }).toList();
+            fnd.forEach(unit -> unit.enabled = (boolean) evt.getNewValue());
+        };
+        AppConfig.subscribe(PropKey.COMM3_EMPTY_OUT, listener);
     }
 
     //todo per-writer config of used formatter and per-formatter config of disabled units
     @Override
     public String getName() {
-        return "Default formatter for file-based output.";
+        return "Default formatter for file-based output";
     }
 
     @Override
