@@ -50,6 +50,7 @@ public class PlayersUI implements Initializable {
     public Button buttonDown;
     public Button buttonUp;
     public Button buttonCog;
+    public Button btn_switch_table;
 
     {
         dataManager.subscribe(DataEventProp.INIT, _listener);
@@ -339,5 +340,8 @@ public class PlayersUI implements Initializable {
         }
 
         popupStage.show();
+    }
+
+    public void on_switch_table(ActionEvent actionEvent) {
     }
 }

@@ -206,15 +206,30 @@ public class DataManager {
         matchDAO.set(MatchDataKey.P1_TAG.toString(), ui.txt_p1_tag.getText());
         matchDAO.set(MatchDataKey.P1_NAME.toString(), ui.combo_p1_name.getValue());
         matchDAO.set(MatchDataKey.P1_NATIONALITY.toString(), ui.combo_p1_nation.getValue());
-        //todo pronouns
+        matchDAO.set(MatchDataKey.P1_PRONOUNS.toString(), ui.txt_p1_pronouns.getText());
+        matchDAO.set(MatchDataKey.P1_HANDLE.toString(), ui.txt_p1_handle.getText());
 
         matchDAO.set(MatchDataKey.P2_TAG.toString(), ui.txt_p2_tag.getText());
         matchDAO.set(MatchDataKey.P2_NAME.toString(), ui.combo_p2_name.getValue());
         matchDAO.set(MatchDataKey.P2_NATIONALITY.toString(), ui.combo_p2_nation.getValue());
+        matchDAO.set(MatchDataKey.P2_PRONOUNS.toString(), ui.txt_p2_pronouns.getText());
+        matchDAO.set(MatchDataKey.P2_HANDLE.toString(), ui.txt_p2_handle.getText());
 
-        //todo take from table or w/e
+        //todo nationality
         matchDAO.set(MatchDataKey.COMM_NAME_1, ui.combo_comm1.getValue());
+        matchDAO.set(MatchDataKey.COMM_TAG_1, ui.txt_comm1_tag.getText());
+        matchDAO.set(MatchDataKey.COMM_PRONOUNS_1, ui.txt_comm1_pronouns.getText());
+        matchDAO.set(MatchDataKey.COMM_HANDLE_1, ui.txt_comm1_handle.getText());
+
         matchDAO.set(MatchDataKey.COMM_NAME_2, ui.combo_comm2.getValue());
+        matchDAO.set(MatchDataKey.COMM_TAG_2, ui.txt_comm2_tag.getText());
+        matchDAO.set(MatchDataKey.COMM_PRONOUNS_2, ui.txt_comm2_pronouns.getText());
+        matchDAO.set(MatchDataKey.COMM_HANDLE_2, ui.txt_comm2_handle.getText());
+
+        matchDAO.set(MatchDataKey.COMM_NAME_3, ui.combo_comm3.getValue());
+        matchDAO.set(MatchDataKey.COMM_TAG_3, ui.txt_comm3_tag.getText());
+        matchDAO.set(MatchDataKey.COMM_PRONOUNS_3, ui.txt_comm3_pronouns.getText());
+        matchDAO.set(MatchDataKey.COMM_HANDLE_3, ui.txt_comm3_handle.getText());
     }
 
     // todo move to OPTIONAL flag module

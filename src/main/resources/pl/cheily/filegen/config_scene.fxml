@@ -14,7 +14,7 @@
       <ToolBar layoutX="-181.0" layoutY="181.0" prefHeight="25.0" prefWidth="399.0" rotate="270.0">
         <items>
             <ToggleButton fx:id="scene_toggle_config" mnemonicParsing="false" onAction="#on_scene_set_config" prefWidth="125.0" text="App Config" />
-            <Button mnemonicParsing="false" onAction="#on_scene_set_players" prefWidth="125.0" text="Players" />
+            <Button mnemonicParsing="false" onAction="#on_scene_set_players" prefWidth="125.0" text="Players &amp; Comms" />
             <Button mnemonicParsing="false" onAction="#on_scene_set_controller" prefWidth="125.0" text="Controller" />
         </items>
       </ToolBar>

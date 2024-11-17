@@ -51,7 +51,7 @@ public class ControllerUI implements Initializable {
     public ComboBox<String> combo_p2_name;
     public ComboBox<String> combo_comm1;
     public ComboBox<String> combo_comm2;
-    public ComboBox<String> combo_host;
+    public ComboBox<String> combo_comm3;
     public RadioButton radio_p1_W;
     public RadioButton radio_p1_L;
     public RadioButton radio_reset;
@@ -60,13 +60,26 @@ public class ControllerUI implements Initializable {
     public ToggleButton GF_toggle;
     public List<RadioButton> radio_buttons = new ArrayList<>();
     public ToggleButton scene_toggle_controller;
+    public TextField txt_p1_handle;
+    public TextField txt_p1_pronouns;
+    public TextField txt_p2_pronouns;
+    public TextField txt_p2_handle;
+    public TextField txt_comm1_tag;
+    public TextField txt_comm1_pronouns;
+    public TextField txt_comm1_handle;
+    public TextField txt_comm2_tag;
+    public TextField txt_comm2_pronouns;
+    public TextField txt_comm2_handle;
+    public TextField txt_comm3_tag;
+    public TextField txt_comm3_pronouns;
+    public TextField txt_comm3_handle;
 
     private AutocompleteWrapper ac_p1_name,
             ac_p2_name,
             ac_p1_nation,
             ac_p2_nation,
             ac_round,
-            ac_host,
+            ac_comm3,
             ac_comm1,
             ac_comm2;
     private List<AutocompleteWrapper> acWrappers;
@@ -129,10 +142,10 @@ public class ControllerUI implements Initializable {
         ac_p2_name = new AutocompleteWrapper(combo_p2_name);
         ac_p2_nation = new AutocompleteWrapper(combo_p2_nation);
         ac_round = new AutocompleteWrapper(combo_round);
-        ac_host = new AutocompleteWrapper(combo_host);
+        ac_comm3 = new AutocompleteWrapper(combo_comm3);
         ac_comm1 = new AutocompleteWrapper(combo_comm1);
         ac_comm2 = new AutocompleteWrapper(combo_comm2);
-        acWrappers = List.of(ac_p1_name, ac_p2_name, ac_p1_nation, ac_p2_nation, ac_round, ac_host, ac_comm1, ac_comm2);
+        acWrappers = List.of(ac_p1_name, ac_p2_name, ac_p1_nation, ac_p2_nation, ac_round, ac_comm3, ac_comm1, ac_comm2);
     }
 
 
@@ -153,15 +166,15 @@ public class ControllerUI implements Initializable {
                 txt_p1_tag.getText(),
                 combo_p1_name.getValue(),
                 combo_p1_nation.getValue(),
-                "", // todo
-                ""
+                txt_p1_pronouns.getText(),
+                txt_p1_handle.getText()
         );
         Player p2 = new Player(
                 txt_p2_tag.getText(),
                 combo_p2_name.getValue(),
                 combo_p2_nation.getValue(),
-                "", // todo
-                ""
+                txt_p2_pronouns.getText(),
+                txt_p2_handle.getText()
         );
         String score_1 = txt_p1_score.getText();
         String score_2 = txt_p2_score.getText();
@@ -170,9 +183,13 @@ public class ControllerUI implements Initializable {
         combo_p1_name.setValue(p1.getName());
         txt_p1_tag.setText(p1.getTag());
         combo_p1_nation.setValue(p1.getNationality());
+        txt_p1_pronouns.setText(p1.getPronouns());
+        txt_p1_handle.setText(p1.getSnsHandle());
         combo_p2_name.setValue(p2.getName());
         txt_p2_tag.setText(p2.getTag());
         combo_p2_nation.setValue(p2.getNationality());
+        txt_p2_pronouns.setText(p2.getPronouns());
+        txt_p2_handle.setText(p2.getSnsHandle());
         txt_p1_score.setText(score_1);
         txt_p2_score.setText(score_2);
     }
@@ -232,7 +249,7 @@ public class ControllerUI implements Initializable {
 
         combo_p1_name.getItems().clear();
         combo_p2_name.getItems().clear();
-        combo_host.getItems().clear();
+        combo_comm3.getItems().clear();
         combo_comm1.getItems().clear();
         combo_comm2.getItems().clear();
 
@@ -257,13 +274,13 @@ public class ControllerUI implements Initializable {
         List<String> allComms = dataManager.commentaryDAO.getAll().stream().map(Player::getName).toList();
         combo_p1_name.getItems().addAll(allPlayers);
         combo_p2_name.getItems().addAll(allPlayers);
-        combo_host.getItems().addAll(allComms);
+        combo_comm3.getItems().addAll(allComms);
         combo_comm1.getItems().addAll(allComms);
         combo_comm2.getItems().addAll(allComms);
 
         ac_p1_name.loadOriginList(allPlayers);
         ac_p2_name.loadOriginList(allPlayers);
-        ac_host.loadOriginList(allComms);
+        ac_comm3.loadOriginList(allComms);
         ac_comm1.loadOriginList(allComms);
         ac_comm2.loadOriginList(allComms);
 
@@ -299,17 +316,31 @@ public class ControllerUI implements Initializable {
         combo_p1_name.setValue(dataManager.matchDAO.get(MatchDataKey.P1_NAME));
         txt_p1_tag.setText(dataManager.matchDAO.get(MatchDataKey.P1_TAG));
         combo_p1_nation.setValue(dataManager.matchDAO.get(MatchDataKey.P1_NATIONALITY));
+        txt_p1_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.P1_PRONOUNS));
+        txt_p1_handle.setText(dataManager.matchDAO.get(MatchDataKey.P1_HANDLE));
 
         //p2 data
         combo_p2_name.setValue(dataManager.matchDAO.get(MatchDataKey.P2_NAME));
         txt_p2_tag.setText(dataManager.matchDAO.get(MatchDataKey.P2_TAG));
         combo_p2_nation.setValue(dataManager.matchDAO.get(MatchDataKey.P2_NATIONALITY));
+        txt_p2_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.P2_PRONOUNS));
+        txt_p2_handle.setText(dataManager.matchDAO.get(MatchDataKey.P2_HANDLE));
 
         //comms data
-        combo_host.setValue("DISABLED");
         combo_comm1.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_1));
-        combo_comm2.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_2));
+        txt_comm1_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_1));
+        txt_comm1_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_1));
+        txt_comm1_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_1));
 
+        combo_comm2.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_2));
+        txt_comm2_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_2));
+        txt_comm2_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_2));
+        txt_comm2_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_2));
+
+        combo_comm3.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_3));
+        txt_comm3_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_3));
+        txt_comm3_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_3));
+        txt_comm3_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_3));
 
     }
 
@@ -352,6 +383,8 @@ public class ControllerUI implements Initializable {
         if ( selected != null && selected != Player.getInvalid() ) {
             txt_p1_tag.setText(selected.getTag());
             combo_p1_nation.setValue(selected.getNationality());
+            txt_p1_pronouns.setText(selected.getPronouns());
+            txt_p1_handle.setText(selected.getSnsHandle());
         }
     }
 
@@ -378,6 +411,8 @@ public class ControllerUI implements Initializable {
         if ( selected != null && selected != Player.getInvalid() ) {
             txt_p2_tag.setText(selected.getTag());
             combo_p2_nation.setValue(selected.getNationality());
+            txt_p2_pronouns.setText(selected.getPronouns());
+            txt_p2_handle.setText(selected.getSnsHandle());
         }
     }
 
@@ -431,8 +466,8 @@ public class ControllerUI implements Initializable {
         scrollOpt(combo_comm2, scrollEvent);
     }
 
-    public void on_host_scroll(ScrollEvent scrollEvent) {
-        scrollOpt(combo_host, scrollEvent);
+    public void on_comm3_scroll(ScrollEvent scrollEvent) {
+        scrollOpt(combo_comm3, scrollEvent);
     }
 
     public void on_p1_flag_scroll(ScrollEvent scrollEvent) {
@@ -521,20 +556,28 @@ public class ControllerUI implements Initializable {
         String p1_name = combo_p1_name.getValue();
         String p1_tag = txt_p1_tag.getText();
         String p1_nat = combo_p1_nation.getValue();
+        String p1_pronouns = txt_p1_pronouns.getText();
+        String p1_handle = txt_p1_handle.getText();
         String p1_score = txt_p1_score.getText();
         String p2_name = combo_p2_name.getValue();
         String p2_tag = txt_p2_tag.getText();
         String p2_nat = combo_p2_nation.getValue();
+        String p2_pronouns = txt_p2_pronouns.getText();
+        String p2_handle = txt_p2_handle.getText();
         String p2_score = txt_p2_score.getText();
 
         combo_p1_name.setValue(p2_name);
         txt_p1_tag.setText(p2_tag);
         combo_p1_nation.setValue(p2_nat);
         txt_p1_score.setText(p2_score);
+        txt_p1_pronouns.setText(p2_pronouns);
+        txt_p1_handle.setText(p2_handle);
         combo_p2_name.setValue(p1_name);
         txt_p2_tag.setText(p1_tag);
         combo_p2_nation.setValue(p1_nat);
         txt_p2_score.setText(p1_score);
+        txt_p2_pronouns.setText(p1_pronouns);
+        txt_p2_handle.setText(p1_handle);
 
         if ( GF_toggle.isSelected() && !radio_reset.isSelected() ) {
             boolean p1w = radio_p1_W.isSelected();
