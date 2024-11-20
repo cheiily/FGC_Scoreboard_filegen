@@ -73,6 +73,14 @@ public class ControllerUI implements Initializable {
     public TextField txt_comm3_tag;
     public TextField txt_comm3_pronouns;
     public TextField txt_comm3_handle;
+    public ComboBox combo_comm1_nat;
+    public ComboBox combo_comm2_nat;
+    public ComboBox combo_comm3_nat;
+    public AnchorPane pane_comm3;
+    public AnchorPane pane_comm2;
+    public AnchorPane pane_comm1;
+    public Button btn_expand;
+    boolean expanded = false;
 
     private AutocompleteWrapper ac_p1_name,
             ac_p2_name,
@@ -621,5 +629,29 @@ public class ControllerUI implements Initializable {
      */
     public void on_bg_click() {
         bg_pane.requestFocus();
+    }
+
+    public void on_comm1_nat_scroll(ScrollEvent scrollEvent) {
+    }
+
+    public void on_comm2_nat_scroll(ScrollEvent scrollEvent) {
+    }
+
+    public void on_comm3_nat_scroll(ScrollEvent scrollEvent) {
+    }
+
+    public void on_button_expand(ActionEvent actionEvent) {
+        expanded = !expanded;
+        pane_comm3.setVisible(!expanded);
+        //todo
+        if (expanded) {
+            pane_comm1.resize((double) (610 - 12) / 2 + 25, pane_comm1.getHeight());
+            pane_comm2.relocate((double) (610 - 12) / 2 + 25, pane_comm2.getLayoutY());
+            pane_comm2.resize((double) (610 - 12) / 2 + 25, pane_comm2.getHeight());
+        } else {
+            pane_comm1.resize((double) (610 - 12) / 3 + 25, pane_comm1.getHeight());
+            pane_comm2.relocate((double) (610 - 12) / 3 + 25, pane_comm2.getLayoutY());
+            pane_comm2.resize((double) (610 - 12) / 3 + 25, pane_comm2.getHeight());
+        }
     }
 }
