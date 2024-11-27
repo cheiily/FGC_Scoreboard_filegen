@@ -53,22 +53,22 @@ Fixes/Next commit/Minor todo:
   - [ ] add an "add player to list / save changes to player / add as new player" plus button on the controller
   - [ ] get rid of custom lists outside the app
     - [ ] Create appropriate scenes for each list edition
-  - [ ] Rework metadata storage
+  - [x] Rework metadata storage
     - [ ] DAO architecture
-      - [ ] ini impl
+      - [x] ini impl
       - [ ] db impl
     - [ ] selectable save format 
   - [ ] Rework output writer/formatter architecture to work with new meta storage
     - [ ] offer writer-formatter config detailing which field should be formatted, with selectable formatter per-writer & selectable output resource (input data is bundled into output resource) per-formatter, optional per-option setting?
-    - [ ] split comms output
-    - [ ] make comms amount arbitrary
-    - [ ] get rid of [W] mark
-    - [ ] get rid of host
-    - [ ] get rid of emojis
+    - [x] split comms output
+    - [ ] ~~make comms amount arbitrary~~ (resigned)
+    - [x] get rid of [W] mark
+    - [x] get rid of host
+    - [x] get rid of emojis
   - [ ] Move null-flag & default flag collection to resource
     - [ ] collect basic pride flags
   - [x] Apply config settings
-  ~~- [ ] Merge and appropriate the websocket fork~~ (moved to 0.4)
+  - [ ] ~~Merge and appropriate the websocket fork~~ (moved to 0.4)
   - [x] Move P2 GF tag to the left
   - [x] Fix a bug where autcomplete clear on-save causes automated related-field load and loses changes
 - [x] V0.2
