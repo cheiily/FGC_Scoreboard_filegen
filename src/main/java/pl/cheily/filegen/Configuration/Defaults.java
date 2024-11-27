@@ -20,7 +20,7 @@ public class Defaults {
 
     public static final boolean GF_RADIO_ON_LABEL_MATCH = true;
 
-    public static final boolean COMM3_EMPTY_OUT = false;
+    public static final boolean WRITE_COMM_3 = false;
 
     public static final boolean PUT_FLAGS = true;
 

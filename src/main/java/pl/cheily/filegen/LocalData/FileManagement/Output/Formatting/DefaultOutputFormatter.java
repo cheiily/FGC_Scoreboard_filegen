@@ -69,18 +69,10 @@ public class DefaultOutputFormatter implements OutputFormatter {
         ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_PRONOUNS_2), List.of(ResourcePath.C2_PRONOUNS), "she/her", FormattingUnit::oneToOnePass));
         ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_HANDLE_2), List.of(ResourcePath.C2_HANDLE), "@geekgirl", FormattingUnit::oneToOnePass));
 
-        FormattingUnit unit = new FormattingUnit(List.of(MatchDataKey.COMM_TAG_3, MatchDataKey.COMM_NAME_3), List.of(ResourcePath.C3_NAME), "CMMS | FrameWizard", format_comm_name);
-        unit.enabled = false;
-        ret.add(unit);
-        unit = new FormattingUnit(List.of(MatchDataKey.COMM_NATIONALITY_3), List.of(ResourcePath.C3_FLAG), "<a flag image>", FormattingUnit::findFlagFile);
-        unit.enabled = false;
-        ret.add(unit);
-        unit = new FormattingUnit(List.of(MatchDataKey.COMM_PRONOUNS_3), List.of(ResourcePath.C3_PRONOUNS), "they/them", FormattingUnit::oneToOnePass);
-        unit.enabled = false;
-        ret.add(unit);
-        unit = new FormattingUnit(List.of(MatchDataKey.COMM_HANDLE_3), List.of(ResourcePath.C3_HANDLE), "@frame_wizard", FormattingUnit::oneToOnePass);
-        unit.enabled = false;
-        ret.add(unit);
+        ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_TAG_3, MatchDataKey.COMM_NAME_3), List.of(ResourcePath.C3_NAME), "CMMS | FrameWizard", format_comm_name));
+        ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_NATIONALITY_3), List.of(ResourcePath.C3_FLAG), "<a flag image>", FormattingUnit::findFlagFile));
+        ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_PRONOUNS_3), List.of(ResourcePath.C3_PRONOUNS), "they/them", FormattingUnit::oneToOnePass));
+        ret.add(new FormattingUnit(List.of(MatchDataKey.COMM_HANDLE_3), List.of(ResourcePath.C3_HANDLE), "@frame_wizard", FormattingUnit::oneToOnePass));
 
         return ret;
     }
@@ -96,7 +88,7 @@ public class DefaultOutputFormatter implements OutputFormatter {
             }).toList();
             fnd.forEach(unit -> unit.enabled = (boolean) evt.getNewValue());
         };
-        AppConfig.subscribe(PropKey.COMM3_EMPTY_OUT, listener);
+        AppConfig.subscribe(PropKey.WRITE_COMM_3, listener);
     }
 
     //todo per-writer config of used formatter and per-formatter config of disabled units

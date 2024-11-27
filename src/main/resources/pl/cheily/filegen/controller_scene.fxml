@@ -14,22 +14,6 @@
 
 <AnchorPane fx:id="bg_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#on_bg_click" prefHeight="400.0" prefWidth="610.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.ControllerUI">
    <children>
-      <AnchorPane fx:id="pane_comm3" layoutX="412.0" layoutY="296.0" prefHeight="103.0" prefWidth="196.0">
-         <children>
-            <Text layoutX="51.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Commentator 3" AnchorPane.topAnchor="3.0" />
-            <ComboBox fx:id="combo_comm3" editable="true" onScroll="#on_comm3_scroll" prefHeight="25.0" prefWidth="184.0" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="19.0" />
-            <TextField fx:id="txt_comm3_tag" alignment="CENTER" prefHeight="25.0" prefWidth="83.0" promptText="Tag" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="113.0" AnchorPane.topAnchor="44.0" />
-            <TextField fx:id="txt_comm3_pronouns" alignment="CENTER" prefHeight="25.0" prefWidth="101.0" promptText="Pronouns" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="83.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="44.0" />
-            <TextField fx:id="txt_comm3_handle" alignment="CENTER" prefHeight="25.0" prefWidth="121.0" promptText="Handle" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="63.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="69.0" />
-            <ComboBox fx:id="combo_comm3_nat" editable="true" onScroll="#on_comm3_nat_scroll" prefHeight="25.0" prefWidth="63.0" promptText="Flag" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="133.0" AnchorPane.topAnchor="69.0" />
-            <Separator orientation="VERTICAL" prefHeight="20.0" AnchorPane.leftAnchor="-2.0" />
-         </children>
-      </AnchorPane>
-      <Button fx:id="btn_expand" layoutX="577.0" layoutY="295.0" mnemonicParsing="false" onAction="#on_button_expand" prefHeight="20.0" prefWidth="19.0" text="+">
-         <font>
-            <Font size="9.0" />
-         </font>
-      </Button>
       <Button blendMode="EXCLUSION" layoutX="41.0" layoutY="15.0" mnemonicParsing="false" onAction="#on_save" prefHeight="25.0" prefWidth="108.0" style="-fx-font-weight: bold;" text="---- Save ----" textAlignment="CENTER" />
       <Separator layoutX="41.0" layoutY="46.0" prefHeight="0.0" prefWidth="550.0" />
       <Separator layoutX="361.0" layoutY="181.0" orientation="VERTICAL" prefHeight="110.0" />
@@ -88,26 +72,42 @@
       <TextField fx:id="txt_p2_pronouns" alignment="CENTER" layoutX="496.0" layoutY="117.0" prefHeight="25.0" prefWidth="101.0" />
       <TextField fx:id="txt_p2_handle" alignment="CENTER" layoutX="392.0" layoutY="209.0" prefHeight="25.0" prefWidth="202.0" />
       <Separator layoutX="44.0" layoutY="295.0" prefHeight="0.0" prefWidth="550.0" />
-      <AnchorPane fx:id="pane_comm2" layoutX="228.0" layoutY="296.0" prefHeight="103.0" prefWidth="196.0">
+      <AnchorPane fx:id="pane_comm3" layoutX="412.0" layoutY="296.0" prefHeight="103.0" prefWidth="184.0" visible="false">
          <children>
-            <Text layoutX="51.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Commentator 2" AnchorPane.topAnchor="3.0" />
-            <ComboBox fx:id="combo_comm2" editable="true" onScroll="#on_comm2_scroll" prefHeight="25.0" prefWidth="184.0" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="19.0" />
-            <TextField fx:id="txt_comm2_tag" alignment="CENTER" prefHeight="25.0" prefWidth="83.0" promptText="Tag" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="44.0" />
-            <TextField fx:id="txt_comm2_pronouns" alignment="CENTER" prefHeight="25.0" prefWidth="101.0" promptText="Pronouns" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="83.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="44.0" />
-            <TextField fx:id="txt_comm2_handle" alignment="CENTER" prefHeight="25.0" prefWidth="121.0" promptText="Handle" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="63.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="69.0" />
-            <ComboBox fx:id="combo_comm2_nat" editable="true" onScroll="#on_comm2_nat_scroll" prefHeight="25.0" prefWidth="63.0" promptText="Flag" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="69.0" />
+            <Text layoutX="51.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Commentator 3" AnchorPane.topAnchor="3.0" />
+            <ComboBox fx:id="combo_comm3" editable="true" onScroll="#on_comm3_scroll" prefHeight="25.0" prefWidth="184.0" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="19.0" />
+            <TextField fx:id="txt_comm3_tag" alignment="CENTER" prefHeight="25.0" prefWidth="83.0" promptText="Tag" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="44.0" />
+            <TextField fx:id="txt_comm3_pronouns" alignment="CENTER" prefHeight="25.0" prefWidth="101.0" promptText="Pronouns" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="83.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="44.0" />
+            <TextField fx:id="txt_comm3_handle" alignment="CENTER" prefHeight="25.0" prefWidth="121.0" promptText="Handle" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="63.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="69.0" />
+            <ComboBox fx:id="combo_comm3_nat" editable="true" onScroll="#on_comm3_nat_scroll" prefHeight="25.0" prefWidth="63.0" promptText="Flag" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="69.0" />
             <Separator orientation="VERTICAL" prefHeight="20.0" AnchorPane.leftAnchor="-2.0" />
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="pane_comm1" layoutX="44.0" layoutY="296.0" prefHeight="103.0" prefWidth="196.0">
+      <AnchorPane fx:id="pane_comm2" layoutX="320.0" layoutY="296.0" minWidth="184.0" prefHeight="103.0" prefWidth="276.0">
          <children>
-            <Text layoutX="51.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Commentator 1" AnchorPane.topAnchor="3.0" />
-            <ComboBox fx:id="combo_comm1" editable="true" onScroll="#on_comm1_scroll" prefHeight="25.0" prefWidth="184.0" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="19.0" />
-            <TextField fx:id="txt_comm1_tag" alignment="CENTER" prefHeight="25.0" prefWidth="83.0" promptText="Tag" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="44.0" />
-            <TextField fx:id="txt_comm1_pronouns" alignment="CENTER" prefHeight="25.0" prefWidth="101.0" promptText="Pronouns" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="83.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="44.0" />
-            <TextField fx:id="txt_comm1_handle" alignment="CENTER" prefHeight="25.0" prefWidth="121.0" promptText="Handle" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="63.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="69.0" />
-            <ComboBox fx:id="combo_comm1_nat" editable="true" onScroll="#on_comm1_nat_scroll" prefHeight="25.0" prefWidth="63.0" promptText="Flag" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="69.0" />
+            <Text fx:id="label_comm2_header" layoutX="96.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Commentator 2" textOrigin="CENTER" AnchorPane.topAnchor="3.0" />
+            <ComboBox fx:id="combo_comm2" editable="true" onScroll="#on_comm2_scroll" prefHeight="25.0" prefWidth="184.0" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="19.0" />
+            <TextField fx:id="txt_comm2_tag" alignment="CENTER" prefHeight="25.0" prefWidth="92.0" promptText="Tag" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="44.0" />
+            <TextField fx:id="txt_comm2_pronouns" alignment="CENTER" prefHeight="25.0" prefWidth="101.0" promptText="Pronouns" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="92.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="44.0" />
+            <TextField fx:id="txt_comm2_handle" alignment="CENTER" layoutX="84.0" prefHeight="25.0" prefWidth="192.0" promptText="Handle" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="83.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="69.0" />
+            <ComboBox fx:id="combo_comm2_nat" editable="true" onScroll="#on_comm2_nat_scroll" prefHeight="25.0" prefWidth="83.0" promptText="Flag" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="69.0" />
+            <Separator orientation="VERTICAL" prefHeight="20.0" AnchorPane.leftAnchor="-2.0" />
          </children>
       </AnchorPane>
+      <AnchorPane fx:id="pane_comm1" layoutX="44.0" layoutY="296.0" minWidth="184.0" prefHeight="103.0" prefWidth="276.0">
+         <children>
+            <Text fx:id="label_comm1_header" layoutX="96.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Commentator 1" textOrigin="CENTER" AnchorPane.topAnchor="3.0" />
+            <ComboBox fx:id="combo_comm1" editable="true" onScroll="#on_comm1_scroll" prefHeight="25.0" prefWidth="184.0" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="19.0" />
+            <TextField fx:id="txt_comm1_tag" alignment="CENTER" prefHeight="25.0" prefWidth="92.0" promptText="Tag" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="44.0" />
+            <TextField fx:id="txt_comm1_pronouns" alignment="CENTER" layoutX="92.0" prefHeight="25.0" prefWidth="184.0" promptText="Pronouns" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="92.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="44.0" />
+            <TextField fx:id="txt_comm1_handle" alignment="CENTER" layoutX="92.0" prefHeight="25.0" prefWidth="184.0" promptText="Handle" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="83.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="69.0" />
+            <ComboBox fx:id="combo_comm1_nat" editable="true" onScroll="#on_comm1_nat_scroll" prefHeight="25.0" prefWidth="83.0" promptText="Flag" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="69.0" />
+         </children>
+      </AnchorPane>
+      <Button fx:id="btn_expand" layoutX="577.0" layoutY="295.0" mnemonicParsing="false" onAction="#on_button_expand" prefHeight="20.0" prefWidth="19.0" text="+">
+         <font>
+            <Font size="9.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>

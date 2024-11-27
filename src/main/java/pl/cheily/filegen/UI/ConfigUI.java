@@ -18,8 +18,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
@@ -144,7 +142,7 @@ public class ConfigUI implements Initializable {
                 case MAKE_HTML_OUTPUT -> chk_out_html.setSelected((Boolean) evt.getNewValue());
                 case GF_RADIO_ON_LABEL_MATCH -> chk_gf_radio.setSelected((Boolean) evt.getNewValue());
                 case PUT_FLAGS -> chk_out_flags.setSelected((Boolean) evt.getNewValue());
-                case COMM3_EMPTY_OUT -> chk_comm3_out.setSelected((Boolean) evt.getNewValue());
+                case WRITE_COMM_3 -> chk_comm3_out.setSelected((Boolean) evt.getNewValue());
             }
         }
     };
@@ -167,7 +165,7 @@ public class ConfigUI implements Initializable {
         chk_out_html.setSelected(AppConfig.MAKE_HTML_OUTPUT());
         chk_gf_radio.setSelected(AppConfig.GF_RADIO_ON_LABEL_MATCH());
         chk_out_flags.setSelected(AppConfig.PUT_FLAGS());
-        chk_comm3_out.setSelected(AppConfig.COMM3_EMPTY_OUT());
+        chk_comm3_out.setSelected(AppConfig.WRITE_COMM_3());
 
         //listen for resets, loads, etc.
         AppConfig.subscribeAll(configListener);
@@ -187,7 +185,7 @@ public class ConfigUI implements Initializable {
                 && AppConfig.MAKE_HTML_OUTPUT(chk_out_html.isSelected())
                 && AppConfig.GF_RADIO_ON_LABEL_MATCH(chk_gf_radio.isSelected())
                 && AppConfig.PUT_FLAGS(chk_out_flags.isSelected())
-                && AppConfig.COMM3_EMPTY_OUT(chk_comm3_out.isSelected());
+                && AppConfig.WRITE_COMM_3(chk_comm3_out.isSelected());
 
         if ( !success ) {
             new Thread(displayNOK).start();

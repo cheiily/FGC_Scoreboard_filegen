@@ -27,14 +27,8 @@ import static pl.cheily.filegen.Configuration.AppConfig.GF_RADIO_ON_LABEL_MATCH;
 import static pl.cheily.filegen.Configuration.AppConfig.MAKE_HTML_OUTPUT;
 import static pl.cheily.filegen.Configuration.AppConfig.MAKE_RAW_OUTPUT;
 import static pl.cheily.filegen.Configuration.AppConfig.PUT_FLAGS;
-import static pl.cheily.filegen.Configuration.PropKey.AUTOCOMPLETE_ON;
-import static pl.cheily.filegen.Configuration.PropKey.CHALLONGE_API;
-import static pl.cheily.filegen.Configuration.PropKey.FLAG_DIRECTORY;
-import static pl.cheily.filegen.Configuration.PropKey.FLAG_EXTENSION;
-import static pl.cheily.filegen.Configuration.PropKey.GF_RADIO_ON_LABEL_MATCH;
-import static pl.cheily.filegen.Configuration.PropKey.MAKE_HTML_OUTPUT;
-import static pl.cheily.filegen.Configuration.PropKey.MAKE_RAW_OUTPUT;
-import static pl.cheily.filegen.Configuration.PropKey.PUT_FLAGS;
+import static pl.cheily.filegen.Configuration.AppConfig.WRITE_COMM_3;
+import static pl.cheily.filegen.Configuration.PropKey.*;
 
 public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     private static final String SECTION_NAME = "SETTINGS";
@@ -60,6 +54,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
         vals.add(cfg_sec.getOrDefault(PUT_FLAGS.propName, ""));
         vals.add(cfg_sec.getOrDefault(FLAG_EXTENSION.propName, ""));
         vals.add(cfg_sec.getOrDefault(FLAG_DIRECTORY.propName, ""));
+        vals.add(cfg_sec.getOrDefault(WRITE_COMM_3.propName, ""));
 
         return vals;
     }
@@ -177,6 +172,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             cache.put(SECTION_NAME, PUT_FLAGS.propName, PUT_FLAGS());
             cache.put(SECTION_NAME, FLAG_EXTENSION.propName, FLAG_EXTENSION());
             cache.put(SECTION_NAME, FLAG_DIRECTORY.propName, FLAG_DIRECTORY());
+            cache.put(SECTION_NAME, WRITE_COMM_3.propName, WRITE_COMM_3());
         }
         return store();
     }
@@ -200,6 +196,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             Boolean newPutFlags = cfg_sec.get(PUT_FLAGS.propName, Boolean.class);
             String newFlagExt = cfg_sec.get(FLAG_EXTENSION.propName, String.class);
             String strFlagPth = cfg_sec.get(FLAG_DIRECTORY.propName, String.class);
+            Boolean newWriteComm3 = cfg_sec.get(WRITE_COMM_3.propName, Boolean.class);
 
             boolean correct = CHALLONGE_API.validateParam(newApi)
                     && AUTOCOMPLETE_ON.validateParam(newAutocomplete)
@@ -208,7 +205,8 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
                     && GF_RADIO_ON_LABEL_MATCH.validateParam(newGFRadio)
                     && PUT_FLAGS.validateParam(newPutFlags)
                     && FLAG_EXTENSION.validateParam(newFlagExt)
-                    && FLAG_DIRECTORY.validateParam(strFlagPth);
+                    && FLAG_DIRECTORY.validateParam(strFlagPth)
+                    && WRITE_COMM_3.validateParam(newWriteComm3);
 
             if (!correct) {
                 logger.error("Invalid config.ini file - loaded data didn't pass validation.");
@@ -225,6 +223,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             Boolean oldPutFlags;
             String oldFlagExt;
             Path oldFlagPth;
+            Boolean oldWriteComm3;
 
             synchronized (AppConfig.class) {
                 oldApi = CHALLONGE_API();
@@ -235,6 +234,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
                 oldPutFlags = PUT_FLAGS();
                 oldFlagExt = FLAG_EXTENSION();
                 oldFlagPth = FLAG_DIRECTORY();
+                oldWriteComm3 = WRITE_COMM_3();
 
                 AppConfig.setInternalChallongeAPI(this, newApi);
                 AppConfig.setInternalAutocompleteOn(this, newAutocomplete);
@@ -244,6 +244,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
                 AppConfig.setInternalPutFlags(this, newPutFlags);
                 AppConfig.setInternalFlagExtension(this, newFlagExt);
                 AppConfig.setInternalFlagDirectory(this, newFlagPth);
+                AppConfig.setInternalWriteComm3(this, newWriteComm3);
             }
 
             _pcs.firePropertyChange(CHALLONGE_API.propName, oldApi, newApi);
@@ -254,6 +255,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             _pcs.firePropertyChange(PUT_FLAGS.propName, oldPutFlags, newPutFlags);
             _pcs.firePropertyChange(FLAG_EXTENSION.propName, oldFlagExt, newFlagExt);
             _pcs.firePropertyChange(FLAG_DIRECTORY.propName, oldFlagPth, newFlagPth);
+            _pcs.firePropertyChange(WRITE_COMM_3.propName, oldWriteComm3, newWriteComm3);
         } catch (DataManagerNotInitializedException e) {
             logger.warn("Attempted config read while Data Manager isn't initialized.", e);
             return false;

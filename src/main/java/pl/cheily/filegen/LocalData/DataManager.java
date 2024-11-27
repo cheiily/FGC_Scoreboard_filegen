@@ -161,6 +161,7 @@ public class DataManager {
         //Update the Websocket before we return.
         // todo make it a writer
 //        dataWebSocket.updateMetadata();
+        // todo onsave check if player/comm list was manually edited and alert
 
         for (OutputWriter writer : writers) {
             writer.writeData();
@@ -215,19 +216,21 @@ public class DataManager {
         matchDAO.set(MatchDataKey.P2_PRONOUNS.toString(), ui.txt_p2_pronouns.getText());
         matchDAO.set(MatchDataKey.P2_HANDLE.toString(), ui.txt_p2_handle.getText());
 
-        //todo nationality
         matchDAO.set(MatchDataKey.COMM_NAME_1, ui.combo_comm1.getValue());
         matchDAO.set(MatchDataKey.COMM_TAG_1, ui.txt_comm1_tag.getText());
+        matchDAO.set(MatchDataKey.COMM_NATIONALITY_1, ui.combo_comm1_nat.getValue());
         matchDAO.set(MatchDataKey.COMM_PRONOUNS_1, ui.txt_comm1_pronouns.getText());
         matchDAO.set(MatchDataKey.COMM_HANDLE_1, ui.txt_comm1_handle.getText());
 
         matchDAO.set(MatchDataKey.COMM_NAME_2, ui.combo_comm2.getValue());
         matchDAO.set(MatchDataKey.COMM_TAG_2, ui.txt_comm2_tag.getText());
+        matchDAO.set(MatchDataKey.COMM_NATIONALITY_2, ui.combo_comm2_nat.getValue());
         matchDAO.set(MatchDataKey.COMM_PRONOUNS_2, ui.txt_comm2_pronouns.getText());
         matchDAO.set(MatchDataKey.COMM_HANDLE_2, ui.txt_comm2_handle.getText());
 
         matchDAO.set(MatchDataKey.COMM_NAME_3, ui.combo_comm3.getValue());
         matchDAO.set(MatchDataKey.COMM_TAG_3, ui.txt_comm3_tag.getText());
+        matchDAO.set(MatchDataKey.COMM_NATIONALITY_3, ui.combo_comm3_nat.getValue());
         matchDAO.set(MatchDataKey.COMM_PRONOUNS_3, ui.txt_comm3_pronouns.getText());
         matchDAO.set(MatchDataKey.COMM_HANDLE_3, ui.txt_comm3_handle.getText());
     }

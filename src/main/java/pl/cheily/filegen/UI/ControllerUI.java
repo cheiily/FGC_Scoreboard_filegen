@@ -3,11 +3,13 @@ package pl.cheily.filegen.UI;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import pl.cheily.filegen.Configuration.AppConfig;
@@ -73,32 +75,47 @@ public class ControllerUI implements Initializable {
     public TextField txt_comm3_tag;
     public TextField txt_comm3_pronouns;
     public TextField txt_comm3_handle;
-    public ComboBox combo_comm1_nat;
-    public ComboBox combo_comm2_nat;
-    public ComboBox combo_comm3_nat;
+    public ComboBox<String> combo_comm1_nat;
+    public ComboBox<String> combo_comm2_nat;
+    public ComboBox<String> combo_comm3_nat;
     public AnchorPane pane_comm3;
     public AnchorPane pane_comm2;
     public AnchorPane pane_comm1;
     public Button btn_expand;
+    public Text label_comm1_header;
+    public Text label_comm2_header;
     boolean expanded = false;
 
+    private float expandedX = 228;
+    private float expandedWidth = 184;
+    private float collapsedX = 320;
+    private float collapsedWidth = 276;
     private AutocompleteWrapper ac_p1_name,
             ac_p2_name,
             ac_p1_nation,
             ac_p2_nation,
             ac_round,
-            ac_comm3,
             ac_comm1,
-            ac_comm2;
+            ac_comm2,
+            ac_comm3,
+            ac_comm1_nat,
+            ac_comm2_nat,
+            ac_comm3_nat;
     private List<AutocompleteWrapper> acWrappers;
     private final PropertyChangeListener listener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            List<String> pNames = dataManager.playersDAO.getAll().stream().map(Player::getName).toList();
-            ac_p1_name.loadOriginList(pNames);
-            ac_p2_name.loadOriginList(pNames);
-            ac_p1_name.clearSuggestions();
-            ac_p2_name.clearSuggestions();
+            if (evt.getPropertyName() == DataEventProp.CHANGED_PLAYER_LIST.toString()) {
+                List<String> pNames = dataManager.playersDAO.getAll().stream().map(Player::getName).toList();
+                ac_p1_name.loadOriginList(pNames);
+                ac_p2_name.loadOriginList(pNames);
+                ac_p1_name.clearSuggestions();
+                ac_p2_name.clearSuggestions();
+            } else if (evt.getPropertyName() == DataEventProp.INIT.toString()) {
+                if (AppConfig.WRITE_COMM_3())
+                    expand();
+                else collapse();
+            }
         }
     };
     {
@@ -118,6 +135,9 @@ public class ControllerUI implements Initializable {
 
         ObservableList<String> f1_opts = combo_p1_nation.getItems();
         ObservableList<String> f2_opts = combo_p2_nation.getItems();
+        ObservableList<String> cf1_opts = combo_comm1_nat.getItems();
+        ObservableList<String> cf2_opts = combo_comm2_nat.getItems();
+        ObservableList<String> cf3_opts = combo_comm3_nat.getItems();
         try ( Stream<Path> flags = Files.walk(dataManager.flagsDir) ) {
             flags.filter(path -> path.toString().endsWith(".png"))
                     .filter(path ->
@@ -127,6 +147,9 @@ public class ControllerUI implements Initializable {
                     .forEach(path -> {
                         f1_opts.add(path.toUpperCase());
                         f2_opts.add(path.toUpperCase());
+                        cf1_opts.add(path.toUpperCase());
+                        cf2_opts.add(path.toUpperCase());
+                        cf3_opts.add(path.toUpperCase());
                     });
 
         } catch (IOException e) {
@@ -150,10 +173,13 @@ public class ControllerUI implements Initializable {
         ac_p2_name = new AutocompleteWrapper(combo_p2_name);
         ac_p2_nation = new AutocompleteWrapper(combo_p2_nation);
         ac_round = new AutocompleteWrapper(combo_round);
-        ac_comm3 = new AutocompleteWrapper(combo_comm3);
         ac_comm1 = new AutocompleteWrapper(combo_comm1);
         ac_comm2 = new AutocompleteWrapper(combo_comm2);
-        acWrappers = List.of(ac_p1_name, ac_p2_name, ac_p1_nation, ac_p2_nation, ac_round, ac_comm3, ac_comm1, ac_comm2);
+        ac_comm3 = new AutocompleteWrapper(combo_comm3);
+        ac_comm1_nat = new AutocompleteWrapper(combo_comm1_nat);
+        ac_comm2_nat = new AutocompleteWrapper(combo_comm2_nat);
+        ac_comm3_nat = new AutocompleteWrapper(combo_comm3_nat);
+        acWrappers = List.of(ac_p1_name, ac_p2_name, ac_p1_nation, ac_p2_nation, ac_round, ac_comm1, ac_comm2, ac_comm3, ac_comm1_nat, ac_comm2_nat, ac_comm3_nat);
     }
 
 
@@ -186,6 +212,27 @@ public class ControllerUI implements Initializable {
         );
         String score_1 = txt_p1_score.getText();
         String score_2 = txt_p2_score.getText();
+        Player c1 = new Player(
+                txt_comm1_tag.getText(),
+                combo_comm1.getValue(),
+                combo_comm1_nat.getValue(),
+                txt_comm1_pronouns.getText(),
+                txt_comm1_handle.getText()
+        );
+        Player c2 = new Player(
+                txt_comm2_tag.getText(),
+                combo_comm2.getValue(),
+                combo_comm2_nat.getValue(),
+                txt_comm2_pronouns.getText(),
+                txt_comm2_handle.getText()
+        );
+        Player c3 = new Player(
+                txt_comm3_tag.getText(),
+                combo_comm3.getValue(),
+                combo_comm3_nat.getValue(),
+                txt_comm3_pronouns.getText(),
+                txt_comm3_handle.getText()
+        );
 
         for (AutocompleteWrapper wrapper : acWrappers) wrapper.clearSuggestions();
         combo_p1_name.setValue(p1.getName());
@@ -198,8 +245,25 @@ public class ControllerUI implements Initializable {
         combo_p2_nation.setValue(p2.getNationality());
         txt_p2_pronouns.setText(p2.getPronouns());
         txt_p2_handle.setText(p2.getSnsHandle());
+
         txt_p1_score.setText(score_1);
         txt_p2_score.setText(score_2);
+
+        combo_comm1.setValue(c1.getName());
+        txt_comm1_tag.setText(c1.getTag());
+        combo_comm1_nat.setValue(c1.getNationality());
+        txt_comm1_pronouns.setText(c1.getPronouns());
+        txt_comm1_handle.setText(c1.getSnsHandle());
+        combo_comm2.setValue(c2.getName());
+        txt_comm2_tag.setText(c2.getTag());
+        combo_comm2_nat.setValue(c2.getNationality());
+        txt_comm2_pronouns.setText(c2.getPronouns());
+        txt_comm2_handle.setText(c2.getSnsHandle());
+        combo_comm3.setValue(c3.getName());
+        txt_comm3_tag.setText(c3.getTag());
+        combo_comm3_nat.setValue(c3.getNationality());
+        txt_comm3_pronouns.setText(c3.getPronouns());
+        txt_comm3_handle.setText(c3.getSnsHandle());
     }
 
     /**
@@ -257,9 +321,9 @@ public class ControllerUI implements Initializable {
 
         combo_p1_name.getItems().clear();
         combo_p2_name.getItems().clear();
-        combo_comm3.getItems().clear();
         combo_comm1.getItems().clear();
         combo_comm2.getItems().clear();
+        combo_comm3.getItems().clear();
 
         dataManager.initialize(dir.toPath().toAbsolutePath());
         txt_path.setText(dir.toPath().toAbsolutePath().toString());
@@ -288,9 +352,9 @@ public class ControllerUI implements Initializable {
 
         ac_p1_name.loadOriginList(allPlayers);
         ac_p2_name.loadOriginList(allPlayers);
-        ac_comm3.loadOriginList(allComms);
         ac_comm1.loadOriginList(allComms);
         ac_comm2.loadOriginList(allComms);
+        ac_comm3.loadOriginList(allComms);
 
         for (AutocompleteWrapper acWrapper : acWrappers) {
             acWrapper.clearSuggestions();
@@ -337,16 +401,19 @@ public class ControllerUI implements Initializable {
         //comms data
         combo_comm1.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_1));
         txt_comm1_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_1));
+        combo_comm1_nat.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NATIONALITY_1));
         txt_comm1_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_1));
         txt_comm1_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_1));
 
         combo_comm2.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_2));
         txt_comm2_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_2));
+        combo_comm2_nat.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NATIONALITY_2));
         txt_comm2_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_2));
         txt_comm2_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_2));
 
         combo_comm3.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_3));
         txt_comm3_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_3));
+        combo_comm3_nat.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NATIONALITY_3));
         txt_comm3_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_3));
         txt_comm3_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_3));
 
@@ -632,26 +699,41 @@ public class ControllerUI implements Initializable {
     }
 
     public void on_comm1_nat_scroll(ScrollEvent scrollEvent) {
+        scrollOpt(combo_comm1_nat, scrollEvent);
     }
 
     public void on_comm2_nat_scroll(ScrollEvent scrollEvent) {
+        scrollOpt(combo_comm2_nat, scrollEvent);
     }
 
     public void on_comm3_nat_scroll(ScrollEvent scrollEvent) {
+        scrollOpt(combo_comm3_nat, scrollEvent);
     }
 
     public void on_button_expand(ActionEvent actionEvent) {
         expanded = !expanded;
-        pane_comm3.setVisible(!expanded);
-        //todo
-        if (expanded) {
-            pane_comm1.resize((double) (610 - 12) / 2 + 25, pane_comm1.getHeight());
-            pane_comm2.relocate((double) (610 - 12) / 2 + 25, pane_comm2.getLayoutY());
-            pane_comm2.resize((double) (610 - 12) / 2 + 25, pane_comm2.getHeight());
-        } else {
-            pane_comm1.resize((double) (610 - 12) / 3 + 25, pane_comm1.getHeight());
-            pane_comm2.relocate((double) (610 - 12) / 3 + 25, pane_comm2.getLayoutY());
-            pane_comm2.resize((double) (610 - 12) / 3 + 25, pane_comm2.getHeight());
-        }
+        if (expanded) expand();
+        else collapse();
+        AppConfig.WRITE_COMM_3(expanded);
+    }
+
+    private void expand() {
+        expanded = true;
+        pane_comm3.setVisible(true);
+        pane_comm1.setPrefWidth(expandedWidth);
+        pane_comm2.relocate(expandedX, pane_comm2.getLayoutY());
+        pane_comm2.setPrefWidth(expandedWidth);
+        label_comm1_header.setLayoutX(51);
+        label_comm2_header.setLayoutX(51);
+    }
+
+    private void collapse() {
+        expanded = false;
+        pane_comm3.setVisible(false);
+        pane_comm1.setPrefWidth(collapsedWidth);
+        pane_comm2.relocate(collapsedX, pane_comm2.getLayoutY());
+        pane_comm2.setPrefWidth(collapsedWidth);
+        label_comm1_header.setLayoutX(96);
+        label_comm2_header.setLayoutX(96);
     }
 }
