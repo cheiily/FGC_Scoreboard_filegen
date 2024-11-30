@@ -3,13 +3,17 @@ package pl.cheily.filegen.UI;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import pl.cheily.filegen.Configuration.AppConfig;
@@ -129,6 +133,102 @@ public class ControllerUI implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        ComboBoxListViewSkin<String> comboBoxListViewSkin = new ComboBoxListViewSkin<String>(combo_round) {
+            private Button buttonAdd = new Button("+Add");
+            private Button buttonReload = new Button("↻Reload");
+
+            private TextField textField = new TextField();
+            private VBox pane = new VBox();
+            {
+                buttonAdd.setDisable(true);
+                buttonAdd.setOnAction(event -> {
+                    String text = textField.getText();
+                    if (text.isBlank()) return;
+                    if (dataManager.isInitialized()) dataManager.roundLabelDAO.set(text, text);
+                    combo_round.getItems().add(text);
+                    textField.clear();
+                    buttonAdd.setDisable(true);
+                });
+                textField.setOnKeyTyped(event -> {
+                    if (textField.getText().isBlank())
+                        buttonAdd.setDisable(true);
+                    else buttonAdd.setDisable(false);
+                });
+
+                textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                    ac_round.propertyChange(new PropertyChangeEvent(this, "text", null, !newValue));
+                });
+                textField.setOnAction(event -> buttonAdd.fire());
+
+                buttonReload.setOnAction(event -> {
+                    combo_round.getItems().clear();
+                    if (!dataManager.isInitialized()) {
+                        new Alert(Alert.AlertType.WARNING, "No working path selected - reloading default label set.", ButtonType.OK).show();
+                        combo_round.getItems().addAll(RoundLabelDAO.getDefault());
+                    } else
+                        combo_round.getItems().addAll(dataManager.roundLabelDAO.getAllSorted());
+                });
+                pane.setStyle("-fx-background-color: -fx-control-inner-background; -fx-border-color: -fx-box-border; -fx-border-width: 1;");
+            }
+
+            @Override
+            public Node getPopupContent() {
+                Node defaultContent = super.getPopupContent();
+                HBox hBox = new HBox();
+                hBox.getChildren().addAll(buttonAdd, textField, buttonReload);
+                HBox.setHgrow(textField, Priority.ALWAYS);
+                defaultContent.setManaged(true);
+                pane.getChildren().setAll(defaultContent, hBox);
+                return pane;
+            }
+        };
+        combo_round.setSkin(comboBoxListViewSkin);
+
+
+        combo_round.setCellFactory(param -> new ListCell<>() {
+            private Button button = new Button("-");
+            private Label label = new Label();
+            private HBox graphic;
+            private Hyperlink link = new Hyperlink("X");
+
+            {
+                label.textProperty().bind(itemProperty());
+                label.setMaxWidth(Double.POSITIVE_INFINITY);
+                label.setOnMouseClicked(event -> combo_round.hide());
+                link.setVisited(true);
+                link.setStyle("-fx-underline: false; -fx-font-weight: bold;");
+                link.setOnMouseReleased(event -> {
+                    String item = getItem();
+                    if (dataManager.isInitialized()) dataManager.roundLabelDAO.delete(item);
+                    combo_round.getItems().remove(item);
+                    combo_round.show();
+                });
+                button.setFont(new Font(button.getFont().getFamily(), 9));
+                button.setTextAlignment(TextAlignment.CENTER);
+                button.setAlignment(Pos.CENTER);
+                button.setMaxSize(16, 16);
+                button.setOnMouseReleased(event -> {
+                    String item = getItem();
+                    if (dataManager.isInitialized()) dataManager.roundLabelDAO.delete(item);
+                    combo_round.getItems().remove(item);
+                    combo_round.show();
+                });
+
+                graphic = new HBox(label, link);
+                HBox.setHgrow(label, Priority.ALWAYS);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(graphic);
+                }
+            }
+        });
+
         if (!dataManager.isInitialized())
             combo_round.getItems().addAll(RoundLabelDAO.getDefault());
         else combo_round.getItems().addAll(dataManager.roundLabelDAO.getAllSorted());

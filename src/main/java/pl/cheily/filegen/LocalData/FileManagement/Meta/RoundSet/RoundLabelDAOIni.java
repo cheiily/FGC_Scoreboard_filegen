@@ -15,7 +15,8 @@ public class RoundLabelDAOIni extends CachedIniDAOBase implements RoundLabelDAO 
 
     private static Config getConfig() {
         Config config = new Config();
-        config.setEmptyOption(true);
+//        config.setEmptyOption(true);
+        config.setEmptySection(true);
         return config;
     }
 

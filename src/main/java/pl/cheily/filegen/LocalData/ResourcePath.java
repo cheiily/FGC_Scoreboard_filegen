@@ -50,7 +50,7 @@ public enum ResourcePath {
 
     //meta
     PLAYER_LIST("meta/player_list.ini"),
-    COMMS_LIST("meta/comms_list.csv"),
+    COMMS_LIST("meta/comms_list.ini"),
     ROUND_LIST("meta/round_list.ini"),
     METADATA("meta/metadata.ini"),
     CONFIG("meta/config.ini");
