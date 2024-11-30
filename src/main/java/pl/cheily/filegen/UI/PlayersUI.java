@@ -391,8 +391,10 @@ public class PlayersUI implements Initializable {
                 btn_switch_table.setText("Switch to Players");
             }
         }
+        player_table.refresh();
         if (player_table.getSortOrder().isEmpty())
             player_table.getSortOrder().add(seed_col);
+        player_table.sort();
         hideMoveButtons();
     }
 }
