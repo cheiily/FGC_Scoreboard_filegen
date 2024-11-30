@@ -25,17 +25,25 @@ import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
 public class PlayersUI implements Initializable {
+    enum EditMode {
+        PLAYERS,
+        COMMENTATORS
+    }
+    EditMode mode = EditMode.PLAYERS;
+
     public AnchorPane bg_pane;
     public ToggleButton scene_toggle_players;
     public TextField txt_url;
     public TextField txt_csv_path;
     public TableView<Player> player_table;
     private final ObservableList<Player> playerList = FXCollections.observableList(new ArrayList<>());
+    private final ObservableList<Player> commsList = FXCollections.observableList(new ArrayList<>());
     public TableColumn<Player, Integer> seed_col;
     public TableColumn<Player, String> tag_col;
     public TableColumn<Player, String> name_col;
@@ -94,7 +102,11 @@ public class PlayersUI implements Initializable {
         seed_col.setOnEditCommit(
                 seedChangeEvent -> {
                     seedChangeEvent.getRowValue().setRemoteSeed(seedChangeEvent.getNewValue());
-                    PlayerTableUtil.adjustSeeds(playerList, seedChangeEvent.getRowValue());
+                    List<Player> list = switch (mode) {
+                        case PLAYERS -> playerList;
+                        case COMMENTATORS -> commsList;
+                    };
+                    PlayerTableUtil.adjustSeeds(list, seedChangeEvent.getRowValue());
                     player_table.sort();
                 }
         );
@@ -203,10 +215,16 @@ public class PlayersUI implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Working directory is not selected! Cannot save player list.").show();
             return;
         }
-        dataManager.playersDAO.deleteAll();
-        dataManager.playersDAO.setAll(playerList.stream().map(Player::getUuidStr).toList(), playerList);
-//        if ( !dataManager.saveLists() )
-//            new Alert(Alert.AlertType.ERROR, "Failed to save player/commentary list. Changes have been applied to the cached lists.", ButtonType.OK).show();
+        switch (mode) {
+            case PLAYERS -> {
+                dataManager.playersDAO.deleteAll();
+                dataManager.playersDAO.setAll(playerList.stream().map(Player::getUuidStr).toList(), playerList);
+            }
+            case COMMENTATORS -> {
+                dataManager.commentaryDAO.deleteAll();
+                dataManager.commentaryDAO.setAll(commsList.stream().map(Player::getUuidStr).toList(), commsList);
+            }
+        }
     }
 
     public void on_pull(ActionEvent actionEvent) {
@@ -220,13 +238,18 @@ public class PlayersUI implements Initializable {
      * @param actionEvent
      */
     public void on_add(ActionEvent actionEvent) {
-        int newSeed = playerList.stream()
+        List<Player> list = switch (mode) {
+            case PLAYERS -> playerList;
+            case COMMENTATORS -> commsList;
+        };
+
+        int newSeed = list.stream()
                 .max(Comparator.comparingInt(Player::getRemoteSeed))
                 .orElseGet(Player::getInvalid)
                 .getRemoteSeed() + 1;
         Player newPlayer = Player.newEmpty();
         newPlayer.setRemoteSeed(newSeed);
-        playerList.add(newPlayer);
+        list.add(newPlayer);
 
         player_table.refresh();
         hideMoveButtons();
@@ -240,7 +263,11 @@ public class PlayersUI implements Initializable {
         Player selected = player_table.getSelectionModel().getSelectedItem();
         if ( selected == null )
             return;
-        playerList.remove(selected);
+
+        switch (mode) {
+            case PLAYERS -> playerList.remove(selected);
+            case COMMENTATORS -> commsList.remove(selected);
+        }
 
         player_table.refresh();
         hideMoveButtons();
@@ -251,11 +278,14 @@ public class PlayersUI implements Initializable {
      * @param actionEvent
      */
     public void on_reload(ActionEvent actionEvent) {
-        // re-init todo change this to just a playersdao reload maybe
-        if (dataManager.isInitialized()) {
-            dataManager.initialize(dataManager.targetDir);
-            reload_table();
+        if ( !dataManager.isInitialized() ) {
+            new Alert(Alert.AlertType.ERROR, "No working directory selected - cannot reload lists!").show();
+            return;
         }
+
+        dataManager.playersDAO.refresh();
+        dataManager.commentaryDAO.refresh();
+        reload_table();
     }
 
     /**
@@ -264,6 +294,8 @@ public class PlayersUI implements Initializable {
     private void reload_table() {
         playerList.clear();
         playerList.addAll(dataManager.playersDAO.getAll());
+        commsList.clear();
+        commsList.addAll(dataManager.commentaryDAO.getAll());
         player_table.refresh();
         player_table.sort();
         hideMoveButtons();
@@ -343,5 +375,22 @@ public class PlayersUI implements Initializable {
     }
 
     public void on_switch_table(ActionEvent actionEvent) {
+        if (mode == EditMode.PLAYERS)
+            mode = EditMode.COMMENTATORS;
+        else mode = EditMode.PLAYERS;
+
+        switch (mode) {
+            case PLAYERS -> {
+                player_table.setItems(playerList);
+                seed_col.setEditable(true);
+                btn_switch_table.setText("Switch to Comms");
+            }
+            case COMMENTATORS -> {
+                player_table.setItems(commsList);
+                seed_col.setEditable(false);
+                btn_switch_table.setText("Switch to Players");
+            }
+        }
+        hideMoveButtons();
     }
 }

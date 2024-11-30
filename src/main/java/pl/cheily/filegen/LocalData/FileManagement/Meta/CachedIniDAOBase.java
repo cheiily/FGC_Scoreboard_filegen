@@ -86,7 +86,7 @@ public abstract class CachedIniDAOBase {
         return true;
     }
 
-    protected void refresh() {
+    public void refresh() {
         try {
             File file = this.path.toPath().toFile();
             cacheChangeTime = file.lastModified();

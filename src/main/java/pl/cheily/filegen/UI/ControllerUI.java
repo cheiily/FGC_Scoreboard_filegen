@@ -719,6 +719,7 @@ public class ControllerUI implements Initializable {
 
     private void expand() {
         expanded = true;
+        btn_expand.setText("-");
         pane_comm3.setVisible(true);
         pane_comm1.setPrefWidth(expandedWidth);
         pane_comm2.relocate(expandedX, pane_comm2.getLayoutY());
@@ -729,6 +730,7 @@ public class ControllerUI implements Initializable {
 
     private void collapse() {
         expanded = false;
+        btn_expand.setText("+");
         pane_comm3.setVisible(false);
         pane_comm1.setPrefWidth(collapsedWidth);
         pane_comm2.relocate(collapsedX, pane_comm2.getLayoutY());

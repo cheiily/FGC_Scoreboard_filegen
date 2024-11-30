@@ -14,4 +14,6 @@ public interface DAO<T> {
 
     public void delete(String key);
     public void deleteAll();
+
+    public void refresh();
 }

@@ -82,4 +82,12 @@ public class EventfulCachedIniDAOWrapper<T extends DAO<S>, S> implements DAO<S> 
     public T getDAO() {
         return (T)dao;
     }
+
+    public void refresh() {
+        var change = cached.cacheChangeTime;
+        dao.refresh();
+        if (change != cached.cacheChangeTime) {
+            pcs.firePropertyChange(pcsPropertyName, null, null);
+        }
+    }
 }
