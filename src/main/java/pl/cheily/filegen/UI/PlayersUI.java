@@ -215,16 +215,10 @@ public class PlayersUI implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Working directory is not selected! Cannot save player list.").show();
             return;
         }
-        switch (mode) {
-            case PLAYERS -> {
-                dataManager.playersDAO.deleteAll();
-                dataManager.playersDAO.setAll(playerList.stream().map(Player::getUuidStr).toList(), playerList);
-            }
-            case COMMENTATORS -> {
-                dataManager.commentaryDAO.deleteAll();
-                dataManager.commentaryDAO.setAll(commsList.stream().map(Player::getUuidStr).toList(), commsList);
-            }
-        }
+        dataManager.playersDAO.deleteAll();
+        dataManager.playersDAO.setAll(playerList.stream().map(Player::getUuidStr).toList(), playerList);
+        dataManager.commentaryDAO.deleteAll();
+        dataManager.commentaryDAO.setAll(commsList.stream().map(Player::getUuidStr).toList(), commsList);
     }
 
     public void on_pull(ActionEvent actionEvent) {
