@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -109,5 +110,10 @@
             <Font size="9.0" />
          </font>
       </Button>
+      <Hyperlink fx:id="lnk_add_rnd" alignment="CENTER" layoutX="542.0" layoutY="56.0" onAction="#on_lnk_add_rnd" prefHeight="25.0" prefWidth="20.0" style="-fx-text-fill: black; -fx-font-weight: bold; -fx-underline: false;" text="+">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Hyperlink>
    </children>
 </AnchorPane>

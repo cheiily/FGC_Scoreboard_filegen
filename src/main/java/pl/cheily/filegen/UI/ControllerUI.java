@@ -88,6 +88,7 @@ public class ControllerUI implements Initializable {
     public Button btn_expand;
     public Text label_comm1_header;
     public Text label_comm2_header;
+    public Hyperlink lnk_add_rnd;
     boolean expanded = false;
 
     private float expandedX = 228;
@@ -133,60 +134,8 @@ public class ControllerUI implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        ComboBoxListViewSkin<String> comboBoxListViewSkin = new ComboBoxListViewSkin<String>(combo_round) {
-            private Button buttonAdd = new Button("+Add");
-            private Button buttonReload = new Button("↻Reload");
-
-            private TextField textField = new TextField();
-            private VBox pane = new VBox();
-            {
-                buttonAdd.setDisable(true);
-                buttonAdd.setOnAction(event -> {
-                    String text = textField.getText();
-                    if (text.isBlank()) return;
-                    if (dataManager.isInitialized()) dataManager.roundLabelDAO.set(text, text);
-                    combo_round.getItems().add(text);
-                    textField.clear();
-                    buttonAdd.setDisable(true);
-                });
-                textField.setOnKeyTyped(event -> {
-                    if (textField.getText().isBlank())
-                        buttonAdd.setDisable(true);
-                    else buttonAdd.setDisable(false);
-                });
-
-                textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                    ac_round.propertyChange(new PropertyChangeEvent(this, "text", null, !newValue));
-                });
-                textField.setOnAction(event -> buttonAdd.fire());
-
-                buttonReload.setOnAction(event -> {
-                    combo_round.getItems().clear();
-                    if (!dataManager.isInitialized()) {
-                        new Alert(Alert.AlertType.WARNING, "No working path selected - reloading default label set.", ButtonType.OK).show();
-                        combo_round.getItems().addAll(RoundLabelDAO.getDefault());
-                    } else
-                        combo_round.getItems().addAll(dataManager.roundLabelDAO.getAllSorted());
-                });
-                pane.setStyle("-fx-background-color: -fx-control-inner-background; -fx-border-color: -fx-box-border; -fx-border-width: 1;");
-            }
-
-            @Override
-            public Node getPopupContent() {
-                Node defaultContent = super.getPopupContent();
-                HBox hBox = new HBox();
-                hBox.getChildren().addAll(buttonAdd, textField, buttonReload);
-                HBox.setHgrow(textField, Priority.ALWAYS);
-                defaultContent.setManaged(true);
-                pane.getChildren().setAll(defaultContent, hBox);
-                return pane;
-            }
-        };
-        combo_round.setSkin(comboBoxListViewSkin);
-
-
         combo_round.setCellFactory(param -> new ListCell<>() {
-            private Button button = new Button("-");
+            private Button button = new Button("X");
             private Label label = new Label();
             private HBox graphic;
             private Hyperlink link = new Hyperlink("X");
@@ -207,6 +156,7 @@ public class ControllerUI implements Initializable {
                 button.setTextAlignment(TextAlignment.CENTER);
                 button.setAlignment(Pos.CENTER);
                 button.setMaxSize(16, 16);
+                button.setBackground(null);
                 button.setOnMouseReleased(event -> {
                     String item = getItem();
                     if (dataManager.isInitialized()) dataManager.roundLabelDAO.delete(item);
@@ -215,6 +165,8 @@ public class ControllerUI implements Initializable {
                 });
 
                 graphic = new HBox(label, link);
+                graphic.setPrefHeight(20);
+                graphic.setAlignment(Pos.CENTER);
                 HBox.setHgrow(label, Priority.ALWAYS);
                 setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             }
@@ -228,6 +180,11 @@ public class ControllerUI implements Initializable {
                 }
             }
         });
+
+        lnk_add_rnd.disableProperty().bind(combo_round.editorProperty().get().textProperty().map(
+                text -> text.isBlank() || combo_round.getItems().contains(text.trim())
+        ));
+        lnk_add_rnd.opacityProperty().bind(lnk_add_rnd.disableProperty().map(disabled -> disabled ? 0 : 1));
 
         if (!dataManager.isInitialized())
             combo_round.getItems().addAll(RoundLabelDAO.getDefault());
@@ -837,5 +794,13 @@ public class ControllerUI implements Initializable {
         pane_comm2.setPrefWidth(collapsedWidth);
         label_comm1_header.setLayoutX(96);
         label_comm2_header.setLayoutX(96);
+    }
+
+    public void on_lnk_add_rnd(ActionEvent actionEvent) {
+        String text = combo_round.getEditor().getText().trim();
+        ac_round.clearSuggestions();
+        combo_round.getItems().add(text);
+        ac_round.loadOriginList(combo_round.getItems());
+        if (dataManager.isInitialized()) dataManager.roundLabelDAO.set(text, text);
     }
 }
