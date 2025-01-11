@@ -219,6 +219,9 @@ public class ConfigUI implements Initializable {
             new Alert(AlertType.WARNING, "Couldn't store configuration to " + ResourcePath.CONFIG + "! Changes were applied.").show();
             onApplyConfig();
         }
+
+        var names = dataManager.getWriters().stream().map(w -> w.getName()).toList();
+        dataManager.outputWriterDAO.setAll(names, dataManager.getWriters());
     }
 
     /**

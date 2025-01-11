@@ -52,6 +52,8 @@ Fixes/Next commit/Minor todo:
 - [ ] V0.3
   - [ ] move config to a persistent %appdata% location
     - [ ] get rid of flag extension in favor of reading all files in folder
+  - [ ] Make Formattingunits take custom, tokenized paths
+    - [ ] Change ResourcePath.toPath to ::toPath(String tokenized) to allow more flexibility 
   - [ ] ~~add an "add player to list / save changes to player / add as new player" plus button on the controller~~ (resigned)
   - [x] get rid of custom lists outside the app
     - [x] Create appropriate scenes for each list edition

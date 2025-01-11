@@ -17,6 +17,8 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.WriterConfig.OutputWriterDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.WriterConfig.OutputWriterDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.UI.ControllerUI;
 
@@ -51,6 +53,7 @@ public class DataManager {
     public PlayersDAO playersDAO;
     public PlayersDAO commentaryDAO;
     public RoundLabelDAO roundLabelDAO;
+    public OutputWriterDAO outputWriterDAO;
 
     private boolean initialized;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -133,18 +136,21 @@ public class DataManager {
         var playersDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(ResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
         var commentaryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(COMMS_LIST), PlayersDAO.class, CHANGED_COMMENTARY_LIST.name());
         var roundLabelDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RoundLabelDAOIni(ROUND_LIST), RoundLabelDAO.class, CHANGED_ROUND_LABELS.name());
+        var outputWriterDAOWrapper = new EventfulCachedIniDAOWrapper<>(new OutputWriterDAOIni(ResourcePath.WRITER_CONFIG), OutputWriterDAO.class, CHANGED_OUTPUT_WRITERS.name());
 
         configDAOWrapper.subscribe(propagator);
         matchDAOWrapper.subscribe(propagator);
         playersDAOWrapper.subscribe(propagator);
         commentaryDAOWrapper.subscribe(propagator);
         roundLabelDAOWrapper.subscribe(propagator);
+        outputWriterDAOWrapper.subscribe(propagator);
 
         configDAO = configDAOWrapper.getDAO();
         matchDAO = matchDAOWrapper.getDAO();
         playersDAO = playersDAOWrapper.getDAO();
         commentaryDAO = commentaryDAOWrapper.getDAO();
         roundLabelDAO = roundLabelDAOWrapper.getDAO();
+        outputWriterDAO = outputWriterDAOWrapper.getDAO();
         // todo retain manually edited player list
 
         pcs.firePropertyChange(INIT.toString(), null, null);
@@ -298,9 +304,25 @@ public class DataManager {
      */
     public void addWriter(OutputWriter writer) {
         writers.add(writer);
+        outputWriterDAO.set(writer.getName(), writer);
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
+
+    /**
+     * @return writer with the desired name, null if not found
+     */
+    public OutputWriter getWriter(String byName) {
+        return writers.stream().filter(w -> w.getName().equals(byName)).findFirst().orElse(null);
+    }
+
+    /**
+     * @return all writers
+     */
+    public List<OutputWriter> getWriters() {
+        return writers;
+    }
+
 
     /**
      * Enables the writer selected with its name.<br/>
@@ -311,7 +333,10 @@ public class DataManager {
      * @see OutputWriter#enable()
      */
     public void enableWriter(String byName) {
-        writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(OutputWriter::enable);
+        writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(writer -> {
+            writer.enable();
+            outputWriterDAO.set(writer.getName(), writer);
+        });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
@@ -324,7 +349,10 @@ public class DataManager {
      * @see OutputWriter#enable()
      */
     public <T extends OutputWriter> void enableWriters(Class<T> ofClass) {
-        writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(OutputWriter::enable);
+        writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(writer -> {
+            writer.enable();
+            outputWriterDAO.set(writer.getName(), writer);
+        });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
@@ -338,7 +366,10 @@ public class DataManager {
      * @see OutputWriter#disable()
      */
     public void disableWriter(String byName) {
-        writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(OutputWriter::disable);
+        writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(writer -> {
+            writer.disable();
+            outputWriterDAO.set(writer.getName(), writer);
+        });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
@@ -351,7 +382,10 @@ public class DataManager {
      * @see OutputWriter#disable()
      */
     public <T extends OutputWriter> void disableWriters(Class<T> ofClass) {
-        writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(OutputWriter::disable);
+        writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(writer -> {
+            writer.disable();
+            outputWriterDAO.set(writer.getName(), writer);
+        });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }

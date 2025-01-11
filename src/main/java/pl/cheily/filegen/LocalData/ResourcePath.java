@@ -41,6 +41,16 @@ public enum ResourcePath {
     C3_PRONOUNS("comm3_pronouns.txt"),
     C3_HANDLE("comm3_handle.txt"),
 
+    // extras for the FullySeparatingOutputFormatter
+    P1_TAG("p1_tag.txt"),
+    P1_LOSER_INDICATOR("p1_loser_indicator.txt"),
+    P2_TAG("p2_tag.txt"),
+    P2_LOSER_INDICATOR("p2_loser_indicator.txt"),
+    C1_TAG("comm1_tag.txt"),
+    C2_TAG("comm2_tag.txt"),
+    C3_TAG("comm3_tag.txt"),
+
+
     DIV_ROUND("html/round"),
 
     //lists todo remove in favor of UI loading csvs
@@ -53,7 +63,8 @@ public enum ResourcePath {
     COMMS_LIST("meta/comms_list.ini"),
     ROUND_LIST("meta/round_list.ini"),
     METADATA("meta/metadata.ini"),
-    CONFIG("meta/config.ini");
+    CONFIG("meta/config.ini"),
+    WRITER_CONFIG("meta/writer_config.ini");
 
 
     private final String fileName;
@@ -68,6 +79,12 @@ public enum ResourcePath {
     @Override
     public String toString() {
         return fileName;
+    }
+    public static ResourcePath fromString(String path) {
+        for (ResourcePath rPath : ResourcePath.values()) {
+            if ( rPath.fileName.equals(path) ) return rPath;
+        }
+        return null;
     }
 
     /**

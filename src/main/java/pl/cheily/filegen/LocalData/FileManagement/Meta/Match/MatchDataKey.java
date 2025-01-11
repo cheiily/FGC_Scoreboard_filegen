@@ -52,4 +52,13 @@ public enum MatchDataKey {
     public String toString() {
         return key;
     }
+    public static MatchDataKey fromString(String key) {
+        for (MatchDataKey matchDataKey : MatchDataKey.values()) {
+            if (matchDataKey.key.equals(key)) {
+                return matchDataKey;
+            }
+        }
+        throw new IllegalArgumentException(
+                "No enum constant with matching key value " + MatchDataKey.class.getCanonicalName() + "(" + key + ")");
+    }
 }

@@ -19,6 +19,8 @@ public interface OutputWriter {
      * @return Per-instance unique name, to distinguish among other writers of the same type.
      */
     public String getName();
+    public OutputType getOutputType();
+    public OutputWriterType getWriterType();
 
     public boolean isEnabled();
 

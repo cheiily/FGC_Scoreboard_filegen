@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public interface OutputFormatter {
     String getName();
+    OutputFormatterType getType();
     List<FormattingUnit> getFormats();
 
     /**  Asks the formatter to figure out its required inputs on its own by querying the {@link pl.cheily.filegen.LocalData.DataManager} directly.

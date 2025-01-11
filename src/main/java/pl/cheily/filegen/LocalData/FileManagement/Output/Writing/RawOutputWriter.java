@@ -1,12 +1,9 @@
 package pl.cheily.filegen.LocalData.FileManagement.Output.Writing;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.Configuration.AppConfig;
-import pl.cheily.filegen.Configuration.Defaults;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatter;
 import pl.cheily.filegen.LocalData.ResourcePath;
@@ -20,21 +17,22 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
-public class RawOutputWriter implements OutputWriter {
+public class RawOutputWriter extends OutputWriterBase {
     private final static Logger logger = LoggerFactory.getLogger(RawOutputWriter.class);
-    private OutputFormatter formatter;
-    private boolean enabled = true;
-    private final String name;
+    public static String defaultName = "Default file-based output writer";
 
     public RawOutputWriter(String name, OutputFormatter formatter) {
-        this.name = name;
-        this.formatter = formatter;
+        super(name, OutputType.FILE, OutputWriterType.RAW, formatter);
     }
 
+    public static RawOutputWriter deserialize(OutputWriterDeserializerParams params) {
+        var writer = new RawOutputWriter(params.name, params.formatter);
+        writer.enabled = params.enabled;
+        return writer;
+    }
 
     /**
      * By contract, the writer will return false and not execute any further writes if it is disabled.
@@ -98,35 +96,5 @@ public class RawOutputWriter implements OutputWriter {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public OutputFormatter getFormatter() {
-        return formatter;
-    }
-
-    @Override
-    public void setFormatter(OutputFormatter formatter) {
-        this.formatter = formatter;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    @Override
-    public void enable() {
-        enabled = true;
-    }
-
-    @Override
-    public void disable() {
-        enabled = false;
     }
 }
