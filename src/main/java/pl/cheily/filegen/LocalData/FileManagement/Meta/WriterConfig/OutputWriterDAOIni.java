@@ -6,7 +6,6 @@ import org.ini4j.Profile;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.*;
-import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterDeserializerParams;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
@@ -128,20 +127,20 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
 
     private void serializeWriter(OutputWriter writer) {
         var section = cache.add(writer.getName());
-        section.put(ENABLED.getKey(), Boolean.toString(writer.isEnabled()));
-        section.put(WRITER_TYPE.getKey(), writer.getWriterType().toString());
-        section.put(FORMATTER_NAME.getKey(), writer.getFormatter().getName());
-        section.put(FORMATTER_TYPE.getKey(), writer.getFormatter().getType().toString());
+        section.put(ENABLED.toString(), Boolean.toString(writer.isEnabled()));
+        section.put(WRITER_TYPE.toString(), writer.getWriterType().toString());
+        section.put(FORMATTER_NAME.toString(), writer.getFormatter().getName());
+        section.put(FORMATTER_TYPE.toString(), writer.getFormatter().getType().toString());
         writer.getFormatter().getFormats().forEach(fmt -> serializeFormattingUnit(fmt, writer.getFormatter().getName(), cache));
     }
     
     private void serializeFormattingUnit(FormattingUnit fmt, String formatterName, Ini targetIni) {
         Profile.Section sec = targetIni.add(formatterName + ".fmt");
-        sec.put(ENABLED.getKey(), Boolean.toString(fmt.enabled));
-        sec.put(FMT_UNIT_DESTINATION.getKey(), fmt.destination.toString());
-        sec.put(FMT_UNIT_SAMPLE_OUTPUT.getKey(), fmt.sampleOutput);
-        sec.put(FMT_UNIT_TEMPLATE.getKey(), fmt.customInterpolationFormat);
-        sec.put(FMT_UNIT_METHOD.getKey(), fmt.formatType.toString());
-        sec.putAll(FMT_UNIT_INPUT.getKey(), fmt.inputKeys.toArray());
+        sec.put(ENABLED.toString(), Boolean.toString(fmt.enabled));
+        sec.put(FMT_UNIT_DESTINATION.toString(), fmt.destination.toString());
+        sec.put(FMT_UNIT_SAMPLE_OUTPUT.toString(), fmt.sampleOutput);
+        sec.put(FMT_UNIT_TEMPLATE.toString(), fmt.customInterpolationFormat);
+        sec.put(FMT_UNIT_METHOD.toString(), fmt.formatType.toString());
+        sec.putAll(FMT_UNIT_INPUT.toString(), fmt.inputKeys.toArray());
     }
 }

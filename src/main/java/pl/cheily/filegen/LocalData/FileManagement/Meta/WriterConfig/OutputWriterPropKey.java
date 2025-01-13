@@ -4,7 +4,7 @@ public enum OutputWriterPropKey {
     //reocurring
     ENABLED("enabled"),
 
-    WRITER_TYPE("name"),
+    WRITER_TYPE("type"),
 
     FORMATTER_NAME("formatter"),
     FORMATTER_TYPE("formatterType"),
@@ -23,7 +23,17 @@ public enum OutputWriterPropKey {
         this.key = key;
     }
 
-    public String getKey() {
+    @Override
+    public String toString() {
         return key;
+    }
+
+    public static OutputWriterPropKey fromString(String key) {
+        for (OutputWriterPropKey value : values()) {
+            if (value.key.equals(key)) {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant " + OutputWriterPropKey.class.getCanonicalName() + "." + key);
     }
 }
