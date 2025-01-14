@@ -18,6 +18,18 @@ import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 public class FormattingUnitFactory {
     private static final Pattern customInterpolationPattern = Pattern.compile("\\{.+\\}");
 
+    public static void updateFormatter(FormattingUnit unit) {
+        switch (unit.formatType) {
+            case ONE_TO_ONE_PASS -> unit.format = FormattingUnitFactory::oneToOnePassFmt;
+            case FIND_FLAG_FILE -> unit.format = FormattingUnitFactory::findFlagFileFmt;
+            case CUSTOM_INTERPOLATION -> unit.format = (String... params) -> FormattingUnitFactory.customInterpolateFmt(unit, params);
+            case DEFAULT_FORMAT_P1_NAME -> unit.format = FormattingUnitFactory::default_formatP1Name;
+            case DEFAULT_FORMAT_P2_NAME -> unit.format = FormattingUnitFactory::default_formatP2Name;
+            case DEFAULT_FORMAT_COMM_NAME -> unit.format = FormattingUnitFactory::default_formatCommName;
+            case FSPR_FORMAT_PLAYER_LOSER_INDICATOR -> unit.format = FormattingUnitFactory::fspr_formatPlayerLoserIndicator;
+        };
+    }
+
     //-------------------Preset formatter method (required for deserialization) & factory methods-------------------
     public static FormattingUnit oneToOnePass(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput) {
         return new FormattingUnit(true, inputKeys, destination, sampleOutput, FormattingUnitFactory::oneToOnePassFmt, null, FormattingUnitMethodReference.ONE_TO_ONE_PASS);

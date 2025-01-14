@@ -10,11 +10,9 @@ import java.util.function.Function;
 // Inputs & outputs are defined by the keys, replace this for plain strings if you're modding this.
 public class FormattingUnit {
     public boolean enabled;
-    // lists all required sources
-    public final List<MatchDataKey> inputKeys;
-    // lists possible destinations
-    public final ResourcePath destination;
-    public final String sampleOutput;
+    public List<MatchDataKey> inputKeys;
+    public ResourcePath destination;
+    public String sampleOutput;
 
     // input array must be in the same order as the keys
     public Function<String[], String> format;
@@ -45,7 +43,60 @@ public class FormattingUnit {
         this.formatType = type;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
+    public List<MatchDataKey> getInputKeys() {
+        return inputKeys;
+    }
 
+    public void setInputKeys(List<MatchDataKey> inputKeys) {
+        this.inputKeys = inputKeys;
+    }
+
+    public ResourcePath getDestination() {
+        return destination;
+    }
+
+    public void setDestination(ResourcePath destination) {
+        this.destination = destination;
+    }
+
+    public String getSampleOutput() {
+        return sampleOutput;
+    }
+
+    public void setSampleOutput(String sampleOutput) {
+        this.sampleOutput = sampleOutput;
+    }
+
+    public Function<String[], String> getFormat() {
+        return format;
+    }
+
+    void setFormat(Function<String[], String> format) {
+        this.format = format;
+    }
+
+    public FormattingUnitMethodReference getFormatType() {
+        return formatType;
+    }
+
+    public void setFormatType(FormattingUnitMethodReference formatType) {
+        this.formatType = formatType;
+        FormattingUnitFactory.updateFormatter(this);
+    }
+
+    public String getCustomInterpolationFormat() {
+        return customInterpolationFormat;
+    }
+
+    public void setCustomInterpolationFormat(String customInterpolationFormat) {
+        this.customInterpolationFormat = customInterpolationFormat;
+    }
 }

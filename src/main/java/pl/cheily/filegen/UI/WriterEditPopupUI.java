@@ -1,20 +1,30 @@
 package pl.cheily.filegen.UI;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.adapter.*;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
+import javafx.util.converter.DefaultStringConverter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnit;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitMethodReference;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatterType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
+import pl.cheily.filegen.LocalData.ResourcePath;
 
 import java.net.URL;
 import java.util.*;
+import java.util.function.BiFunction;
 
+import static javafx.scene.control.cell.TextFieldTableCell.forTableColumn;
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
 // If you're a recruiter reading this code to assess my skill, or anybody else, you're probably wondering: what the hell is this????
@@ -24,6 +34,7 @@ import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 // This is quite possibly the worst piece of code in this entire project, so I'd be grateful if you looked elsewhere for assessment purposes :)
 public class WriterEditPopupUI implements Initializable {
     public Stage stage;
+    /******************WRITER********************/
     public TableView<Pair<String, String>> table_wrt;
     public TableColumn col_wrt_key;
     public TableColumn col_wrt_val;
@@ -39,6 +50,15 @@ public class WriterEditPopupUI implements Initializable {
     private CheckBox _enabledCheckBox = new CheckBox();
     private TextField _formatterNameTextField = new TextField();
     private ComboBox<OutputFormatterType> _outputFormatterTypeComboBox = new ComboBox<>();
+
+    /******************FORMATS********************/
+    public TableView<FormattingUnit> table_fmt;
+    public TableColumn<FormattingUnit, Boolean> col_fmt_on;
+    public TableColumn<FormattingUnit, Menu> col_fmt_in;
+    public TableColumn<FormattingUnit, FormattingUnitMethodReference> col_fmt_func;
+    public TableColumn<FormattingUnit, String> col_fmt_temp;
+    public TableColumn<FormattingUnit, String> col_fmt_sample;
+    public TableColumn<FormattingUnit, ResourcePath> col_fmt_dest;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -123,6 +143,46 @@ public class WriterEditPopupUI implements Initializable {
         _indexToProperty.add(new SimpleObjectProperty<>(_formatterNameTextField));
         _keyToIndex.put("Formatter Type", 5);
         _indexToProperty.add(new SimpleObjectProperty<>(_outputFormatterTypeComboBox));
+
+
+        col_fmt_on.setCellFactory(javafx.scene.control.cell.CheckBoxTableCell.forTableColumn(col_fmt_on));
+        col_fmt_on.setCellValueFactory(cellDataFeatures -> {
+            try {
+                return JavaBeanBooleanPropertyBuilder.create().bean(cellDataFeatures.getValue()).name("enabled").build();
+            } catch (NoSuchMethodException e) {
+                return null;
+            }
+        });
+//        col_fmt_in.setCellFactory(javafx.scene.control.cell.TableCell);
+//        col_fmt_in.setCellValueFactory(cellDataFeatures -> new SimpleListProperty<>(cellDataFeatures.getValue().getInputKeys()));
+        col_fmt_func.setCellFactory(javafx.scene.control.cell.ComboBoxTableCell.forTableColumn(FormattingUnitMethodReference.values()));
+        col_fmt_func.setCellValueFactory(cellDataFeatures -> {
+            try {
+                return JavaBeanObjectPropertyBuilder.create().bean(cellDataFeatures.getValue()).name("formatType").build();
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        var tftc = TextFieldTableCell.<FormattingUnit, String>forTableColumn(new DefaultStringConverter());
+        col_fmt_temp.setCellFactory(TextFieldTableCell.forTableColumn());
+        col_fmt_temp.setCellValueFactory(cellDataFeatures -> {
+            try {
+                return JavaBeanStringPropertyBuilder.create().bean(cellDataFeatures.getValue()).name("customInterpolationFormat").build();
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        col_fmt_sample.setCellFactory(javafx.scene.control.cell.TextFieldTableCell.forTableColumn());
+        col_fmt_sample.setCellValueFactory(cellDataFeatures -> {
+            try {
+                return JavaBeanStringPropertyBuilder.create().bean(cellDataFeatures.getValue()).name("sampleOutput").build();
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        col_fmt_dest.setCellFactory(javafx.scene.control.cell.ChoiceBoxTableCell.forTableColumn(ResourcePath.values()));
+        col_fmt_dest.setCellValueFactory(new PropertyValueFactory<>("destination"));
     }
 
     public void open(OutputWriter writer) {
@@ -143,6 +203,8 @@ public class WriterEditPopupUI implements Initializable {
             _enabledCheckBox.setSelected(writer.isEnabled());
             _formatterNameTextField.setText(writer.getFormatter().getName());
             _outputFormatterTypeComboBox.getSelectionModel().select(writer.getFormatter().getType());
+
+            table_fmt.getItems().setAll(writer.getFormatter().getFormats());
         } else {
             _editingWriter.add(new Pair<>("Name", ""));
             _editingWriter.add(new Pair<>("Output Type", ""));
@@ -160,6 +222,8 @@ public class WriterEditPopupUI implements Initializable {
             _enabledCheckBox.setSelected(false);
             _formatterNameTextField.setText("");
             _outputFormatterTypeComboBox.getSelectionModel().selectFirst();
+
+            table_fmt.getItems().clear();
         }
     }
 
