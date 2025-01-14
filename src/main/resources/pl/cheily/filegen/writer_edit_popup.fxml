@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.WriterEditPopupUI">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.WriterEditPopupUI">
    <children>
       <FlowPane alignment="CENTER_LEFT" hgap="5.0" layoutX="360.0" layoutY="368.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="30.0" prefWidth="200.0" prefWrapLength="300.0" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="10.0">
          <opaqueInsets>
@@ -18,10 +18,10 @@
             <Button mnemonicParsing="false" onAction="#on_save" text="💾 Save" />
          </children>
       </FlowPane>
-      <TableView fx:id="table_wrt" layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="467.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0">
+      <TableView fx:id="table_wrt" layoutX="14.0" layoutY="14.0" prefHeight="210.0" prefWidth="472.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="15.0">
         <columns>
-          <TableColumn fx:id="col_wrt_key" editable="false" prefWidth="150.0" text="Key" />
-          <TableColumn fx:id="col_wrt_val" prefWidth="320.0" text="Value" />
+          <TableColumn fx:id="col_wrt_key" editable="false" prefWidth="250.0" text="Property" />
+          <TableColumn fx:id="col_wrt_val" prefWidth="328.0" text="Value" />
         </columns>
       </TableView>
    </children>
