@@ -4,3 +4,4 @@ plugins:
 
 title: Simple Scoreboard Controller
 show_downloads: true
+has_nav: true
