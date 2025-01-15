@@ -53,6 +53,7 @@
 
       <span class="banner-fix"></span>
 
+      {% if site.has_nav %}
       <section id="article_list">
         <span class="ribbon-outer">
           <span class="ribbon-inner">
@@ -69,6 +70,7 @@
           </span>
         </span>
       </section>
+      {% endif %}
 
       <section id="main_content">
         {{ content }}
