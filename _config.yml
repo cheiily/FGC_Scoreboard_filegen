@@ -3,3 +3,4 @@ plugins:
 - jekyll-remote-theme
 
 title: Simple Scoreboard Controller
+show_downloads: true
