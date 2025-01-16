@@ -161,12 +161,12 @@ section#banner .click {
               <div class="breaker"></div> 
               <ul>
                 <li><a href="{{site.base_url}}{% link articles/installation/index.md %}">Installation</a></li>
+                
+                {% for page in site.pages %}
+                <li><a href="{{ page.url | absolute_url }}">{{ page.title }}</a></li>
+                {% endfor %}
+                
                 <li>[Test]({{site.base_url}}{% link articles/installation/index.md %})</li>
-                <li>Sample element</li>
-                <li>Element</li>
-                <li>Element</li>
-                <li>Element</li>
-                <li>Element</li>
               </ul>
             </span>
           </span>
