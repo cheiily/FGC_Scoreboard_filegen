@@ -145,10 +145,12 @@ section#banner .click {
 
       <header>
         <div class="ribbon-outer">
-          <div class="ribbon-inner">
-            <h1>{{ site.title | default: site.github.repository_name }}</h1>
-            <h2>{{ site.description | default: site.github.project_tagline }}</h2>
-          </div>
+          <a href="{{site.base_url}}">
+            <div class="ribbon-inner">
+              <h1>{{ site.title | default: site.github.repository_name }}</h1>
+              <h2>{{ site.description | default: site.github.project_tagline }}</h2>
+            </div>
+          </a>
           <span class="left-tail"></span>
           <span class="right-tail"></span>
         </div>
@@ -160,8 +162,6 @@ section#banner .click {
               <h1>Articles</h1>
               <div class="breaker"></div> 
               <ul>
-                <li><a href="{{site.base_url}}">Welcome</a></li>
-                
                 {% for page in site.pages %}
                 <li><a href="{{ page.url | absolute_url }}">{{ page.title }}</a></li>
                 {% endfor %}
