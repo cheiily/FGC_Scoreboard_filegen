@@ -3,16 +3,18 @@ package pl.cheily.filegen.UI;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.adapter.*;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
-import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnit;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitMethodReference;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatterType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputType;
@@ -52,13 +54,13 @@ public class WriterEditPopupUI implements Initializable {
     private ComboBox<OutputFormatterType> _outputFormatterTypeComboBox = new ComboBox<>();
 
     /******************FORMATS********************/
-    public TableView<FormattingUnit> table_fmt;
-    public TableColumn<FormattingUnit, Boolean> col_fmt_on;
-    public TableColumn<FormattingUnit, Menu> col_fmt_in;
-    public TableColumn<FormattingUnit, FormattingUnitMethodReference> col_fmt_func;
-    public TableColumn<FormattingUnit, String> col_fmt_temp;
-    public TableColumn<FormattingUnit, String> col_fmt_sample;
-    public TableColumn<FormattingUnit, ResourcePath> col_fmt_dest;
+    public TableView<FormattingUnitBuilder> table_fmt;
+    public TableColumn<FormattingUnitBuilder, Boolean> col_fmt_on;
+    public TableColumn<FormattingUnitBuilder, ComboBox<FormattingUnitMethodReference>> col_fmt_in;
+    public TableColumn<FormattingUnitBuilder, FormattingUnitMethodReference> col_fmt_func;
+    public TableColumn<FormattingUnitBuilder, String> col_fmt_temp;
+    public TableColumn<FormattingUnitBuilder, String> col_fmt_sample;
+    public TableColumn<FormattingUnitBuilder, ResourcePath> col_fmt_dest;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -155,6 +157,13 @@ public class WriterEditPopupUI implements Initializable {
         });
 //        col_fmt_in.setCellFactory(javafx.scene.control.cell.TableCell);
 //        col_fmt_in.setCellValueFactory(cellDataFeatures -> new SimpleListProperty<>(cellDataFeatures.getValue().getInputKeys()));
+//        col_fmt_in.setCellFactory(formattingUnitBuilderMenuTableColumn -> {
+//            var cell = javafx.scene.control.cell.ComboBoxTableCell.<FormattingUnitBuilder, FormattingUnitMethodReference>forTableColumn().call(formattingUnitBuilderMenuTableColumn);
+//            cell.setConverter(FormattingUnitBuilder.methodReferenceStringConverter);
+//        });
+//        col_fmt_in.setCellValueFactory(formattingUnitBuilderComboBoxCellDataFeatures -> {
+//            return new SimpleStringProperty(formattingUnitBuilderComboBoxCellDataFeatures.getValue().inputKeys.get(0).toString());
+//        });
         col_fmt_func.setCellFactory(javafx.scene.control.cell.ComboBoxTableCell.forTableColumn(FormattingUnitMethodReference.values()));
         col_fmt_func.setCellValueFactory(cellDataFeatures -> {
             try {
@@ -164,7 +173,7 @@ public class WriterEditPopupUI implements Initializable {
             }
         });
 
-        var tftc = TextFieldTableCell.<FormattingUnit, String>forTableColumn(new DefaultStringConverter());
+        var tftc = TextFieldTableCell.<FormattingUnitBuilder, String>forTableColumn(new DefaultStringConverter());
         col_fmt_temp.setCellFactory(TextFieldTableCell.forTableColumn());
         col_fmt_temp.setCellValueFactory(cellDataFeatures -> {
             try {
@@ -204,7 +213,7 @@ public class WriterEditPopupUI implements Initializable {
             _formatterNameTextField.setText(writer.getFormatter().getName());
             _outputFormatterTypeComboBox.getSelectionModel().select(writer.getFormatter().getType());
 
-            table_fmt.getItems().setAll(writer.getFormatter().getFormats());
+            table_fmt.getItems().setAll(writer.getFormatter().getFormats().stream().map(FormattingUnitBuilder::from).toList());
         } else {
             _editingWriter.add(new Pair<>("Name", ""));
             _editingWriter.add(new Pair<>("Output Type", ""));
