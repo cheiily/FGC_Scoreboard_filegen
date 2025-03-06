@@ -1,21 +1,18 @@
 package pl.cheily.filegen.UI;
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.adapter.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.css.Match;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Pair;
-import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
@@ -25,10 +22,11 @@ import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
 import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.ScoreboardApplication;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static javafx.scene.control.cell.TextFieldTableCell.forTableColumn;
@@ -40,25 +38,21 @@ import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 // I also didn't quite want to include the whole ControlsFX just for their property sheet (which doesn't even have the look I wanted!), but in retrospect maybe that was the wrong call...
 // This is quite possibly the worst piece of code in this entire project, so I'd be grateful if you looked elsewhere for assessment purposes :)
 public class WriterEditPopupUI implements Initializable {
+    private static WriterEditPopupUI _instance;
     public Stage stage;
     /******************WRITER********************/
-    public TableView<Pair<String, String>> table_wrt;
-    public TableColumn col_wrt_key;
-    public TableColumn col_wrt_val;
-    private List<Pair<String, String>> _editingWriter = new ArrayList<>();
     private String _ogName;
 
-    private Map<String, Integer> _keyToIndex = new HashMap<>();
-    private List<Object> _indexToProperty = new ArrayList<>();
-
-    private TextField _nameTextField = new TextField();
-    private ComboBox<OutputType> _outputTypeComboBox = new ComboBox<>();
-    private ComboBox<OutputWriterType> _outputWriterTypeComboBox = null;
-    private CheckBox _enabledCheckBox = new CheckBox();
-    private TextField _formatterNameTextField = new TextField();
-    private ComboBox<OutputFormatterType> _outputFormatterTypeComboBox = new ComboBox<>();
+    public TextField txt_name;
+    public ChoiceBox<OutputType> choice_output;
+    public ChoiceBox<OutputWriterType> choice_wtype;
+    public CheckBox chck_enabled;
+    public TextField txt_fmtname;
+    public ChoiceBox<OutputFormatterType> choice_ftype;
+    public Button btn_fmt_reload;
 
     /******************FORMATS********************/
+    private int _editingFmtIndex = -1;
     public List<FormattingUnitBuilder> list_fmt;
     public TableView<FormattingUnitBuilder> table_fmt;
     public TableColumn<FormattingUnitBuilder, Boolean> col_fmt_on;
@@ -70,132 +64,103 @@ public class WriterEditPopupUI implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        col_wrt_key.setCellValueFactory(cellDataFeatures -> new ReadOnlyObjectWrapper<>(((TableColumn.CellDataFeatures<Pair<String, String>, String>)cellDataFeatures).getValue().getKey()));
-        col_wrt_val.setCellValueFactory(cellDataFeatures -> {
-            var key = ((TableColumn.CellDataFeatures<Pair<String, String>, String>)cellDataFeatures).getValue().getKey();
-            return _indexToProperty.get(_keyToIndex.get(key));
+        _instance = this;
+        choice_output.getItems().setAll(OutputType.values());
+        choice_output.valueProperty().addListener((observableValue, oldVal, newVal) -> {
+            choice_ftype.getItems().setAll(OutputFormatterType.getSupportedTypes(newVal));
+            choice_ftype.getSelectionModel().selectFirst();
+            choice_wtype.getItems().setAll(OutputWriterType.getSupportingType(newVal));
+            choice_wtype.getSelectionModel().selectFirst();
         });
 
-        _outputTypeComboBox = new ComboBox<>();
-        _outputTypeComboBox.getItems().addAll(OutputType.values());
-        _outputTypeComboBox.getSelectionModel().selectFirst();
-        _outputTypeComboBox.valueProperty().addListener((observableValue, oldVal, newVal) -> {
-            _outputFormatterTypeComboBox.getItems().setAll(OutputFormatterType.getSupportedTypes(newVal));
-            _outputFormatterTypeComboBox.getSelectionModel().selectFirst();
-            _outputWriterTypeComboBox.getItems().setAll(OutputWriterType.getSupportingType(newVal));
-            _outputWriterTypeComboBox.getSelectionModel().selectFirst();
-            table_wrt.getItems().set(_keyToIndex.get("Output Type"), new Pair<>("Output Type", newVal == null ? "" : newVal.toString()));
-        });
+        choice_wtype.getItems().setAll(OutputWriterType.values());
 
-        _outputWriterTypeComboBox = new ComboBox<>();
-        _outputWriterTypeComboBox.getItems().addAll(OutputWriterType.values());
-        _outputWriterTypeComboBox.getSelectionModel().selectFirst();
-        _outputWriterTypeComboBox.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(OutputWriterType outputWriterType) {
-                return outputWriterType == null ? "" : outputWriterType.toString();
-            }
+        choice_ftype.getItems().setAll(OutputFormatterType.values());
 
-            @Override
-            public OutputWriterType fromString(String s) {
-                return OutputWriterType.valueOf(s);
-            }
-        });
-        _outputWriterTypeComboBox.valueProperty().addListener((observableValue, oldVal, newVal) -> {
-            table_wrt.getItems().set(_keyToIndex.get("Writer Type"), new Pair<>("Writer Type", newVal == null ? "" : newVal.toString()));
-        });
+        btn_fmt_reload.disableProperty().bind(choice_ftype.valueProperty().isNull());
 
-        _outputFormatterTypeComboBox = new ComboBox<>();
-        _outputFormatterTypeComboBox.getItems().addAll(OutputFormatterType.values());
-        _outputFormatterTypeComboBox.getSelectionModel().selectFirst();
-        _outputFormatterTypeComboBox.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(OutputFormatterType outputFormatterType) {
-                return outputFormatterType == null ? "" : outputFormatterType.toString();
-            }
-
-            @Override
-            public OutputFormatterType fromString(String s) {
-                return OutputFormatterType.valueOf(s);
-            }
-        });
-        _outputFormatterTypeComboBox.valueProperty().addListener((observableValue, oldVal, newVal) -> {
-            table_wrt.getItems().set(_keyToIndex.get("Formatter Type"), new Pair<>("Formatter Type", newVal == null ? "" : newVal.toString()));
-        });
-
-
-        _nameTextField = new TextField();
-        _nameTextField.textProperty().addListener((observableValue, oldVal, newVal) -> {
-            table_wrt.getItems().set(_keyToIndex.get("Name"), new Pair<>("Name", newVal));
-        });
-
-        _formatterNameTextField = new TextField();
-        _formatterNameTextField.textProperty().addListener((observableValue, oldVal, newVal) -> {
-            table_wrt.getItems().set(_keyToIndex.get("Formatter Name"), new Pair<>("Formatter Name", newVal));
-        });
-
-        _enabledCheckBox = new CheckBox();
-        _enabledCheckBox.selectedProperty().addListener((observableValue, oldVal, newVal) -> {
-            table_wrt.getItems().set(_keyToIndex.get("Enabled?"), new Pair<>("Enabled?", Boolean.toString(newVal)));
-        });
-
-        _keyToIndex.put("Name", 0);
-        _indexToProperty.add(new SimpleObjectProperty<>(_nameTextField));
-        _keyToIndex.put("Output Type", 1);
-        _indexToProperty.add(new SimpleObjectProperty<>(_outputTypeComboBox));
-        _keyToIndex.put("Writer Type", 2);
-        _indexToProperty.add(new SimpleObjectProperty<>(_outputWriterTypeComboBox));
-        _keyToIndex.put("Enabled?", 3);
-        _indexToProperty.add(new SimpleObjectProperty<>(_enabledCheckBox));
-        _keyToIndex.put("Formatter Name", 4);
-        _indexToProperty.add(new SimpleObjectProperty<>(_formatterNameTextField));
-        _keyToIndex.put("Formatter Type", 5);
-        _indexToProperty.add(new SimpleObjectProperty<>(_outputFormatterTypeComboBox));
+        chck_enabled.textProperty().bind(chck_enabled.selectedProperty().map(b -> b ? "ON" : "OFF"));
 
         list_fmt = new ArrayList<>();
         table_fmt.setItems(FXCollections.observableList(list_fmt));
 
 
 
+
         col_fmt_in.setCellFactory(column -> new TableCell<>(){
-            private final MenuButton button = new MenuButton();
+            private HBox hbox = new HBox();
+            private Label label = new Label();
+            private Button button = new Button("Edit");
 
             {
-                for (MatchDataKey key : MatchDataKey.values()) {
-                    CheckMenuItem checkMenuItem = new CheckMenuItem(key.toString());
-                    checkMenuItem.setOnAction(e -> {
-                        FormattingUnitBuilder fmt = getTableView().getItems().get(getIndex());
-                        if (checkMenuItem.isSelected()) {
-                            fmt.getInputKeys().add(key);
-                        } else {
-                            fmt.getInputKeys().remove(key);
-                        }
-                        button.setText(fmt.getInputKeys().stream().map(MatchDataKey::toString).collect(Collectors.joining(", ")));
-                    });
-                    button.getItems().add(checkMenuItem);
-                }
+                button.setOnAction(e -> {
+                    Stage popup = new Stage();
+                    popup.setTitle("Edit Formatting Unit");
 
-                setGraphic(button);
+                    FXMLLoader loader = new FXMLLoader(ScoreboardApplication.class.getResource("formatting_unit_input_keys_edit_popup.fxml"));
+                    try {
+                        Parent root = loader.load();
+                        FmtInKeysEditPopupUI controller = loader.getController();
+                        controller.open(getTableView().getItems().get(getIndex()));
+                        controller.writerEditUI = _instance;
+                        _editingFmtIndex = getIndex();
+                        Scene scene = new Scene(root);
+                        popup.setScene(scene);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+
+                    popup.show();
+                });
+
+                if (getIndex() != -1) {
+                    label.textProperty().bind(getTableView().getItems().get(getIndex()).inputKeysProperty().map(keys -> keys.size() + "|"));
+                } else
+                    label.setText("ER|");
+                hbox.getChildren().addAll(label, button);
+                setGraphic(hbox);
             }
+        });
 
-            //
-//            @Override
-//            protected void updateItem(Menu item, boolean empty) {
-//                super.updateItem(item, empty);
-//                if (empty || item == null) {
-//                    setGraphic(null);
-//                    setText(null);
-//                } else {
-//                    setGraphic(button);
+//        col_fmt_in.setCellFactory(column -> new TableCell<>(){
+//            private final MenuButton button = new MenuButton();
+//
+//            {
+//                for (MatchDataKey key : MatchDataKey.values()) {
+//                    CheckMenuItem checkMenuItem = new CheckMenuItem(key.toString());
+//                    checkMenuItem.setOnAction(e -> {
+//                        FormattingUnitBuilder fmt = getTableView().getItems().get(getIndex());
+//                        if (checkMenuItem.isSelected()) {
+//                            fmt.getInputKeys().add(key);
+//                        } else {
+//                            fmt.getInputKeys().remove(key);
+//                        }
+//                        button.setText(fmt.getInputKeys().stream().map(MatchDataKey::toString).collect(Collectors.joining(", ")));
+//                    });
+//                    button.getItems().add(checkMenuItem);
 //                }
 //
-////                item.setText(item.getItems().stream().filter((MenuItem it) -> ((CheckMenuItem)it).isSelected()).map(MenuItem::getText).collect(Collectors.joining(", ")));
-////                setText(getTableView().getItems().get(getIndex()).getInputKeys().stream().map(MatchDataKey::toString).collect(Collectors.joining(", ")));
+//                setGraphic(button);
 //            }
-        });
-        col_fmt_in.setCellValueFactory(param -> {
-            return new SimpleObjectProperty<>(param.getValue().getInputKeys());
-        });
+//
+//            //
+////            @Override
+////            protected void updateItem(Menu item, boolean empty) {
+////                super.updateItem(item, empty);
+////                if (empty || item == null) {
+////                    setGraphic(null);
+////                    setText(null);
+////                } else {
+////                    setGraphic(button);
+////                }
+////
+//////                item.setText(item.getItems().stream().filter((MenuItem it) -> ((CheckMenuItem)it).isSelected()).map(MenuItem::getText).collect(Collectors.joining(", ")));
+//////                setText(getTableView().getItems().get(getIndex()).getInputKeys().stream().map(MatchDataKey::toString).collect(Collectors.joining(", ")));
+////            }
+//        });
+//        col_fmt_in.setCellValueFactory(param -> {
+//            return new SimpleObjectProperty<>(param.getValue().getInputKeys());
+//        });
 //        col_fmt_in.setCellValueFactory(param -> new javafx.beans.property.SimpleObjectProperty<>(param.getValue()));
 //        col_fmt_in.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().inputKeys.stream().collect(Collectors.toSet())));
 
@@ -260,42 +225,26 @@ public class WriterEditPopupUI implements Initializable {
 
     public void open(OutputWriter writer) {
         if (writer != null) {
-            _editingWriter.add(new Pair<>("Name", writer.getName()));
-            _editingWriter.add(new Pair<>("Output Type", writer.getOutputType().toString()));
-            _editingWriter.add(new Pair<>("Writer Type", writer.getWriterType().toString()));
-            _editingWriter.add(new Pair<>("Enabled?", Boolean.toString(writer.isEnabled())));
-            _editingWriter.add(new Pair<>("Formatter Name", writer.getFormatter().getName()));
-            _editingWriter.add(new Pair<>("Formatter Type", writer.getFormatter().getType().toString()));
-
-            table_wrt.getItems().setAll(_editingWriter);
             _ogName = writer.getName();
 
-            _nameTextField.setText(writer.getName());
-            _outputTypeComboBox.getSelectionModel().select(writer.getOutputType());
-            _outputWriterTypeComboBox.getSelectionModel().select(writer.getWriterType());
-            _enabledCheckBox.setSelected(writer.isEnabled());
-            _formatterNameTextField.setText(writer.getFormatter().getName());
-            _outputFormatterTypeComboBox.getSelectionModel().select(writer.getFormatter().getType());
+            txt_name.setText(writer.getName());
+            choice_output.getSelectionModel().select(writer.getOutputType());
+            choice_wtype.getSelectionModel().select(writer.getWriterType());
+            chck_enabled.setSelected(writer.isEnabled());
+            txt_fmtname.setText(writer.getFormatter().getName());
+            choice_ftype.getSelectionModel().select(writer.getFormatter().getType());
 
             list_fmt.clear();
             list_fmt.addAll(writer.getFormatter().getFormats().stream().map(FormattingUnitBuilder::from).toList());
         } else {
-            _editingWriter.add(new Pair<>("Name", ""));
-            _editingWriter.add(new Pair<>("Output Type", ""));
-            _editingWriter.add(new Pair<>("Writer Type", ""));
-            _editingWriter.add(new Pair<>("Enabled?", ""));
-            _editingWriter.add(new Pair<>("Formatter Name", ""));
-            _editingWriter.add(new Pair<>("Formatter Type", ""));
-
-            table_wrt.getItems().setAll(_editingWriter);
             _ogName = null;
 
-            _nameTextField.setText("");
-            _outputTypeComboBox.getSelectionModel().selectFirst();
-            _outputWriterTypeComboBox.getSelectionModel().selectFirst();
-            _enabledCheckBox.setSelected(false);
-            _formatterNameTextField.setText("");
-            _outputFormatterTypeComboBox.getSelectionModel().selectFirst();
+            txt_name.setText("");
+            choice_output.getSelectionModel().selectFirst();
+            choice_wtype.getSelectionModel().selectFirst();
+            chck_enabled.setSelected(false);
+            txt_fmtname.setText("");
+            choice_ftype.getSelectionModel().selectFirst();
 
             list_fmt.clear();
 //            table_fmt.getItems().clear();
@@ -306,18 +255,28 @@ public class WriterEditPopupUI implements Initializable {
         StringBuilder sb = new StringBuilder();
         sb.append("Current settings cannot be applied due to the following reasons:\n");
         boolean ret = true;
-        for (var pair : table_wrt.getItems()) {
-            if (pair.getValue() == null || pair.getValue().isEmpty()) {
-                sb.append(pair.getKey()).append(" cannot be empty.").append('\n');
-                ret = false;
-            }
-        }
-        var newName = table_wrt.getItems().get(_keyToIndex.get("Name")).getValue();
-        if (!table_wrt.getItems().get(_keyToIndex.get("Name")).getValue().equals(_ogName)) {
-            if (dataManager.getWriter(newName) != null) {
-                sb.append("Name must be unique.").append('\n');
-                ret = false;
-            }
+        boolean tmp = true;
+
+        tmp = choice_ftype.getValue().supportedWriterTypes.contains(choice_output.getValue());
+        if (!tmp) sb.append("• formatter type must support the output type.").append('\n');
+        ret &= tmp;
+
+        tmp = choice_wtype.getValue().supportedWriterType == choice_output.getValue();
+        if (!tmp) sb.append("• writer type must support the output type.").append('\n');
+        ret &= tmp;
+
+        tmp = !txt_name.getText().isEmpty();
+        if (!tmp) sb.append("• name cannot be empty.").append('\n');
+        ret &= tmp;
+
+        tmp = !txt_fmtname.getText().isEmpty();
+        if (!tmp) sb.append("• formatter name cannot be empty.").append('\n');
+        ret &= tmp;
+
+        if (!txt_name.getText().equals(_ogName)) {
+            tmp = dataManager.getWriter(txt_name.getText()) == null;
+            if (!tmp) sb.append("• name must be unique (there is already a writer with this name).").append('\n');
+            ret &= tmp;
         }
         if (!ret) {
             var alert = new Alert(Alert.AlertType.ERROR, sb.toString(), ButtonType.OK);
@@ -336,5 +295,12 @@ public class WriterEditPopupUI implements Initializable {
             return;
 
         stage.close();
+    }
+
+    public void accept_fmt_changes(List<MatchDataKey> keys) {
+        if (_editingFmtIndex != -1) {
+            list_fmt.get(_editingFmtIndex).setInputKeys(keys);
+            table_fmt.refresh();
+        }
     }
 }

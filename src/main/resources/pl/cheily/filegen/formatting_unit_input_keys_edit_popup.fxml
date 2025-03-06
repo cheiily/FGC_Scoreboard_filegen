@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="260.0" prefWidth="230.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.FmtInKeysEditPopupUI">
+   <children>
+      <MenuButton fx:id="menu_keys" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Select Input Keys">
+        <items>
+          <MenuItem mnemonicParsing="false" text="Action 1" />
+          <MenuItem mnemonicParsing="false" text="Action 2" />
+        </items>
+      </MenuButton>
+      <ListView fx:id="lst_keys" layoutX="14.0" layoutY="49.0" prefHeight="200.0" prefWidth="200.0" />
+      <Button fx:id="btn_save" layoutX="173.0" layoutY="14.0" mnemonicParsing="false" onAction="#on_save" text="Save" />
+   </children>
+</AnchorPane>
