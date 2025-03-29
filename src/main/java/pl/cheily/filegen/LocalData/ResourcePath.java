@@ -120,6 +120,10 @@ public enum ResourcePath {
         return this.fileName.startsWith("html/");
     }
 
+    public boolean isOutputFile() {
+        return !this.fileName.contains("/");
+    }
+
     // todo .format() -> .ini(), .csv(), .db() | .folder() -> .local() .appdata()
     // todo load config on boot from appdata
 }

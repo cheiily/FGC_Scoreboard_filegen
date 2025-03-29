@@ -61,7 +61,7 @@ public class FullySeparatingOutputFormatter extends OutputFormatterBase {
         super("Fully-separating formatter for file-based output", getPreset());
     }
 
-    private FullySeparatingOutputFormatter(String name, List<FormattingUnit> units) {
+    public FullySeparatingOutputFormatter(String name, List<FormattingUnit> units) {
         super(name, units);
     }
 

@@ -56,7 +56,7 @@ public class DefaultOutputFormatter extends OutputFormatterBase {
         this(defaultName, getPreset());
     }
 
-    private DefaultOutputFormatter(String name, List<FormattingUnit> units) {
+    public DefaultOutputFormatter(String name, List<FormattingUnit> units) {
         super(name, units);
     }
 

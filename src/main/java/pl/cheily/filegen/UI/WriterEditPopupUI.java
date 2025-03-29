@@ -1,19 +1,18 @@
 package pl.cheily.filegen.UI;
 
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.converter.DefaultStringConverter;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitMethodReference;
@@ -24,21 +23,17 @@ import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterTyp
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ResourceBundle;
 
-import static javafx.scene.control.cell.TextFieldTableCell.forTableColumn;
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
-// If you're a recruiter reading this code to assess my skill, or anybody else, you're probably wondering: what the hell is this????
-// Well... Essentially, I wanted to achieve a "vertical table" sort of look, which is impossible in vanilla jfx, so I had to resort to a couple... "hacks".
-// Including that, I had to work around the TableView's whole value mapping system, so yes, the tableview itself pretty much only has a cosmetic role here.
-// I also didn't quite want to include the whole ControlsFX just for their property sheet (which doesn't even have the look I wanted!), but in retrospect maybe that was the wrong call...
-// This is quite possibly the worst piece of code in this entire project, so I'd be grateful if you looked elsewhere for assessment purposes :)
 public class WriterEditPopupUI implements Initializable {
     private static WriterEditPopupUI _instance;
+    public TableView<OutputWriter> config_ui_table;
     public Stage stage;
     /******************WRITER********************/
     private String _ogName;
@@ -57,7 +52,7 @@ public class WriterEditPopupUI implements Initializable {
     public TableView<FormattingUnitBuilder> table_fmt;
     public TableColumn<FormattingUnitBuilder, Boolean> col_fmt_on;
     public TableColumn<FormattingUnitBuilder, List<MatchDataKey>> col_fmt_in;
-    public TableColumn<FormattingUnitBuilder, Object> col_fmt_func;
+    public TableColumn<FormattingUnitBuilder, FormattingUnitMethodReference> col_fmt_func;
     public TableColumn<FormattingUnitBuilder, String> col_fmt_temp;
     public TableColumn<FormattingUnitBuilder, String> col_fmt_sample;
     public TableColumn<FormattingUnitBuilder, ResourcePath> col_fmt_dest;
@@ -85,11 +80,8 @@ public class WriterEditPopupUI implements Initializable {
         table_fmt.setItems(FXCollections.observableList(list_fmt));
 
 
-
-
         col_fmt_in.setCellFactory(column -> new TableCell<>(){
             private HBox hbox = new HBox();
-            private Label label = new Label();
             private Button button = new Button("Edit");
 
             {
@@ -103,6 +95,7 @@ public class WriterEditPopupUI implements Initializable {
                         FmtInKeysEditPopupUI controller = loader.getController();
                         controller.open(getTableView().getItems().get(getIndex()));
                         controller.writerEditUI = _instance;
+                        controller.stage = popup;
                         _editingFmtIndex = getIndex();
                         Scene scene = new Scene(root);
                         popup.setScene(scene);
@@ -113,113 +106,26 @@ public class WriterEditPopupUI implements Initializable {
                     popup.show();
                 });
 
-                if (getIndex() != -1) {
-                    label.textProperty().bind(getTableView().getItems().get(getIndex()).inputKeysProperty().map(keys -> keys.size() + "|"));
-                } else
-                    label.setText("ER|");
-                hbox.getChildren().addAll(label, button);
+                hbox.getChildren().addAll(button);
+                hbox.setAlignment(javafx.geometry.Pos.CENTER);
                 setGraphic(hbox);
             }
         });
 
-//        col_fmt_in.setCellFactory(column -> new TableCell<>(){
-//            private final MenuButton button = new MenuButton();
-//
-//            {
-//                for (MatchDataKey key : MatchDataKey.values()) {
-//                    CheckMenuItem checkMenuItem = new CheckMenuItem(key.toString());
-//                    checkMenuItem.setOnAction(e -> {
-//                        FormattingUnitBuilder fmt = getTableView().getItems().get(getIndex());
-//                        if (checkMenuItem.isSelected()) {
-//                            fmt.getInputKeys().add(key);
-//                        } else {
-//                            fmt.getInputKeys().remove(key);
-//                        }
-//                        button.setText(fmt.getInputKeys().stream().map(MatchDataKey::toString).collect(Collectors.joining(", ")));
-//                    });
-//                    button.getItems().add(checkMenuItem);
-//                }
-//
-//                setGraphic(button);
-//            }
-//
-//            //
-////            @Override
-////            protected void updateItem(Menu item, boolean empty) {
-////                super.updateItem(item, empty);
-////                if (empty || item == null) {
-////                    setGraphic(null);
-////                    setText(null);
-////                } else {
-////                    setGraphic(button);
-////                }
-////
-//////                item.setText(item.getItems().stream().filter((MenuItem it) -> ((CheckMenuItem)it).isSelected()).map(MenuItem::getText).collect(Collectors.joining(", ")));
-//////                setText(getTableView().getItems().get(getIndex()).getInputKeys().stream().map(MatchDataKey::toString).collect(Collectors.joining(", ")));
-////            }
-//        });
-//        col_fmt_in.setCellValueFactory(param -> {
-//            return new SimpleObjectProperty<>(param.getValue().getInputKeys());
-//        });
-//        col_fmt_in.setCellValueFactory(param -> new javafx.beans.property.SimpleObjectProperty<>(param.getValue()));
-//        col_fmt_in.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().inputKeys.stream().collect(Collectors.toSet())));
-
-        col_fmt_on.setCellFactory(javafx.scene.control.cell.CheckBoxTableCell.forTableColumn(col_fmt_on));
+        col_fmt_on.setCellFactory(CheckBoxTableCell.forTableColumn(col_fmt_on));
         col_fmt_on.setCellValueFactory(new PropertyValueFactory<>("enabled"));
-//        col_fmt_on.setCellValueFactory(cellDataFeatures -> {
-//            try {
-//                return JavaBeanBooleanPropertyBuilder.create().bean(cellDataFeatures.getValue()).name("enabled").build();
-//            } catch (NoSuchMethodException e) {
-//                return null;
-//            }
-//        });
-//        col_fmt_in.setCellFactory(javafx.scene.control.cell.TableCell);
-//        col_fmt_in.setCellValueFactory(cellDataFeatures -> new SimpleListProperty<>(cellDataFeatures.getValue().getInputKeys()));
-//        col_fmt_in.setCellFactory(formattingUnitBuilderMenuTableColumn -> {
-//            var cell = javafx.scene.control.cell.ComboBoxTableCell.<FormattingUnitBuilder, FormattingUnitMethodReference>forTableColumn().call(formattingUnitBuilderMenuTableColumn);
-//            cell.setConverter(FormattingUnitBuilder.methodReferenceStringConverter);
-//        });
-//        col_fmt_in.setCellValueFactory(formattingUnitBuilderComboBoxCellDataFeatures -> {
-//            return new SimpleStringProperty(formattingUnitBuilderComboBoxCellDataFeatures.getValue().inputKeys.get(0).toString());
-//        });
-//        col_fmt_func.setCellFactory(javafx.scene.control.cell.ComboBoxTableCell.forTableColumn(FXCollections.observableList(new ArrayList<>(List.of(FormattingUnitMethodReference.values())))));
-//        col_fmt_func.setCellFactory(column -> {
-//            var cell = new ComboBoxTableCell<FormattingUnitBuilder, Object>();
-////            cell.setConverter(new StringConverter<>() {
-////                @Override
-////                public String toString(FormattingUnitMethodReference object) {
-////                    return object == null ? "" : object.toString();
-////                }
-////
-////                @Override
-////                public FormattingUnitMethodReference fromString(String s) {
-////                    return FormattingUnitMethodReference.valueOf(s);
-////                }
-////            });
-//            cell.getItems().setAll(FormattingUnitMethodReference.values());
-//            return cell;
-//        });
 
         col_fmt_func.setCellFactory(ComboBoxTableCell.forTableColumn(FormattingUnitMethodReference.values()));
         col_fmt_func.setCellValueFactory(new PropertyValueFactory<>("formatType"));
-//        col_fmt_func.setCellValueFactory(celldata -> celldata.getValue().formatTypeProperty().map(ref -> (Object) ref));
-//        col_fmt_func.setCellValueFactory(cellDataFeatures -> {
-//            try {
-//                return JavaBeanObjectPropertyBuilder.create().bean(cellDataFeatures.getValue()).name("formatType").build();
-//            } catch (NoSuchMethodException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
 
-        var tftc = TextFieldTableCell.<FormattingUnitBuilder, String>forTableColumn(new DefaultStringConverter());
         col_fmt_temp.setCellFactory(TextFieldTableCell.forTableColumn());
         col_fmt_temp.setCellValueFactory(new PropertyValueFactory<>("customInterpolationFormat"));
 
-
-        col_fmt_sample.setCellFactory(javafx.scene.control.cell.TextFieldTableCell.forTableColumn());
+        col_fmt_sample.setCellFactory(TextFieldTableCell.forTableColumn());
         col_fmt_sample.setCellValueFactory(new PropertyValueFactory<>("sampleOutput"));
 
-        col_fmt_dest.setCellFactory(javafx.scene.control.cell.ChoiceBoxTableCell.forTableColumn(ResourcePath.values()));
+        ResourcePath[] outputPaths = Arrays.stream(ResourcePath.values()).filter(ResourcePath::isOutputFile).toArray(ResourcePath[]::new);
+        col_fmt_dest.setCellFactory(ComboBoxTableCell.forTableColumn(outputPaths));
         col_fmt_dest.setCellValueFactory(new PropertyValueFactory<>("destination"));
     }
 
@@ -294,6 +200,22 @@ public class WriterEditPopupUI implements Initializable {
         if (!validate())
             return;
 
+        dataManager.removeWriter(dataManager.getWriter(_ogName));
+        var newWriter = choice_wtype.getValue().ctor.apply(
+            txt_name.getText(),
+            choice_ftype.getValue().paramCtor.apply(
+                    txt_fmtname.getText(),
+                    list_fmt.stream().map(FormattingUnitBuilder::build).toList()
+            )
+        );
+        if (!chck_enabled.isSelected())
+            newWriter.disable();
+
+        dataManager.addWriter(newWriter);
+
+        config_ui_table.getItems().setAll(dataManager.getWriters());
+        config_ui_table.refresh();
+
         stage.close();
     }
 
@@ -302,5 +224,14 @@ public class WriterEditPopupUI implements Initializable {
             list_fmt.get(_editingFmtIndex).setInputKeys(keys);
             table_fmt.refresh();
         }
+    }
+
+    public void on_reload_fmt_preset(ActionEvent actionEvent) {
+        var cont = new Alert(Alert.AlertType.WARNING, "This will reset any changes made to the formatting unit list below. Are you sure you want to proceed?", ButtonType.YES, ButtonType.CANCEL).showAndWait();
+        if (cont.isEmpty() || cont.get() != ButtonType.YES)
+            return;
+
+        list_fmt.clear();
+        list_fmt.addAll(choice_ftype.getValue().presetSupplier.get().stream().map(FormattingUnitBuilder::from).toList());
     }
 }

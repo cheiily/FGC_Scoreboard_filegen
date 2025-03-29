@@ -20,6 +20,7 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAOIni
 import pl.cheily.filegen.LocalData.FileManagement.Meta.WriterConfig.OutputWriterDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.WriterConfig.OutputWriterDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
 import pl.cheily.filegen.UI.ControllerUI;
 
 import java.beans.PropertyChangeListener;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static pl.cheily.filegen.LocalData.DataEventProp.*;
 import static pl.cheily.filegen.LocalData.ResourcePath.COMMS_LIST;
@@ -53,7 +55,7 @@ public class DataManager {
     public PlayersDAO playersDAO;
     public PlayersDAO commentaryDAO;
     public RoundLabelDAO roundLabelDAO;
-    public OutputWriterDAO outputWriterDAO;
+    private OutputWriterDAO outputWriterDAO;
 
     private boolean initialized;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -295,18 +297,34 @@ public class DataManager {
 
     /**
      * Appends an {@link OutputWriter} to the internal writer list.<br/>
-     * Note that there is no way to remove writers from the list, they can only be disabled.
      *
      * @param writer
      * @see DataManager#disableWriter(String)
-     * @see DataManager#disableWriters(Class)
+     * @see DataManager#disableWriters(OutputWriterType)
      * @see OutputWriter#disable()
      */
     public void addWriter(OutputWriter writer) {
         writers.add(writer);
-        outputWriterDAO.set(writer.getName(), writer);
+        if (outputWriterDAO != null)
+            outputWriterDAO.set(writer.getName(), writer);
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
+    }
+
+    /**
+     * Removes the requested writer from the internal list.<br/>
+     *
+     * @param writer object to remove
+     */
+    public boolean removeWriter(OutputWriter writer) {
+        if (writer == null) return false;
+
+        boolean removed = writers.remove(writer);
+        if (outputWriterDAO != null)
+            outputWriterDAO.delete(writer.getName());
+
+        pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
+        return removed;
     }
 
     /**
@@ -317,12 +335,18 @@ public class DataManager {
     }
 
     /**
+     * @return all writers that match the filter
+     */
+    public List<OutputWriter> getWriter(Predicate<OutputWriter> filter) {
+        return writers.stream().filter(filter).toList();
+    }
+
+    /**
      * @return all writers
      */
     public List<OutputWriter> getWriters() {
         return writers;
     }
-
 
     /**
      * Enables the writer selected with its name.<br/>
@@ -335,23 +359,25 @@ public class DataManager {
     public void enableWriter(String byName) {
         writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(writer -> {
             writer.enable();
-            outputWriterDAO.set(writer.getName(), writer);
+            if (outputWriterDAO != null)
+                outputWriterDAO.set(writer.getName(), writer);
         });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
-     * Enables all writers of the desired class. Useful if there are multiple output writers of the same type to be enabled.
+     * Enables all writers whose declared type matches the filter. Useful if there are multiple output writers of the same type to be enabled.
      *
-     * @param ofClass
+     * @param ofType
      * @param <T>
      * @see OutputWriter#enable()
      */
-    public <T extends OutputWriter> void enableWriters(Class<T> ofClass) {
-        writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(writer -> {
+    public <T extends OutputWriter> void enableWriters(OutputWriterType ofType) {
+        writers.stream().filter(w -> w.getWriterType().equals(ofType)).forEach(writer -> {
             writer.enable();
-            outputWriterDAO.set(writer.getName(), writer);
+            if (outputWriterDAO != null)
+                outputWriterDAO.set(writer.getName(), writer);
         });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
@@ -368,23 +394,25 @@ public class DataManager {
     public void disableWriter(String byName) {
         writers.stream().filter(w -> w.getName().equals(byName)).findFirst().ifPresent(writer -> {
             writer.disable();
-            outputWriterDAO.set(writer.getName(), writer);
+            if (outputWriterDAO != null)
+                outputWriterDAO.set(writer.getName(), writer);
         });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
     }
 
     /**
-     * Disables all writers of the desired class. Useful if there are multiple output writers of the same type to be disabled.
+     * Disables all writers whose declared type matches the filter. Useful if there are multiple output writers of the same type to be disabled.
      *
-     * @param ofClass
+     * @param ofType
      * @param <T>
      * @see OutputWriter#disable()
      */
-    public <T extends OutputWriter> void disableWriters(Class<T> ofClass) {
-        writers.stream().filter(w -> w.getClass().equals(ofClass)).forEach(writer -> {
+    public <T extends OutputWriter> void disableWriters(OutputWriterType ofType) {
+        writers.stream().filter(w -> w.getWriterType().equals(ofType)).forEach(writer -> {
             writer.disable();
-            outputWriterDAO.set(writer.getName(), writer);
+            if (outputWriterDAO != null)
+                outputWriterDAO.set(writer.getName(), writer);
         });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);

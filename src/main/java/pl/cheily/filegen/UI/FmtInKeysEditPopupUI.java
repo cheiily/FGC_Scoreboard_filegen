@@ -3,6 +3,7 @@ package pl.cheily.filegen.UI;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
 
@@ -12,6 +13,7 @@ import java.util.ResourceBundle;
 
 public class FmtInKeysEditPopupUI implements Initializable {
 
+    public Stage stage;
 
     public MenuButton menu_keys;
     public ListView<MatchDataKey> lst_keys;
@@ -51,5 +53,6 @@ public class FmtInKeysEditPopupUI implements Initializable {
     public void on_save() {
         _builder.setInputKeys(lst_keys.getItems());
         writerEditUI.accept_fmt_changes(lst_keys.getItems());
+        stage.close();
     }
 }

@@ -216,6 +216,7 @@ public class ConfigUI implements Initializable {
                     Parent root = loader.load();
                     WriterEditPopupUI controller = loader.getController();
                     controller.open(((TableColumn.CellDataFeatures<OutputWriter, Button>)cellDataFeatures).getValue());
+                    controller.config_ui_table = table_writers;
                     controller.stage = popupStage;
                     Scene scene = new Scene(root);
                     popupStage.setScene(scene);
@@ -280,8 +281,9 @@ public class ConfigUI implements Initializable {
             onApplyConfig();
         }
 
-        var names = dataManager.getWriters().stream().map(w -> w.getName()).toList();
-        dataManager.outputWriterDAO.setAll(names, dataManager.getWriters());
+
+//        var names = dataManager.getWriters().stream().map(w -> w.getName()).toList();
+//        dataManager.outputWriterDAO.setAll(names, dataManager.getWriters());
     }
 
     /**

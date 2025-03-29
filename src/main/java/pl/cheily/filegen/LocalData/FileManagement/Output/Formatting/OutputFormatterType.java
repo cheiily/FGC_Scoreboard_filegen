@@ -11,23 +11,31 @@ public enum OutputFormatterType {
     DEFAULT(
             List.of(OutputType.FILE),
             DefaultOutputFormatter::new,
+            DefaultOutputFormatter::new,
+            DefaultOutputFormatter::getPreset,
             DefaultOutputFormatter.defaultName,
             DefaultOutputFormatter::deserialize
     ),
     FULLY_SEPARATING(
             List.of(OutputType.FILE),
             FullySeparatingOutputFormatter::new,
+            FullySeparatingOutputFormatter::new,
+            FullySeparatingOutputFormatter::getPreset,
             FullySeparatingOutputFormatter.defaultName,
             FullySeparatingOutputFormatter::deserialize
     );
 
     public List<OutputType> supportedWriterTypes;
-    public Supplier<OutputFormatter> ctor;
+    public Supplier<OutputFormatter> simpleCtor;
+    public BiFunction<String, List<FormattingUnit>, OutputFormatter> paramCtor;
+    public Supplier<List<FormattingUnit>> presetSupplier;
     public Function<OutputFormatterDeserializerParams, OutputFormatter> deserializer;
     public String description;
-    OutputFormatterType(List<OutputType> supportedWriterTypes, Supplier<OutputFormatter> ctor, String description, Function<OutputFormatterDeserializerParams, OutputFormatter> deserializer) {
+    OutputFormatterType(List<OutputType> supportedWriterTypes, Supplier<OutputFormatter> ctor, BiFunction<String, List<FormattingUnit>, OutputFormatter> parameterizedCtor, Supplier<List<FormattingUnit>> presetSupplier, String description, Function<OutputFormatterDeserializerParams, OutputFormatter> deserializer) {
         this.supportedWriterTypes = supportedWriterTypes;
-        this.ctor = ctor;
+        this.simpleCtor = ctor;
+        this.paramCtor = parameterizedCtor;
+        this.presetSupplier = presetSupplier;
         this.description = description;
         this.deserializer = deserializer;
     }
