@@ -3,6 +3,7 @@ package pl.cheily.filegen.LocalData.FileManagement.Meta.Players;
 import org.ini4j.Profile;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
 import pl.cheily.filegen.LocalData.Player;
+import pl.cheily.filegen.LocalData.PlayerDeserializer;
 import pl.cheily.filegen.LocalData.ResourcePath;
 
 import java.util.ArrayList;
@@ -17,18 +18,17 @@ public class PlayersDAOIni extends CachedIniDAOBase implements PlayersDAO {
 
     private static Player deserializeFromIni(Profile.Section sec_player) {
         if (sec_player == null) return Player.getInvalid();
-        return Player.deserialize(
-                sec_player.getName(),
-                sec_player.getOrDefault(PlayerPropKey.TAG.toString(), ""),
-                sec_player.getOrDefault(PlayerPropKey.NAME.toString(), ""),
-                sec_player.getOrDefault(PlayerPropKey.NATIONALITY.toString(), ""),
-                sec_player.getOrDefault(PlayerPropKey.PRONOUNS.toString(), ""),
-                sec_player.getOrDefault(PlayerPropKey.SNS_HANDLE.toString(), ""),
-                Long.parseLong(sec_player.getOrDefault(PlayerPropKey.REMOTE_ID.toString(), "0")),
-                Integer.parseInt(sec_player.getOrDefault(PlayerPropKey.REMOTE_SEED.toString(), "0")),
-                sec_player.getOrDefault(PlayerPropKey.REMOTE_NAME.toString(), ""),
-                sec_player.getOrDefault(PlayerPropKey.REMOTE_ICON_URL.toString(), "")
-        );
+        return PlayerDeserializer.fromUuid(sec_player.getName())
+                .withTag(sec_player.getOrDefault(PlayerPropKey.TAG.toString(), ""))
+                .withName(sec_player.getOrDefault(PlayerPropKey.NAME.toString(), ""))
+                .withNationality(sec_player.getOrDefault(PlayerPropKey.NATIONALITY.toString(), ""))
+                .withPronouns(sec_player.getOrDefault(PlayerPropKey.PRONOUNS.toString(), ""))
+                .withSnsHandle(sec_player.getOrDefault(PlayerPropKey.SNS_HANDLE.toString(), ""))
+                .withRemoteId(Long.parseLong(sec_player.getOrDefault(PlayerPropKey.REMOTE_ID.toString(), "0")))
+                .withRemoteSeed(Integer.parseInt(sec_player.getOrDefault(PlayerPropKey.REMOTE_SEED.toString(), "0")))
+                .withRemoteName(sec_player.getOrDefault(PlayerPropKey.REMOTE_NAME.toString(), ""))
+                .withRemoteIconUrl(sec_player.getOrDefault(PlayerPropKey.REMOTE_ICON_URL.toString(), ""))
+                .deserialize();
     }
 
     @Override
