@@ -1,3 +1,11 @@
-Manifest-Version: 0.2.2
+Manifest-Version: 1.0
 Main-Class: pl.cheily.filegen.Launcher
+Class-Path: javafx-graphics-19.0.2.1-win.jar logback-core-1.5.7.jar comm
+ ons-text-1.11.0.jar commons-collections4-4.4.jar javafx-fxml-19.0.2.1.j
+ ar Java-WebSocket-1.5.3.jar opencsv-5.9.jar javafx-fxml-19.0.2.1-win.ja
+ r logback-classic-1.5.7.jar javafx-controls-19.0.2.1.jar javafx-control
+ s-19.0.2.1-win.jar javafx-base-19.0.2.1-win.jar commons-beanutils-1.9.4
+ .jar json-20231013.jar slf4j-api-2.0.16.jar javafx-base-19.0.2.1.jar co
+ mmons-lang3-3.13.0.jar ini4j-0.5.4.jar commons-logging-1.2.jar javafx-g
+ raphics-19.0.2.1.jar commons-collections-3.2.2.jar
 

@@ -19,8 +19,10 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.WriterConfig.OutputWriterDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.WriterConfig.OutputWriterDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.DefaultOutputFormatter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.RawOutputWriter;
 import pl.cheily.filegen.UI.ControllerUI;
 
 import java.beans.PropertyChangeListener;
@@ -30,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static pl.cheily.filegen.LocalData.DataEventProp.*;
 import static pl.cheily.filegen.LocalData.ResourcePath.COMMS_LIST;
@@ -97,17 +100,9 @@ public class DataManager {
 
 
     /**
-     * Constructs a DataWriter with the assigned OutputWriters.
-     *
-     * @param writers vararg package of {@link OutputWriter}s
-     * @throws IllegalArgumentException if no writers were passed
+     * Constructs a DataWriter.
      */
-    public DataManager(OutputWriter... writers) throws IllegalArgumentException {
-        if ( writers.length == 0 )
-            throw new IllegalArgumentException("DataManager cannot be created without any writers");
-
-        this.writers.addAll(List.of(writers));
-    }
+    public DataManager() {}
 
     /**
      * Initializes the Manager with the specified target directory.
@@ -154,6 +149,15 @@ public class DataManager {
         roundLabelDAO = roundLabelDAOWrapper.getDAO();
         outputWriterDAO = outputWriterDAOWrapper.getDAO();
         // todo retain manually edited player list
+
+        var loadedWriters = outputWriterDAO.getAll();
+        if (loadedWriters.isEmpty()) {
+            logger.info("No writers found to deserialize on DataManager init. Creating defaults.");
+            defaultWriters().forEach(this::addWriter);
+        } else {
+            logger.debug("Loading {} writers from file. {}", loadedWriters.size(), loadedWriters.stream().map(OutputWriter::getName).collect(Collectors.joining(", ")));
+            writers.addAll(loadedWriters);
+        }
 
         pcs.firePropertyChange(INIT.toString(), null, null);
     }
@@ -328,6 +332,23 @@ public class DataManager {
     }
 
     /**
+     * Removes all writers from the internal list.<br/>
+     *
+     * @return true if any writers were removed, false if there were no registered writers
+     */
+    public boolean removeAllWriters() {
+        if (writers.isEmpty())
+            return false;
+
+        writers.clear();
+        if (outputWriterDAO != null)
+            outputWriterDAO.deleteAll();
+
+        pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
+        return true;
+    }
+
+    /**
      * @return writer with the desired name, null if not found
      */
     public OutputWriter getWriter(String byName) {
@@ -416,6 +437,13 @@ public class DataManager {
         });
 
         pcs.firePropertyChange(CHANGED_OUTPUT_WRITERS.toString(), null, null);
+    }
+
+    public static List<OutputWriter> defaultWriters() {
+        return List.of(
+                new RawOutputWriter("Default raw-file writer", new DefaultOutputFormatter())
+                // todo html
+        );
     }
 
 }

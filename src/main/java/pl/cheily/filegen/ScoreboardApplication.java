@@ -44,7 +44,7 @@ public class ScoreboardApplication extends Application {
         rootlog.addAppender(appender);
 
         mainStage = stage;
-        dataManager = new DataManager(new RawOutputWriter("default raw-output writer #1", new DefaultOutputFormatter()));
+        dataManager = new DataManager();
         controllerScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("controller_scene.fxml")).load());
         playersScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("players_scene.fxml")).load());
         configScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("config_scene.fxml")).load());

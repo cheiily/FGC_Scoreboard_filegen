@@ -117,6 +117,12 @@ public class WriterEditPopupUI implements Initializable {
 
         col_fmt_func.setCellFactory(ComboBoxTableCell.forTableColumn(FormattingUnitMethodReference.values()));
         col_fmt_func.setCellValueFactory(new PropertyValueFactory<>("formatType"));
+//        col_fmt_func.setOnEditCommit(event -> {
+//            if (event.getNewValue() == FormattingUnitMethodReference.CUSTOM_INTERPOLATION) {
+//                System.out.println("here");
+//            }
+//        });
+
 
         col_fmt_temp.setCellFactory(TextFieldTableCell.forTableColumn());
         col_fmt_temp.setCellValueFactory(new PropertyValueFactory<>("customInterpolationFormat"));

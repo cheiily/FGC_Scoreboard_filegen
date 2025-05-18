@@ -4,12 +4,14 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="bg_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#on_bg_click" prefHeight="400.0" prefWidth="610.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.ConfigUI">
    <children>
@@ -34,7 +36,7 @@
       <ImageView fx:id="resultImgView" fitHeight="25.0" fitWidth="25.0" layoutX="37.0" layoutY="366.0" pickOnBounds="true" preserveRatio="true" />
       <CheckBox fx:id="chk_gf_radio" layoutX="49.0" layoutY="125.0" mnemonicParsing="false" text="Turn on GF radio toggle when round label matches &quot;gran(d)&quot;" />
       <CheckBox fx:id="chk_comm3_out" layoutX="49.0" layoutY="145.0" mnemonicParsing="false" text="Make output files for a third commentator when not selected" />
-      <TableView fx:id="table_writers" layoutX="50.0" layoutY="200.0" prefHeight="103.0" prefWidth="545.0">
+      <TableView fx:id="table_writers" layoutX="50.0" layoutY="210.0" prefHeight="103.0" prefWidth="545.0">
         <columns>
           <TableColumn fx:id="col_wrt_enabled" editable="false" prefWidth="27.0" style="-fx-alignment: CENTER;" text="On?" />
           <TableColumn fx:id="col_wrt_name" editable="false" prefWidth="170.0" style="-fx-alignment: CENTER;" text="Writer" />
@@ -48,5 +50,12 @@
             <TableColumn fx:id="col_wrt_action" editable="false" minWidth="0.0" prefWidth="40.0" style="-fx-alignment: CENTER;" />
         </columns>
       </TableView>
+      <Label layoutX="54.0" layoutY="182.0" text="Output settings">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Separator layoutX="149.0" layoutY="190.0" prefHeight="3.0" prefWidth="270.0" />
+      <Button layoutX="424.0" layoutY="178.0" mnemonicParsing="false" onAction="#on_restore_writers" text="Restore default configuration" />
    </children>
 </AnchorPane>

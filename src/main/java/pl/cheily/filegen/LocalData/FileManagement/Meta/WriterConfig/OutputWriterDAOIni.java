@@ -79,8 +79,8 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
 
     private OutputWriter deserializeWriter(Profile.Section wrt_sec) {
         try {
-            OutputWriterType.valueOf(wrt_sec.get(WRITER_TYPE)).deserializer.apply(new OutputWriterDeserializerParams(
-                    wrt_sec.get(ENABLED, Boolean.class),
+            return OutputWriterType.valueOf(wrt_sec.get(WRITER_TYPE.toString())).deserializer.apply(new OutputWriterDeserializerParams(
+                    wrt_sec.get(ENABLED.toString(), Boolean.class),
                     wrt_sec.getName(),
                     deserializeFormatter(wrt_sec)
             ));
@@ -93,17 +93,17 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
     private OutputFormatter deserializeFormatter(Profile.Section wrt_sec) {
         OutputFormatter formatter;
         try {
-            formatter = OutputFormatterType.valueOf(wrt_sec.get(FORMATTER_TYPE)).deserializer.apply(new OutputFormatterDeserializerParams(
-                    wrt_sec.get(FORMATTER_NAME),
-                    cache.getAll(wrt_sec.getName() + ".fmt").stream().map(this::deserializeFormattingUnit).toList()
+            formatter = OutputFormatterType.valueOf(wrt_sec.get(FORMATTER_TYPE.toString())).deserializer.apply(new OutputFormatterDeserializerParams(
+                    wrt_sec.get(FORMATTER_NAME.toString()),
+                    cache.getAll(wrt_sec.get(FORMATTER_NAME.toString()) + ".fmt").stream().map(this::deserializeFormattingUnit).toList()
             ));
         } catch (IllegalArgumentException e) {
-            logger.error("Couldn't deserialize formatter " + wrt_sec.get(FORMATTER_NAME) + " because of the following error.", e);
+            logger.error("Couldn't deserialize formatter " + wrt_sec.get(FORMATTER_NAME.toString()) + " because of the following error.", e);
             return null;
         }
         var nulls = formatter.getFormats().stream().filter(f -> f == null).toList();
         if (!nulls.isEmpty()) {
-            logger.error("Couldn't deserialize " + nulls.size() + " formatting units for formatter " + wrt_sec.get(FORMATTER_NAME) + ". The formatter will function with the correctly assigned units.");
+            logger.error("Couldn't deserialize " + nulls.size() + " formatting units for formatter " + wrt_sec.get(FORMATTER_NAME.toString()) + ". The formatter will function with the correctly assigned units.");
             formatter.getFormats().removeIf(f -> f == null);
         }
         return formatter;
@@ -112,12 +112,12 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
     private FormattingUnit deserializeFormattingUnit(Profile.Section fmt_sec) {
         try {
             return FormattingUnit.deserialize(
-                fmt_sec.get(ENABLED, Boolean.class),
-                fmt_sec.getAll(FMT_UNIT_INPUT).stream().map(MatchDataKey::fromString).toList(),
-                ResourcePath.fromString(fmt_sec.get(FMT_UNIT_DESTINATION)),
-                fmt_sec.get(FMT_UNIT_SAMPLE_OUTPUT),
-                fmt_sec.get(FMT_UNIT_TEMPLATE),
-                FormattingUnitMethodReference.valueOf(fmt_sec.get(FMT_UNIT_METHOD))
+                fmt_sec.get(ENABLED.toString(), Boolean.class),
+                fmt_sec.getAll(FMT_UNIT_INPUT.toString()).stream().map(MatchDataKey::fromString).toList(),
+                ResourcePath.fromString(fmt_sec.get(FMT_UNIT_DESTINATION.toString())),
+                fmt_sec.get(FMT_UNIT_SAMPLE_OUTPUT.toString()),
+                fmt_sec.get(FMT_UNIT_TEMPLATE.toString()),
+                FormattingUnitMethodReference.valueOf(fmt_sec.get(FMT_UNIT_METHOD.toString()))
             );
         } catch (IllegalArgumentException e) {
             logger.error("Couldn't deserialize formatting unit " + fmt_sec + " because of the following error.", e);

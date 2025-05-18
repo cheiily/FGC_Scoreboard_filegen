@@ -1,6 +1,7 @@
 package pl.cheily.filegen.UI;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -17,8 +18,10 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.PropKey;
+import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
+import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 
@@ -51,6 +54,18 @@ public class ConfigUI implements Initializable {
     public TableColumn col_wrt_fmt_name;
     public TableColumn col_wrt_fmt_count;
     public TableColumn col_wrt_action;
+
+    private final PropertyChangeListener listener = new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            table_writers.getItems().clear();
+            table_writers.getItems().addAll(dataManager.getWriters());
+        }
+    };
+    {
+        dataManager.subscribe(DataEventProp.INIT, listener);
+        dataManager.subscribe(DataEventProp.CHANGED_OUTPUT_WRITERS, listener);
+    }
 
 
     private final static Object _resDispLock = new Object();
@@ -352,5 +367,20 @@ public class ConfigUI implements Initializable {
      */
     public void on_bg_click() {
         bg_pane.requestFocus();
+    }
+
+    public void on_restore_writers(ActionEvent actionEvent) {
+        if ( !dataManager.isInitialized() ) {
+            new Alert(AlertType.ERROR, "No working directory selected - cannot restore default writers!").show();
+            new Thread(displayNOK).start();
+            return;
+        }
+
+        var result = new Alert(AlertType.CONFIRMATION, "Are you sure you want to restore default output settings?", ButtonType.APPLY, ButtonType.CANCEL).showAndWait();
+        if ( result.isPresent() && result.get() == ButtonType.APPLY ) {
+            dataManager.removeAllWriters();
+            DataManager.defaultWriters().forEach(writer -> dataManager.addWriter(writer));
+            new Thread(displayOK).start();
+        }
     }
 }
