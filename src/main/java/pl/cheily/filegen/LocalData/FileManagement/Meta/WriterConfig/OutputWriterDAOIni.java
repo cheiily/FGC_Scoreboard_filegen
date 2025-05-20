@@ -71,11 +71,14 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
     @Override
     public void delete(String key) {
         if (key == null) return;
-        OutputWriter writer = get(key);
+        var wrt_sec = cache.get(key);
         cache.remove(key);
 
-        if (writer == null) return;
-        cache.remove(writer.getFormatter().getName() + ".fmt");
+        if (wrt_sec == null) return;
+        var fmt_name = wrt_sec.get(FORMATTER_NAME.toString());
+
+        if (fmt_name == null) return;
+        cache.remove(fmt_name + ".fmt");
 
         store();
     }

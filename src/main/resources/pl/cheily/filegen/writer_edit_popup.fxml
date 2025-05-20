@@ -91,6 +91,14 @@
             </HBox>
          </children>
       </GridPane>
-      <Label layoutX="14.0" layoutY="672.0" text="Hint: Double click on a cell to edit it." textFill="#5b5b5b" AnchorPane.bottomAnchor="11.0" AnchorPane.leftAnchor="14.0" />
+      <FlowPane alignment="CENTER_LEFT" hgap="5.0" layoutX="10.0" layoutY="665.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="30.0" prefWidth="400.0" prefWrapLength="300.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <children>
+            <Button mnemonicParsing="false" onAction="#on_add_unit" text="+ Add" />
+            <Label text="Hint: Double click on a cell to edit it." textFill="#5b5b5b" />
+         </children>
+      </FlowPane>
    </children>
 </AnchorPane>

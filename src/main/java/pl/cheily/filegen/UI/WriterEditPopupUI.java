@@ -14,6 +14,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnit;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitMethodReference;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatterType;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
@@ -207,11 +209,21 @@ public class WriterEditPopupUI implements Initializable {
             return;
 
         dataManager.removeWriter(dataManager.getWriter(_ogName));
+
+        List<FormattingUnitBuilder> failed = list_fmt.stream().filter(fu -> !fu.validate()).toList();
+        if (!failed.isEmpty()) {
+            var alert = new Alert(Alert.AlertType.WARNING, failed.size() + " formatting units are invalid:\n" +
+                    failed.stream().map(FormattingUnitBuilder::toString).collect(Collectors.joining())
+                    + ".\nSaving the remaining correct units.", ButtonType.OK);
+            alert.show();
+        }
+
+        List<FormattingUnit> formats = list_fmt.stream().filter(FormattingUnitBuilder::validate).map(FormattingUnitBuilder::build).toList();
         var newWriter = choice_wtype.getValue().ctor.apply(
             txt_name.getText(),
             choice_ftype.getValue().paramCtor.apply(
                     txt_fmtname.getText(),
-                    list_fmt.stream().map(FormattingUnitBuilder::build).toList()
+                    formats
             )
         );
         if (!chck_enabled.isSelected())
@@ -222,7 +234,7 @@ public class WriterEditPopupUI implements Initializable {
         config_ui_table.getItems().setAll(dataManager.getWriters());
         config_ui_table.refresh();
 
-        stage.close();
+        if (failed.isEmpty()) stage.close();
     }
 
     public void accept_fmt_changes(List<MatchDataKey> keys) {
@@ -239,6 +251,11 @@ public class WriterEditPopupUI implements Initializable {
 
         list_fmt.clear();
         list_fmt.addAll(choice_ftype.getValue().presetSupplier.get().stream().map(FormattingUnitBuilder::from).toList());
+        table_fmt.refresh();
+    }
+
+    public void on_add_unit(ActionEvent actionEvent) {
+        list_fmt.add(new FormattingUnitBuilder());
         table_fmt.refresh();
     }
 }

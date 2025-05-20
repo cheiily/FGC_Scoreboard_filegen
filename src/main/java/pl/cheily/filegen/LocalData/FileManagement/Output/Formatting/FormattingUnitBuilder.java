@@ -8,6 +8,7 @@ import pl.cheily.filegen.LocalData.ResourcePath;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FormattingUnitBuilder {
     public BooleanProperty enabled = new SimpleBooleanProperty();
@@ -130,12 +131,23 @@ public class FormattingUnitBuilder {
     }
 
     public boolean validate() {
-        return !inputKeys.get().isEmpty() && destination.get() != null && sampleOutput.get() != null && formatType.get() != null;
+        return !inputKeys.get().isEmpty() && destination.get() != null && formatType.get() != null;
         //todo && validate format string
     }
 
     public FormattingUnit build() {
         return FormattingUnit.deserialize(enabled.get(), inputKeys.get(), destination.get(), sampleOutput.get(), customInterpolationFormat.get(), formatType.get());
+    }
+
+    public String toString() {
+        return "FormattingUnitBuilder{" +
+                "enabled=" + enabled.get() +
+                ", inputKeys=[" + inputKeys.get().stream().map(MatchDataKey::toString).collect(Collectors.joining()) + "]" +
+                ", destination=" + (destination.get() != null ? destination.get().toString() : "null") +
+                ", formatType=" + (formatType.get() != null ? formatType.get().toString() : "null") +
+                ", customInterpolationFormat='" + customInterpolationFormat.get() + '\'' +
+                ", sampleOutput='" + sampleOutput.get() +
+                '}';
     }
 
     public static FormattingUnitBuilder from(FormattingUnit unit) {
