@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
 public class FormattingUnitFactory {
-    private static final Pattern customInterpolationPattern = Pattern.compile("\\{.+?\\}");
+    static final Pattern customInterpolationPattern = Pattern.compile("\\{.+?\\}");
 
     public static void updateFormatter(FormattingUnit unit) {
         switch (unit.formatType) {
@@ -66,7 +66,7 @@ public class FormattingUnitFactory {
         return matcher.replaceAll(ptrn -> {
             String s = ptrn.group();
             try {
-                MatchDataKey val = MatchDataKey.valueOf(s.substring(1, s.length() - 1));
+                MatchDataKey val = MatchDataKey.fromString(s.substring(1, s.length() - 1));
                 return params[(unit.inputKeys.indexOf(val))];
             } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
                 return s;

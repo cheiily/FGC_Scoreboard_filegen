@@ -54,7 +54,7 @@ public enum MatchDataKey {
     }
     public static MatchDataKey fromString(String key) {
         for (MatchDataKey matchDataKey : MatchDataKey.values()) {
-            if (matchDataKey.key.equals(key)) {
+            if (matchDataKey.key.equalsIgnoreCase(key)) {
                 return matchDataKey;
             }
         }

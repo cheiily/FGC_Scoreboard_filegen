@@ -8,6 +8,7 @@ import pl.cheily.filegen.LocalData.ResourcePath;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class FormattingUnitBuilder {
@@ -131,8 +132,27 @@ public class FormattingUnitBuilder {
     }
 
     public boolean validate() {
-        return !inputKeys.get().isEmpty() && destination.get() != null && formatType.get() != null;
-        //todo && validate format string
+        boolean pass = !inputKeys.get().isEmpty() && destination.get() != null && formatType.get() != null;
+
+        if (formatType.get() != FormattingUnitMethodReference.CUSTOM_INTERPOLATION)
+            return pass;
+
+        Matcher matcher = FormattingUnitFactory.customInterpolationPattern.matcher(customInterpolationFormat.get());
+        while (matcher.find()) {
+            String s = matcher.group();
+            try {
+                MatchDataKey val = MatchDataKey.valueOf(s.substring(1, s.length() - 1));
+                if (!inputKeys.get().contains(val)) {
+                    pass = false;
+                    break;
+                }
+            } catch (IllegalArgumentException ex) {
+                pass = false;
+                break;
+            }
+        }
+
+        return pass;
     }
 
     public FormattingUnit build() {

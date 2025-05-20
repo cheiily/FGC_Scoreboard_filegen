@@ -74,9 +74,9 @@ class FormattingUnitFactoryTest {
         assertEquals("Player 1: John vs Player 2: Alice", result);
     }
 
-    // Treats lowercase placeholders as case-sensitive
+    // Treats lowercase placeholders as case-insensitive
     @Test
-    public void customInterpolateFmt_case_sensitive_placeholders() {
+    public void customInterpolateFmt_case_insensitive_placeholders() {
         // Arrange
         FormattingUnit unit = new FormattingUnit(
                 true,
@@ -93,7 +93,7 @@ class FormattingUnitFactoryTest {
         String result = FormattingUnitFactory.customInterpolateFmt(unit, params);
 
         // Assert
-        assertEquals("Player 1: {p1_name} vs Player 2: Alice", result);
+        assertEquals("Player 1: John vs Player 2: Alice", result);
     }
 
     // Handles empty customInterpolationFormat string
