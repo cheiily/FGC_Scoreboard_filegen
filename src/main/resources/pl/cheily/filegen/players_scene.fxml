@@ -63,6 +63,6 @@
       <Button fx:id="buttonCog" disable="true" layoutX="34.0" layoutY="120.0" mnemonicParsing="false" onAction="#onButtonCog" prefWidth="27.0" text="⚙" visible="false" />
       <Button fx:id="buttonUp" disable="true" layoutX="34.0" layoutY="95.0" mnemonicParsing="false" onAction="#onButtonUp" prefWidth="27.0" text="↑" visible="false" />
       <Separator layoutX="164.0" layoutY="13.0" orientation="VERTICAL" prefHeight="25.0" prefWidth="9.0" />
-      <Button fx:id="btn_switch_table" layoutX="48.0" layoutY="13.0" mnemonicParsing="false" onAction="#on_switch_table" prefHeight="25.0" prefWidth="115.0" text="Switch to Comms" />
+      <Button fx:id="btn_switch_table" layoutX="48.0" layoutY="13.0" mnemonicParsing="false" onAction="#on_switch_table" prefHeight="25.0" prefWidth="115.0" text="Editing: Players" />
    </children>
 </AnchorPane>
