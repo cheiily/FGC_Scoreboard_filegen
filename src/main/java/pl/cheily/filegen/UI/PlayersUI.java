@@ -377,12 +377,12 @@ public class PlayersUI implements Initializable {
             case PLAYERS -> {
                 player_table.setItems(playerList);
                 seed_col.setEditable(true);
-                btn_switch_table.setText("Switch to Comms");
+                btn_switch_table.setText("Editing: Players");
             }
             case COMMENTATORS -> {
                 player_table.setItems(commsList);
                 seed_col.setEditable(false);
-                btn_switch_table.setText("Switch to Players");
+                btn_switch_table.setText("Editing: Comms");
             }
         }
         player_table.refresh();

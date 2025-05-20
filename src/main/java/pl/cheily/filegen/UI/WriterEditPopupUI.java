@@ -239,5 +239,6 @@ public class WriterEditPopupUI implements Initializable {
 
         list_fmt.clear();
         list_fmt.addAll(choice_ftype.getValue().presetSupplier.get().stream().map(FormattingUnitBuilder::from).toList());
+        table_fmt.refresh();
     }
 }

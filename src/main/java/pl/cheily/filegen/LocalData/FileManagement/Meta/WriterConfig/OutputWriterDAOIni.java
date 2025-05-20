@@ -39,6 +39,7 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
 
     @Override
     public OutputWriter get(String key) {
+        if (key == null) return null;
         if (cacheInvalid()) refresh();
         return deserializeWriter(cache.get(key));
     }
@@ -50,8 +51,9 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
 
     @Override
     public void set(String key, OutputWriter value) {
+        if (key == null || value == null) return;
         if (cacheInvalid()) refresh();
-        cache.remove(key);
+        delete(key);
         serializeWriter(value);
         store();
     }
@@ -60,6 +62,7 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
     public void setAll(List<String> keys, List<OutputWriter> values) {
         cache.clear();
         for (int i = 0; i < keys.size(); i++) {
+            if (keys.get(i) == null || values.get(i) == null) continue;
             set(keys.get(i), values.get(i));
         }
         store();
@@ -67,7 +70,13 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
 
     @Override
     public void delete(String key) {
+        if (key == null) return;
+        OutputWriter writer = get(key);
         cache.remove(key);
+
+        if (writer == null) return;
+        cache.remove(writer.getFormatter().getName() + ".fmt");
+
         store();
     }
 
@@ -78,6 +87,7 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
     }
 
     private OutputWriter deserializeWriter(Profile.Section wrt_sec) {
+        if (wrt_sec == null) return null;
         try {
             return OutputWriterType.valueOf(wrt_sec.get(WRITER_TYPE.toString())).deserializer.apply(new OutputWriterDeserializerParams(
                     wrt_sec.get(ENABLED.toString(), Boolean.class),
