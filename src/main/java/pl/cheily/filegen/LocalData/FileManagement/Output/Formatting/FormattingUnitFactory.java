@@ -22,7 +22,7 @@ public class FormattingUnitFactory {
         switch (unit.formatType) {
             case ONE_TO_ONE_PASS -> unit.format = FormattingUnitFactory::oneToOnePassFmt;
             case FIND_FLAG_FILE -> unit.format = FormattingUnitFactory::findFlagFileFmt;
-            case CUSTOM_INTERPOLATION -> unit.format = (String... params) -> FormattingUnitFactory.customInterpolateFmt(unit, params);
+            case CUSTOM_INTERPOLATION -> unit.format = (String... params) -> FormattingUnitFactory.customInterpolateFmt(unit.inputKeys, unit.customInterpolationFormat, params);
             case DEFAULT_FORMAT_P1_NAME -> unit.format = FormattingUnitFactory::default_formatP1Name;
             case DEFAULT_FORMAT_P2_NAME -> unit.format = FormattingUnitFactory::default_formatP2Name;
             case DEFAULT_FORMAT_COMM_NAME -> unit.format = FormattingUnitFactory::default_formatCommName;
@@ -57,17 +57,17 @@ public class FormattingUnitFactory {
 
     public static FormattingUnit customInterpolate(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput, String customInterpolationFormat) {
         var fmt = new FormattingUnit(true, inputKeys, destination, sampleOutput, null, customInterpolationFormat, FormattingUnitMethodReference.CUSTOM_INTERPOLATION);
-        fmt.format = (String... params) -> FormattingUnitFactory.customInterpolateFmt(fmt, params);
+        fmt.format = (String... params) -> FormattingUnitFactory.customInterpolateFmt(inputKeys, customInterpolationFormat, params);
         return fmt;
     }
 
-    public static String customInterpolateFmt(FormattingUnit unit, String... params) {
-        Matcher matcher = customInterpolationPattern.matcher(unit.customInterpolationFormat);
+    public static String customInterpolateFmt(List<MatchDataKey> inputKeys, String customInterpolationFormat, String... params) {
+        Matcher matcher = customInterpolationPattern.matcher(customInterpolationFormat);
         return matcher.replaceAll(ptrn -> {
             String s = ptrn.group();
             try {
                 MatchDataKey val = MatchDataKey.fromString(s.substring(1, s.length() - 1));
-                return params[(unit.inputKeys.indexOf(val))];
+                return params[(inputKeys.indexOf(val))];
             } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
                 return s;
             }

@@ -52,7 +52,7 @@ public class FmtInKeysEditPopupUI implements Initializable {
 
     public void on_save() {
         _builder.setInputKeys(lst_keys.getItems());
-        writerEditUI.accept_fmt_changes(lst_keys.getItems());
+//        writerEditUI.accept_fmt_changes(lst_keys.getItems());
         stage.close();
     }
 }

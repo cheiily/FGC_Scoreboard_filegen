@@ -24,7 +24,7 @@ class FormattingUnitFactoryTest {
         String[] params = {"John", "Alice"};
 
         // Act
-        String result = FormattingUnitFactory.customInterpolateFmt(unit, params);
+        String result = FormattingUnitFactory.customInterpolateFmt(unit.inputKeys, unit.customInterpolationFormat, params);
 
         // Assert
         assertEquals("Player 1: John vs Player 2: Alice", result);
@@ -46,7 +46,7 @@ class FormattingUnitFactoryTest {
         String[] params = {"John"};
 
         // Act
-        String result = FormattingUnitFactory.customInterpolateFmt(unit, params);
+        String result = FormattingUnitFactory.customInterpolateFmt(unit.inputKeys, unit.customInterpolationFormat, params);
 
         // Assert
         assertEquals("Player 1: John vs Player 2: {P2_NAME}", result);
@@ -68,7 +68,7 @@ class FormattingUnitFactoryTest {
         String[] params = {"John", "Alice", "ExtraParam"};
 
         // Act
-        String result = FormattingUnitFactory.customInterpolateFmt(unit, params);
+        String result = FormattingUnitFactory.customInterpolateFmt(unit.inputKeys, unit.customInterpolationFormat, params);
 
         // Assert
         assertEquals("Player 1: John vs Player 2: Alice", result);
@@ -90,7 +90,7 @@ class FormattingUnitFactoryTest {
         String[] params = {"John", "Alice"};
 
         // Act
-        String result = FormattingUnitFactory.customInterpolateFmt(unit, params);
+        String result = FormattingUnitFactory.customInterpolateFmt(unit.inputKeys, unit.customInterpolationFormat, params);
 
         // Assert
         assertEquals("Player 1: John vs Player 2: Alice", result);
@@ -112,7 +112,7 @@ class FormattingUnitFactoryTest {
         String[] params = {"John", "Alice"};
 
         // Act
-        String result = FormattingUnitFactory.customInterpolateFmt(unit, params);
+        String result = FormattingUnitFactory.customInterpolateFmt(unit.inputKeys, unit.customInterpolationFormat, params);
 
         // Assert
         assertEquals("", result);

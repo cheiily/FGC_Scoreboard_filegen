@@ -1,5 +1,6 @@
 package pl.cheily.filegen.UI;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -53,11 +54,12 @@ public class WriterEditPopupUI implements Initializable {
     public List<FormattingUnitBuilder> list_fmt;
     public TableView<FormattingUnitBuilder> table_fmt;
     public TableColumn<FormattingUnitBuilder, Boolean> col_fmt_on;
-    public TableColumn<FormattingUnitBuilder, List<MatchDataKey>> col_fmt_in;
+    public TableColumn<FormattingUnitBuilder, String> col_fmt_in;
     public TableColumn<FormattingUnitBuilder, FormattingUnitMethodReference> col_fmt_func;
     public TableColumn<FormattingUnitBuilder, String> col_fmt_temp;
     public TableColumn<FormattingUnitBuilder, String> col_fmt_sample;
     public TableColumn<FormattingUnitBuilder, ResourcePath> col_fmt_dest;
+    public TableColumn<FormattingUnitBuilder, Object> col_fmt_edit;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -82,7 +84,7 @@ public class WriterEditPopupUI implements Initializable {
         table_fmt.setItems(FXCollections.observableList(list_fmt));
 
 
-        col_fmt_in.setCellFactory(column -> new TableCell<>(){
+        col_fmt_edit.setCellFactory(column -> new TableCell<>(){
             private HBox hbox = new HBox();
             private Button button = new Button("Edit");
 
@@ -91,10 +93,10 @@ public class WriterEditPopupUI implements Initializable {
                     Stage popup = new Stage();
                     popup.setTitle("Edit Formatting Unit");
 
-                    FXMLLoader loader = new FXMLLoader(ScoreboardApplication.class.getResource("formatting_unit_input_keys_edit_popup.fxml"));
+                    FXMLLoader loader = new FXMLLoader(ScoreboardApplication.class.getResource("formatting_unit_edit_popup.fxml"));
                     try {
                         Parent root = loader.load();
-                        FmtInKeysEditPopupUI controller = loader.getController();
+                        FmtEditPopupUI controller = loader.getController();
                         controller.open(getTableView().getItems().get(getIndex()));
                         controller.writerEditUI = _instance;
                         controller.stage = popup;
@@ -113,6 +115,9 @@ public class WriterEditPopupUI implements Initializable {
                 setGraphic(hbox);
             }
         });
+
+//        col_fmt_in.setCellFactory(TextFieldTableCell.forTableColumn());
+        col_fmt_in.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().inputKeys.size())));
 
         col_fmt_on.setCellFactory(CheckBoxTableCell.forTableColumn(col_fmt_on));
         col_fmt_on.setCellValueFactory(new PropertyValueFactory<>("enabled"));
@@ -237,9 +242,9 @@ public class WriterEditPopupUI implements Initializable {
         if (failed.isEmpty()) stage.close();
     }
 
-    public void accept_fmt_changes(List<MatchDataKey> keys) {
+    public void accept_fmt_changes(FormattingUnitBuilder newFmt) {
         if (_editingFmtIndex != -1) {
-            list_fmt.get(_editingFmtIndex).setInputKeys(keys);
+            list_fmt.set(_editingFmtIndex, newFmt);
             table_fmt.refresh();
         }
     }

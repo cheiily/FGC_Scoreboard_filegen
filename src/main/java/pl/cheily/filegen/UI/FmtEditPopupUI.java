@@ -1,0 +1,84 @@
+package pl.cheily.filegen.UI;
+
+import javafx.collections.ListChangeListener;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+import org.controlsfx.control.ListSelectionView;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitMethodReference;
+import pl.cheily.filegen.LocalData.ResourcePath;
+
+import java.net.URL;
+import java.util.Arrays;
+import java.util.ResourceBundle;
+
+public class FmtEditPopupUI implements Initializable {
+
+    public Stage stage;
+    public WriterEditPopupUI writerEditUI;
+    private FormattingUnitBuilder _builder;
+
+    public CheckBox chk_enabled;
+    public ChoiceBox<ResourcePath> choice_dest;
+    public ChoiceBox<FormattingUnitMethodReference> choice_func;
+    public ListSelectionView<MatchDataKey> slct_keys;
+    public TextArea text_format;
+    public TextArea text_sample;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        slct_keys.getSourceItems().setAll(MatchDataKey.values());
+
+        ResourcePath[] outputPaths = Arrays.stream(ResourcePath.values()).filter(ResourcePath::isOutputFile).toArray(ResourcePath[]::new);
+        choice_dest.getItems().setAll(outputPaths);
+        choice_func.getItems().setAll(FormattingUnitMethodReference.values());
+
+        choice_func.getSelectionModel().selectedItemProperty().addListener((observable, oldVal, newVal) -> {
+            if (newVal == FormattingUnitMethodReference.CUSTOM_INTERPOLATION) {
+                text_format.setDisable(false);
+            } else {
+                text_format.setDisable(true);
+            }
+        });
+
+        javafx.beans.value.ChangeListener updateSampleListener = (observable, oldValue, newValue) -> {
+            text_sample.setText(FormattingUnitMethodReference.getSampleOutput(
+                    choice_func.getValue(),
+                    slct_keys.getTargetItems(),
+                    text_format.getText(),
+                    slct_keys.getTargetItems().stream().map(MatchDataKey::getSampleValue).toArray(String[]::new)
+            ));
+        };
+
+        slct_keys.targetItemsProperty().addListener(updateSampleListener);
+        choice_func.getSelectionModel().selectedItemProperty().addListener(updateSampleListener);
+        text_format.textProperty().addListener(updateSampleListener);
+    }
+
+    public void open(FormattingUnitBuilder builder) {
+        _builder = builder;
+        slct_keys.getSourceItems().setAll(MatchDataKey.values());
+        slct_keys.getSourceItems().removeAll(builder.inputKeys.get());
+        slct_keys.getTargetItems().setAll(builder.inputKeys.get());
+
+        choice_func.getSelectionModel().select(builder.formatType.get());
+        choice_dest.getSelectionModel().select(builder.destination.get());
+    }
+
+    public void on_save() {
+        _builder.enabled.set(chk_enabled.isSelected());
+        _builder.destination.set(choice_dest.getValue());
+        _builder.formatType.set(choice_func.getValue());
+        _builder.inputKeys.set(slct_keys.getTargetItems());
+        _builder.customInterpolationFormat.set(text_format.getText());
+        _builder.sampleOutput.set(text_sample.getText());
+        writerEditUI.accept_fmt_changes(_builder);
+        stage.close();
+    }
+
+    public void on_cancel() {
+        stage.close();
+    }
+}

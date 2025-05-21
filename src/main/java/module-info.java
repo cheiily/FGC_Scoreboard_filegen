@@ -10,6 +10,7 @@ module pl.cheily.filegen {
     requires org.slf4j;
     requires ch.qos.logback.classic;
     requires ch.qos.logback.core;
+    requires org.controlsfx.controls;
 
     opens pl.cheily.filegen to javafx.fxml;
     exports pl.cheily.filegen;
@@ -25,4 +26,5 @@ module pl.cheily.filegen {
     opens pl.cheily.filegen.LocalData.FileManagement.Output.Formatting to javafx.fxml;
     exports pl.cheily.filegen.LocalData.FileManagement.Output.Writing;
     opens pl.cheily.filegen.LocalData.FileManagement.Output.Writing to javafx.fxml;
+    exports pl.cheily.filegen.LocalData.FileManagement.Meta.Match;
 }

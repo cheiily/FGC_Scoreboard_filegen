@@ -41,10 +41,11 @@
          <columns>
             <TableColumn fx:id="col_fmt_on" prefWidth="33.0" text="On" />
             <TableColumn fx:id="col_fmt_dest" prefWidth="107.0" text="Destination" />
-            <TableColumn fx:id="col_fmt_in" prefWidth="71.0" text="Inputs" />
+            <TableColumn fx:id="col_fmt_in" prefWidth="71.0" text="#Inputs" />
             <TableColumn fx:id="col_fmt_func" prefWidth="164.0" text="Function" />
             <TableColumn fx:id="col_fmt_temp" prefWidth="102.0" text="Template" />
-            <TableColumn fx:id="col_fmt_sample" prefWidth="87.0" text="Sample" />
+            <TableColumn fx:id="col_fmt_sample" prefWidth="57.0" text="Sample" />
+            <TableColumn fx:id="col_fmt_edit" minWidth="9.0" prefWidth="28.0" text="Edit" />
          </columns>
       </TableView>
       <GridPane alignment="CENTER" gridLinesVisible="true" layoutX="12.0" layoutY="26.0" prefHeight="210.0" prefWidth="580.0">
