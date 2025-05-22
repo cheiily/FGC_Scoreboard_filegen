@@ -46,10 +46,25 @@ public enum FormattingUnitMethodReference {
     public List<String> getValidInputKeyHint() {
         return switch (this) {
             case ONE_TO_ONE_PASS -> List.of("any key");
-            case FIND_FLAG_FILE -> List.of("PX_NATIONALITY or COMM_NATIONALITY_X");
-            case DEFAULT_FORMAT_P1_NAME, DEFAULT_FORMAT_P2_NAME -> List.of("PX_TAG", "PX_NAME", "IS_GF", "IS_GF_PX_WINNER");
-            case DEFAULT_FORMAT_COMM_NAME -> List.of("COMM_TAG_X", "COMM_NAME_X");
-            case FSPR_FORMAT_PLAYER_LOSER_INDICATOR -> List.of("IS_GF", "IS_GF_PX_WINNER");
+            case FIND_FLAG_FILE -> List.of(
+                    MatchDataKey.P1_NATIONALITY.toString().replace("1", "x")
+                    + " or "
+                    + MatchDataKey.COMM_NATIONALITY_1.toString().replace("1", "x")
+            );
+            case DEFAULT_FORMAT_P1_NAME, DEFAULT_FORMAT_P2_NAME -> List.of(
+                    MatchDataKey.P1_TAG.toString().replace("1", "x"),
+                    MatchDataKey.P1_NAME.toString().replace("1", "x"),
+                    MatchDataKey.IS_GF.toString(),
+                    MatchDataKey.IS_GF_P1_WINNER.toString().replace("1", "x")
+            );
+            case DEFAULT_FORMAT_COMM_NAME -> List.of(
+                    MatchDataKey.COMM_TAG_1.toString().replace("1", "x"),
+                    MatchDataKey.COMM_NAME_1.toString().replace("1", "x")
+            );
+            case FSPR_FORMAT_PLAYER_LOSER_INDICATOR -> List.of(
+                    MatchDataKey.IS_GF.toString(),
+                    MatchDataKey.IS_GF_P1_WINNER.toString().replace("1", "x")
+            );
             case CUSTOM_INTERPOLATION -> List.of("any key, any number of keys");
         };
     }

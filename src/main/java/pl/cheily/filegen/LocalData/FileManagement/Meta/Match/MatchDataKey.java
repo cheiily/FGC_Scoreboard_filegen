@@ -28,19 +28,19 @@ public enum MatchDataKey {
     COMM_TAG_1("commentator_tag_1", "CMMS"),
     COMM_NAME_1("commentator_name_1", "Colorful Mike"),
     COMM_PRONOUNS_1("commentator_pronouns_1", "they/them"),
-    COMM_NATIONALITY_1("commentator_nationallity_1", "CH"),
+    COMM_NATIONALITY_1("commentator_nationality_1", "CH"),
     COMM_HANDLE_1("commentator_handle_1", "@rainbow-mic"),
 
     COMM_TAG_2("commentator_tag_2", "CMMS"),
     COMM_NAME_2("commentator_name_2", "PBP Mick"),
     COMM_PRONOUNS_2("commentator_pronouns_2", "he/him"),
-    COMM_NATIONALITY_2("commentator_nationallity_2", "UA"),
+    COMM_NATIONALITY_2("commentator_nationality_2", "UA"),
     COMM_HANDLE_2("commentator_handle_2", "@playbyplay-mick.bsky.social"),
 
     COMM_TAG_3("commentator_tag_3", "CMMS"),
     COMM_NAME_3("commentator_name_3", "Sajam"),
     COMM_PRONOUNS_3("commentator_pronouns_3", "he/him"),
-    COMM_NATIONALITY_3("commentator_nationallity_3", "US"),
+    COMM_NATIONALITY_3("commentator_nationality_3", "US"),
     COMM_HANDLE_3("commentator_handle_3", "@him");
 
     private final String key;

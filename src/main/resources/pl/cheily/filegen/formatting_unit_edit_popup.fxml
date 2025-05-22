@@ -75,7 +75,7 @@
       </Label>
       <HyperlinkLabel layoutX="135.0" layoutY="438.0" text="ⓘ">
          <tooltip>
-            <Tooltip text="Empty Tooltip" />
+            <Tooltip fx:id="tip_fmt" prefWidth="400.0" text="?" wrapText="true" />
          </tooltip>
       </HyperlinkLabel>
       <Separator layoutX="155.0" layoutY="446.0" prefHeight="3.0" prefWidth="433.0" AnchorPane.rightAnchor="12.0" />
