@@ -62,18 +62,24 @@
       </Label>
       <Separator layoutX="79.0" layoutY="174.0" prefHeight="1.0" prefWidth="513.0" AnchorPane.leftAnchor="77.0" AnchorPane.rightAnchor="10.0" />
       <ListSelectionView fx:id="slct_keys" layoutX="10.0" layoutY="175.0" prefHeight="237.0" prefWidth="580.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
-      <Label layoutX="14.0" layoutY="404.0" text="Interpolation Format">
+      <Label layoutX="14.0" layoutY="408.0" text="Required">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <HyperlinkLabel layoutX="137.0" layoutY="404.0" text="ⓘ">
+      <TextArea fx:id="text_req" editable="false" layoutX="93.0" layoutY="398.0" prefHeight="36.0" prefWidth="488.0" />
+      <Label layoutX="12.0" layoutY="438.0" text="Interpolation Format">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <HyperlinkLabel layoutX="135.0" layoutY="438.0" text="ⓘ">
          <tooltip>
             <Tooltip text="Empty Tooltip" />
          </tooltip>
       </HyperlinkLabel>
-      <Separator layoutX="157.0" layoutY="412.0" prefHeight="3.0" prefWidth="433.0" AnchorPane.rightAnchor="10.0" />
-      <TextArea fx:id="text_format" layoutX="12.0" layoutY="421.0" prefHeight="103.0" prefWidth="580.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+      <Separator layoutX="155.0" layoutY="446.0" prefHeight="3.0" prefWidth="433.0" AnchorPane.rightAnchor="12.0" />
+      <TextArea fx:id="text_format" layoutX="12.0" layoutY="455.0" prefHeight="69.0" prefWidth="580.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
       <Label layoutX="12.0" layoutY="530.0" text="Sample Output">
          <font>
             <Font name="System Bold" size="12.0" />

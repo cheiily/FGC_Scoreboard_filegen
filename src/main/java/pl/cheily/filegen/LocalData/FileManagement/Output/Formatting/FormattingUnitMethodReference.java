@@ -21,8 +21,10 @@ public enum FormattingUnitMethodReference {
 
     public boolean validateInputKeys(List<MatchDataKey> keys) {
         return switch (this) {
-            case ONE_TO_ONE_PASS, FIND_FLAG_FILE ->
+            case ONE_TO_ONE_PASS ->
                 keys.size() == 1;
+            case FIND_FLAG_FILE ->
+                keys.size() == 1 && keys.get(0).isNationalityField();
             case DEFAULT_FORMAT_P1_NAME, DEFAULT_FORMAT_P2_NAME ->
                 keys.size() == 4
                 && keys.get(0).isTagField()
@@ -38,6 +40,17 @@ public enum FormattingUnitMethodReference {
                 && keys.get(0) == MatchDataKey.IS_GF
                 &&( keys.get(1) == MatchDataKey.IS_GF_P1_WINNER || keys.get(1) == MatchDataKey.IS_GF_P2_WINNER);
             case CUSTOM_INTERPOLATION -> true;
+        };
+    }
+
+    public List<String> getValidInputKeyHint() {
+        return switch (this) {
+            case ONE_TO_ONE_PASS -> List.of("any key");
+            case FIND_FLAG_FILE -> List.of("PX_NATIONALITY or COMM_NATIONALITY_X");
+            case DEFAULT_FORMAT_P1_NAME, DEFAULT_FORMAT_P2_NAME -> List.of("PX_TAG", "PX_NAME", "IS_GF", "IS_GF_PX_WINNER");
+            case DEFAULT_FORMAT_COMM_NAME -> List.of("COMM_TAG_X", "COMM_NAME_X");
+            case FSPR_FORMAT_PLAYER_LOSER_INDICATOR -> List.of("IS_GF", "IS_GF_PX_WINNER");
+            case CUSTOM_INTERPOLATION -> List.of("any key, any number of keys");
         };
     }
 

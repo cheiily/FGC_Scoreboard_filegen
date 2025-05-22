@@ -11,7 +11,9 @@ import pl.cheily.filegen.LocalData.ResourcePath;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class FmtEditPopupUI implements Initializable {
 
@@ -23,6 +25,7 @@ public class FmtEditPopupUI implements Initializable {
     public ChoiceBox<ResourcePath> choice_dest;
     public ChoiceBox<FormattingUnitMethodReference> choice_func;
     public ListSelectionView<MatchDataKey> slct_keys;
+    public TextArea text_req;
     public TextArea text_format;
     public TextArea text_sample;
 
@@ -39,6 +42,17 @@ public class FmtEditPopupUI implements Initializable {
                 text_format.setDisable(false);
             } else {
                 text_format.setDisable(true);
+            }
+        });
+        choice_func.getSelectionModel().selectedItemProperty().addListener((observable , oldVal, newVal) -> {
+            if (newVal != null) {
+                List<String> hintList = newVal.getValidInputKeyHint();
+                StringBuilder hint = new StringBuilder("");
+                for (int i = 0; i < hintList.size(); i++) {
+                    hint.append(i).append(": ").append(hintList.get(i));
+                    if (i < hintList.size() - 1) hint.append("\t");
+                }
+                text_req.setText(hint.toString());
             }
         });
 
