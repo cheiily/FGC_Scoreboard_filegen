@@ -41,10 +41,10 @@
          <columns>
             <TableColumn fx:id="col_fmt_on" prefWidth="33.0" text="On" />
             <TableColumn fx:id="col_fmt_dest" prefWidth="107.0" text="Destination" />
-            <TableColumn fx:id="col_fmt_in" prefWidth="71.0" text="#Inputs" />
-            <TableColumn fx:id="col_fmt_func" prefWidth="164.0" text="Function" />
-            <TableColumn fx:id="col_fmt_temp" prefWidth="102.0" text="Template" />
-            <TableColumn fx:id="col_fmt_sample" prefWidth="57.0" text="Sample" />
+            <TableColumn fx:id="col_fmt_in" prefWidth="29.0" text="#In" />
+            <TableColumn fx:id="col_fmt_func" prefWidth="165.0" text="Function" />
+            <TableColumn fx:id="col_fmt_temp" prefWidth="88.0" text="Template" />
+            <TableColumn fx:id="col_fmt_sample" prefWidth="112.0" text="Sample" />
             <TableColumn fx:id="col_fmt_edit" minWidth="9.0" prefWidth="28.0" text="Edit" />
          </columns>
       </TableView>
@@ -98,7 +98,7 @@
          </opaqueInsets>
          <children>
             <Button mnemonicParsing="false" onAction="#on_add_unit" text="+ Add" />
-            <Label text="Hint: Double click on a cell to edit it." textFill="#5b5b5b" />
+            <Label text="Hint: Double click on a cell to quick-edit it." textFill="#5b5b5b" />
          </children>
       </FlowPane>
    </children>

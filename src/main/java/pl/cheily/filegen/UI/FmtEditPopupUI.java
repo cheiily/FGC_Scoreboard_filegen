@@ -1,6 +1,5 @@
 package pl.cheily.filegen.UI;
 
-import javafx.collections.ListChangeListener;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -20,7 +19,7 @@ public class FmtEditPopupUI implements Initializable {
     public WriterEditPopupUI writerEditUI;
     private FormattingUnitBuilder _builder;
 
-    public CheckBox chk_enabled;
+    public CheckBox chck_enabled;
     public ChoiceBox<ResourcePath> choice_dest;
     public ChoiceBox<FormattingUnitMethodReference> choice_func;
     public ListSelectionView<MatchDataKey> slct_keys;
@@ -63,12 +62,13 @@ public class FmtEditPopupUI implements Initializable {
         slct_keys.getSourceItems().removeAll(builder.inputKeys.get());
         slct_keys.getTargetItems().setAll(builder.inputKeys.get());
 
+        chck_enabled.setSelected(builder.enabled.get());
         choice_func.getSelectionModel().select(builder.formatType.get());
         choice_dest.getSelectionModel().select(builder.destination.get());
     }
 
     public void on_save() {
-        _builder.enabled.set(chk_enabled.isSelected());
+        _builder.enabled.set(chck_enabled.isSelected());
         _builder.destination.set(choice_dest.getValue());
         _builder.formatType.set(choice_func.getValue());
         _builder.inputKeys.set(slct_keys.getTargetItems());

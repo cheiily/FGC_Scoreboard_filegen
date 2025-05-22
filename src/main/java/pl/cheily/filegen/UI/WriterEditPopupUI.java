@@ -14,6 +14,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnit;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
@@ -86,7 +88,7 @@ public class WriterEditPopupUI implements Initializable {
 
         col_fmt_edit.setCellFactory(column -> new TableCell<>(){
             private HBox hbox = new HBox();
-            private Button button = new Button("Edit");
+            private Button button = new Button("⚙");
 
             {
                 button.setOnAction(e -> {
