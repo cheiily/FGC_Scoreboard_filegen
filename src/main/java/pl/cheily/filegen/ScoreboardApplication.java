@@ -11,10 +11,15 @@ import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.DataWebSocket;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.DefaultOutputFormatter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.RawOutputWriter;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ScoreboardApplication extends Application {
+    public static ScoreboardApplication instance;
+
     public static Scene controllerScene,
                         playersScene,
                         configScene;
@@ -37,6 +42,8 @@ public class ScoreboardApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        instance = this;
+
         var rootlog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         var appender = new AlertingAppender();
         appender.setContext(rootlog.getLoggerContext());
@@ -53,6 +60,7 @@ public class ScoreboardApplication extends Application {
         mainStage.setScene(controllerScene);
         mainStage.show();
 
+        VersionChecker.queueUpdateCheck();
 //        dataWebSocket.start();
 //
 //        // Destruct the server on app closure.

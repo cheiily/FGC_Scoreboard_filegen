@@ -6,7 +6,7 @@
 
     <groupId>pl.cheily</groupId>
     <artifactId>filegen</artifactId>
-    <version>0.2.2</version>
+    <version>0.3.0-beta.1.0</version>
     <name>filegen</name>
 
     <properties>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20231013</version>
+            <version>20250517</version>
         </dependency>
 
         <dependency>
