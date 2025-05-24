@@ -21,7 +21,6 @@ public class VersionChecker {
     private final static Logger logger = LoggerFactory.getLogger(VersionChecker.class);
     private static final String GITHUB_API_URL = "https://api.github.com/repos/cheiily/FGC_Scoreboard_filegen/releases";
     private static final String GITHUB_API_VERSION = "2022-11-28";
-    private static final String GITHUB_AUTH_TOKEN = "Bearer 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";
 
     public static class VersionData {
         boolean isNew;
@@ -112,7 +111,6 @@ public class VersionChecker {
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
         connection.setRequestProperty("X-GitHub-Api-Version", GITHUB_API_VERSION);
-        connection.setRequestProperty("Authorization", GITHUB_AUTH_TOKEN);
         return connection;
     }
 
