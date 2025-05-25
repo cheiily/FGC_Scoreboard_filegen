@@ -1,5 +1,6 @@
 package pl.cheily.filegen.UI;
 
+import javafx.collections.ListChangeListener;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -59,6 +60,10 @@ public class FmtEditPopupUI implements Initializable {
         });
 
         javafx.beans.value.ChangeListener updateSampleListener = (observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                text_sample.setText("");
+                return;
+            }
             text_sample.setText(FormattingUnitMethodReference.getSampleOutput(
                     choice_func.getValue(),
                     slct_keys.getTargetItems(),
@@ -67,7 +72,8 @@ public class FmtEditPopupUI implements Initializable {
             ));
         };
 
-        slct_keys.targetItemsProperty().addListener(updateSampleListener);
+        slct_keys.targetItemsProperty().get().addListener(
+                (ListChangeListener<? super MatchDataKey>) change -> updateSampleListener.changed(null, null, change));
         choice_func.getSelectionModel().selectedItemProperty().addListener(updateSampleListener);
         text_format.textProperty().addListener(updateSampleListener);
 
@@ -93,6 +99,7 @@ public class FmtEditPopupUI implements Initializable {
         choice_dest.getSelectionModel().select(builder.destination.get());
 
         text_format.setText(builder.customInterpolationFormat.get());
+        text_sample.setText(builder.sampleOutput.get());
     }
 
     public void on_save() {
