@@ -3,20 +3,27 @@ package pl.cheily.filegen.LocalData.FileManagement.Output.Formatting;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.Utils.Pair;
 
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
 public class FormattingUnitFactory {
     static final Pattern customInterpolationPattern = Pattern.compile("\\{.+?\\}");
+    static final Pattern customInterpolationTernaryPattern = Pattern.compile("\\{.+?\\?.+?:.+?\\}");
+    static final Pattern customInterpolationIndexPattern = Pattern.compile("\\$\\d+");
+    static final char customInterpolationGroupOpenDelimiter = '{';
+    static final char customInterpolationGroupCloseDelimiter = '}';
+    static final char customInterpolationTernaryIf = '?';
+    static final char customInterpolationTernaryElse = ':';
 
     public static void updateFormatter(FormattingUnit unit) {
         switch (unit.formatType) {
@@ -62,18 +69,122 @@ public class FormattingUnitFactory {
     }
 
     public static String customInterpolateFmt(List<MatchDataKey> inputKeys, String customInterpolationFormat, String... params) {
-        Matcher matcher = customInterpolationPattern.matcher(customInterpolationFormat);
-        return matcher.replaceAll(ptrn -> {
-            String s = ptrn.group();
-            try {
-                MatchDataKey val = MatchDataKey.fromString(s.substring(1, s.length() - 1));
-                return params[(inputKeys.indexOf(val))];
-            } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
-                return s;
-            }
-        });
+        int minlen = Math.min(inputKeys.size(), params.length);
+        HashMap<MatchDataKey, String> inputs = new HashMap<>(minlen);
+        for (int i = 0; i < minlen; i++)
+            inputs.put(inputKeys.get(i), params[i]);
+
+        return evaluate_CIFormat(inputs, customInterpolationFormat);
+
+//        Matcher matcher = customInterpolationPattern.matcher(customInterpolationFormat);
+//        return matcher.replaceAll(ptrn -> {
+//            String s = ptrn.group();
+//            try {
+//                MatchDataKey val = MatchDataKey.fromString(s.substring(1, s.length() - 1));
+//                return params[(inputKeys.indexOf(val))];
+//            } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
+//                return s;
+//            }
+//        });
     }
 
+    private static String evaluate_CIFormat(HashMap<MatchDataKey, String> inputs, String expression) {
+        StringBuilder eval = new StringBuilder();
+        String expr = expression;
+        int iSubExpr = -1;
+        do {
+            iSubExpr = expr.indexOf(customInterpolationGroupOpenDelimiter);
+            if (iSubExpr == -1) {
+                eval.append(expr);
+                break;
+            } else {
+                String pre = expr.substring(0, iSubExpr);
+                eval.append(pre);
+                expr = expr.substring(iSubExpr + 1);
+
+                var subExpr = evaluate_subCIExpression(inputs, expr);
+                eval.append(subExpr.first());
+                expr = expr.substring(subExpr.second());
+            }
+        } while (!expr.isEmpty());
+
+        return eval.toString();
+    }
+
+    private static Pair<String, Integer> evaluate_subCIExpression(HashMap<MatchDataKey, String> inputs, String expression) {
+        StringBuilder eval = new StringBuilder();
+        StringBuilder buffer = new StringBuilder();
+        String ternaryCond = null, ternaryPositive = null, ternaryNegative = null;
+        int iTernaryIf = -1, iTernaryElse = -1;
+        int exitPoint = -1;
+        for (int i = 0; i < expression.length(); i++) {
+            char c = expression.charAt(i);
+            if (c == customInterpolationGroupOpenDelimiter) {
+                var val = evaluate_subCIExpression(inputs, expression.substring(i + 1));
+                buffer.append(val.first());
+                i += val.second();
+                continue;
+            }
+
+            if (c == customInterpolationTernaryIf) {
+                ternaryCond = buffer.toString();
+                buffer = new StringBuilder();
+                iTernaryIf = i;
+//                i++;
+                continue;
+            }
+
+            if (c == customInterpolationTernaryElse) {
+                ternaryPositive = buffer.toString();
+                buffer = new StringBuilder();
+                iTernaryElse = i;
+//                i++;
+                continue;
+            }
+
+            if (c == customInterpolationGroupCloseDelimiter) {
+                if (iTernaryIf != -1 && iTernaryElse != -1) { // ternary
+                    ternaryNegative = buffer.toString();
+                    buffer = new StringBuilder();
+
+                    if (ternaryCond != null && !ternaryCond.isEmpty())
+                        // (cond ? cond : other) shortform
+                        if (iTernaryElse == iTernaryIf + 1)
+                            eval.append(ternaryCond);
+                        else eval.append(ternaryPositive);
+                    else
+                        eval.append(ternaryNegative);
+                } else { // not ternary, just a key replacement
+                    try {
+                        MatchDataKey key = MatchDataKey.fromString(buffer.toString());
+                        buffer = new StringBuilder();
+                        if (!inputs.containsKey(key))
+                            throw new IllegalArgumentException();
+
+                        eval.append(inputs.get(key));
+                    } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+                        // do not clear the buffer -> it will get passed as is
+                    }
+                }
+
+                eval.append(buffer);
+                buffer = new StringBuilder();
+                exitPoint = i + 1;
+                break;
+            }
+
+            // if it's just a regular character
+            buffer.append(c);
+        }
+
+        // not met group close for some reason - buffer has not been dumped
+        eval.append(buffer);
+
+        if (exitPoint == -1) {
+            exitPoint = expression.length();
+        }
+        return new Pair<>(eval.toString(), exitPoint);
+    }
 
     //-------------------Default formatter methods-------------------
     public static FormattingUnit default_P1Name(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput) {

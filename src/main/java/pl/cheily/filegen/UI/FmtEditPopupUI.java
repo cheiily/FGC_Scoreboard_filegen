@@ -91,6 +91,8 @@ public class FmtEditPopupUI implements Initializable {
         chck_enabled.setSelected(builder.enabled.get());
         choice_func.getSelectionModel().select(builder.formatType.get());
         choice_dest.getSelectionModel().select(builder.destination.get());
+
+        text_format.setText(builder.customInterpolationFormat.get());
     }
 
     public void on_save() {

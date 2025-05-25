@@ -141,7 +141,7 @@ public class FormattingUnitBuilder {
         while (matcher.find()) {
             String s = matcher.group();
             try {
-                MatchDataKey val = MatchDataKey.valueOf(s.substring(1, s.length() - 1));
+                MatchDataKey val = MatchDataKey.fromString(s.substring(1, s.length() - 1));
                 if (!inputKeys.get().contains(val)) {
                     pass = false;
                     break;
