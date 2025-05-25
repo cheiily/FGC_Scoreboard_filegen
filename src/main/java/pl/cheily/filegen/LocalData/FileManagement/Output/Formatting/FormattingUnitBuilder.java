@@ -18,6 +18,7 @@ public class FormattingUnitBuilder {
     public StringProperty sampleOutput = new SimpleStringProperty();
     public ObjectProperty<FormattingUnitMethodReference> formatType = new SimpleObjectProperty<>();
     public StringProperty customInterpolationFormat = new SimpleStringProperty();
+    public FormattingUnit fallbackUnit = null;
 
     public static StringConverter<FormattingUnitMethodReference> methodReferenceStringConverter = new StringConverter<>() {
         @Override
@@ -178,6 +179,7 @@ public class FormattingUnitBuilder {
         builder.setSampleOutput(unit.sampleOutput);
         builder.setFormatType(unit.formatType);
         builder.setCustomInterpolationFormat(unit.customInterpolationFormat);
+        builder.fallbackUnit = unit;
         return builder;
     }
 }

@@ -221,11 +221,13 @@ public class WriterEditPopupUI implements Initializable {
         if (!failed.isEmpty()) {
             var alert = new Alert(Alert.AlertType.WARNING, failed.size() + " formatting units are invalid:\n" +
                     failed.stream().map(FormattingUnitBuilder::toString).collect(Collectors.joining())
-                    + ".\nSaving the remaining correct units.", ButtonType.OK);
+                    + ".\n\nOnly applying valid changes.", ButtonType.OK);
             alert.show();
         }
 
-        List<FormattingUnit> formats = list_fmt.stream().filter(FormattingUnitBuilder::validate).map(FormattingUnitBuilder::build).toList();
+        ArrayList<FormattingUnit> formats = list_fmt.stream().filter(FormattingUnitBuilder::validate).map(FormattingUnitBuilder::build).collect(Collectors.toCollection(ArrayList::new));
+        formats.addAll(failed.stream().map(fu -> fu.fallbackUnit).toList());
+
         var newWriter = choice_wtype.getValue().ctor.apply(
             txt_name.getText(),
             choice_ftype.getValue().paramCtor.apply(
