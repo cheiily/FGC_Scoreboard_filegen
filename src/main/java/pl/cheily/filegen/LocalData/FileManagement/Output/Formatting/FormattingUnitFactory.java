@@ -89,6 +89,10 @@ public class FormattingUnitFactory {
     }
 
     private static String evaluate_CIFormat(HashMap<MatchDataKey, String> inputs, String expression) {
+        if (expression == null || expression.isEmpty()) {
+            return "";
+        }
+
         StringBuilder eval = new StringBuilder();
         String expr = expression;
         int iSubExpr = -1;
@@ -157,11 +161,11 @@ public class FormattingUnitFactory {
                 } else { // not ternary, just a key replacement
                     try {
                         MatchDataKey key = MatchDataKey.fromString(buffer.toString());
-                        buffer = new StringBuilder();
                         if (!inputs.containsKey(key))
                             throw new IllegalArgumentException();
 
                         eval.append(inputs.get(key));
+                        buffer = new StringBuilder();
                     } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
                         // do not clear the buffer -> it will get passed as is
                     }
