@@ -30,15 +30,15 @@ The magic lies in the way the expression content is evaluated. Allowed elements 
   ![Preview image of a SSC window showing the selected keys for the next screenshot.](preview-key-selected.png "Preview") ![Preview image of a SSC window showing an expression evaluated as an input key replacement.](preview-key.png "Preview")
 
 - Ternary expression. This is based on the concept of a [ternary operator](https://en.wikipedia.org/wiki/Ternary_conditional_operator) as often seen in programming languages. \
-  This rule requires two tokens are detected within the expression: the if-then token "?" and the else token ":".
-  - Everything between the expression start token "{" and the "?" is then treated as the condition value.
-  - Everything between the if-then token "?" and the else token ":" is treated as the positive-outcome value.
-  - Everything between the else token ":" and the expression end token "}" is treated as the negative-outcome value.
+  This rule requires two tokens are detected within the expression: the if-then token `?` and the else token `:`.
+  - Everything between the expression start token `{` and the `?` is then treated as the condition value.
+  - Everything between the if-then token `?` and the else token `:` is treated as the positive-outcome value.
+  - Everything between the else token `:` and the expression end token `}` is treated as the negative-outcome value.
   
   After the expression is fully parsed it is then evaluated like a simple if-else statement — the 
   positive-outcome value is used if the condition value is not empty and the negative-outcome value is used otherwise.\
   There is one extra utility involved — if the positive-outcome value is empty, it is meant that the condition value should be used in its stead.
-  This allows the shortform "condition?:else" notation. \
+  This allows the shortform `condition?:else` notation. \
   **An important distinction to make is that an empty value is not the same as a blank value.** A blank value is any nonzero-width piece of text including any blank characters, like whitespace.
   Hence, if you wish to replace with an empty string while using the shortform — it is currently recommended to use a whitespace character.
 
