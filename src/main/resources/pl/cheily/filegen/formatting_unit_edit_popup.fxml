@@ -7,7 +7,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.FlowPane?>
@@ -73,11 +72,7 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <HyperlinkLabel layoutX="135.0" layoutY="438.0" text="ⓘ">
-         <tooltip>
-            <Tooltip fx:id="tip_fmt" prefWidth="400.0" text="?" wrapText="true" />
-         </tooltip>
-      </HyperlinkLabel>
+      <HyperlinkLabel fx:id="hprlnk_fmt" layoutX="134.0" layoutY="437.0" text="[ⓘ]" />
       <Separator layoutX="155.0" layoutY="446.0" prefHeight="3.0" prefWidth="433.0" AnchorPane.rightAnchor="12.0" />
       <TextArea fx:id="text_format" layoutX="12.0" layoutY="455.0" prefHeight="69.0" prefWidth="580.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
       <Label layoutX="12.0" layoutY="530.0" text="Sample Output">

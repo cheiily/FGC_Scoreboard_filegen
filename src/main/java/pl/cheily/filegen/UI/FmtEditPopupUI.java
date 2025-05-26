@@ -4,23 +4,24 @@ import javafx.collections.ListChangeListener;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import javafx.util.Duration;
+import org.controlsfx.control.HyperlinkLabel;
 import org.controlsfx.control.ListSelectionView;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitMethodReference;
 import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.ScoreboardApplication;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class FmtEditPopupUI implements Initializable {
 
     public Stage stage;
     public WriterEditPopupUI writerEditUI;
+    public HyperlinkLabel hprlnk_fmt;
     private FormattingUnitBuilder _builder;
 
     public CheckBox chck_enabled;
@@ -30,7 +31,6 @@ public class FmtEditPopupUI implements Initializable {
     public TextArea text_req;
     public TextArea text_format;
     public TextArea text_sample;
-    public Tooltip tip_fmt;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -77,15 +77,9 @@ public class FmtEditPopupUI implements Initializable {
         choice_func.getSelectionModel().selectedItemProperty().addListener(updateSampleListener);
         text_format.textProperty().addListener(updateSampleListener);
 
-        tip_fmt.setShowDelay(Duration.seconds(0.5f));
-        tip_fmt.setShowDuration(Duration.INDEFINITE);
-        tip_fmt.setText(
-                """
-                Embed each input key you want to use inside curly braces like so: "{p1_tag}". You can reuse each assigned key as many times as you want.
-                The interpolator will only accept keys it can find in the Selected Keys section - missing keys will be left in the output without change.
-                Make sure to check out the Sample Output field to see if your format works.
-                """
-        );
+        hprlnk_fmt.setOnAction(actionEvent -> {
+            ScoreboardApplication.instance.getHostServices().showDocument("https://cheiily.github.io/FGC_Scoreboard_filegen/articles/formatting-unit/#custom-interpolation-formatting");
+        });
     }
 
     public void open(FormattingUnitBuilder builder) {
