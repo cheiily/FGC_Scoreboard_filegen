@@ -34,6 +34,7 @@ The magic lies in the way the expression content is evaluated. Allowed elements 
   - Everything between the expression start token "{" and the "?" is then treated as the condition value.
   - Everything between the if-then token "?" and the else token ":" is treated as the positive-outcome value.
   - Everything between the else token ":" and the expression end token "}" is treated as the negative-outcome value.
+  
   After the expression is fully parsed it is then evaluated like a simple if-else statement — the 
   positive-outcome value is used if the condition value is not empty and the negative-outcome value is used otherwise.\
   There is one extra utility involved — if the positive-outcome value is empty, it is meant that the condition value should be used in its stead.
