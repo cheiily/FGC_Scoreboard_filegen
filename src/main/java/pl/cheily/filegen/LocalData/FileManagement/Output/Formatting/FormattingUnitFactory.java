@@ -121,6 +121,7 @@ public class FormattingUnitFactory {
         String ternaryCond = null, ternaryPositive = null, ternaryNegative = null;
         int iTernaryIf = -1, iTernaryElse = -1;
         int exitPoint = -1;
+        boolean metExit = false;
         for (int i = 0; i < expression.length(); i++) {
             char c = expression.charAt(i);
             if (c == customInterpolationGroupOpenDelimiter) {
@@ -147,6 +148,7 @@ public class FormattingUnitFactory {
             }
 
             if (c == customInterpolationGroupCloseDelimiter) {
+                metExit = true;
                 if (iTernaryIf != -1 && iTernaryElse != -1) { // ternary
                     ternaryNegative = buffer.toString();
                     buffer = new StringBuilder();
@@ -187,7 +189,7 @@ public class FormattingUnitFactory {
         if (exitPoint == -1) {
             exitPoint = expression.length();
         }
-        return new Pair<>(eval.toString(), exitPoint);
+        return new Pair<>((metExit ? "" : customInterpolationGroupOpenDelimiter) + eval.toString(), exitPoint);
     }
 
     //-------------------Default formatter methods-------------------
