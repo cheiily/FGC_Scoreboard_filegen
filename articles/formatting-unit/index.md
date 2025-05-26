@@ -15,13 +15,13 @@ An eval-expression looks like so:
 It is simply some text embedded in squiggly brackets.
 The magic lies in the way the expression content is evaluated. Allowed elements include:
 - Embedded expressions. If there is an embedded expression, it is resolved before carrying on with the current expression.
-  This means multi-nesting is possible and the deepest expressions are evaulated first.
+  This means multi-nesting is possible and the deepest expressions are evaulated first. \
   ![Preview image of a SSC window showing an expression with another one embedded within.](preview-embedded.png "Preview")
-- Plain text. If no other rule evaluates sucessfully, the expression content is treated as plaintext and replaced as-is, without the squiggly brackets.
+- Plain text. If no other rule evaluates sucessfully, the expression content is treated as plaintext and replaced as-is, without the squiggly brackets. \
   ![Preview image of a SSC window showing an expression evaluated as plain text.](preview-plain.png "Preview")
 - Input key replacement. If the expression content matches the name of any input key that's present within the Unit's input configuration, the expression is replaced with the value of that key. \
   This value-replacement is particularly handy for use as the ternary operation condition-value, as described in the next point.
-  If this key is not present within input config, the rule is not applied and evaluates as plaintext.
+  If this key is not present within input config, the rule is not applied and evaluates as plaintext. \
   ![Preview image of a SSC window showing the selected keys for the next screenshot.](preview-key-selected.png "Preview") ![Preview image of a SSC window showing an expression evaluated as an input key replacement.](preview-key.png "Preview")
 - Ternary expression. This is based on the concept of a [ternary operator](https://en.wikipedia.org/wiki/Ternary_conditional_operator) as often seen in programming languages. \
   This rule requires two tokens are detected within the expression: the if-then token "?" and the else token ":".
@@ -33,7 +33,7 @@ The magic lies in the way the expression content is evaluated. Allowed elements 
   There is one extra utility involved — if the positive-outcome value is empty, it is meant that the condition value should be used in its stead.
   This allows the shortform "condition?:else" notation. \
   **An important distinction to make is that an empty value is not the same as a blank value.** A blank value is any nonzero-width piece of text including any blank characters, like whitespace.
-  Hence, if you wish to replace with an empty string while using the shortform — it is currently recommended to use a whitespace character.
+  Hence, if you wish to replace with an empty string while using the shortform — it is currently recommended to use a whitespace character. \
   ![Preview image of a SSC window showing how ternary expressions are evaluated.](preview-ternary.png "Preview")
 
 A couple notes about this system:
