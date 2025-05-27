@@ -57,7 +57,7 @@ public class FormattingUnitBuilder {
     };
 
     public FormattingUnitBuilder() {
-
+        enabled.set(true);
     }
 
     public boolean isEnabled() {
@@ -135,24 +135,7 @@ public class FormattingUnitBuilder {
     public boolean validate() {
         boolean pass = !inputKeys.get().isEmpty() && destination.get() != null && formatType.get() != null;
 
-        if (formatType.get() != FormattingUnitMethodReference.CUSTOM_INTERPOLATION)
-            return pass;
-
-        Matcher matcher = FormattingUnitFactory.customInterpolationPattern.matcher(customInterpolationFormat.get());
-        while (matcher.find()) {
-            String s = matcher.group();
-            try {
-                MatchDataKey val = MatchDataKey.fromString(s.substring(1, s.length() - 1));
-                if (!inputKeys.get().contains(val)) {
-                    pass = false;
-                    break;
-                }
-            } catch (IllegalArgumentException ex) {
-                pass = false;
-                break;
-            }
-        }
-
+        // no validation for custom interpolation format, let the evaluator handle it
         return pass;
     }
 

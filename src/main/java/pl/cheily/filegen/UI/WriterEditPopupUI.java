@@ -266,5 +266,6 @@ public class WriterEditPopupUI implements Initializable {
     public void on_add_unit(ActionEvent actionEvent) {
         list_fmt.add(new FormattingUnitBuilder());
         table_fmt.refresh();
+        table_fmt.scrollTo(list_fmt.size() - 1);
     }
 }
