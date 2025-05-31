@@ -44,7 +44,7 @@
       <Text layoutX="47.0" layoutY="268.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Score" />
       <Text layoutX="46.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Round label" />
       <TextField fx:id="txt_path" alignment="CENTER" editable="false" layoutX="279.0" layoutY="15.0" prefHeight="25.0" prefWidth="317.0" promptText="Path will display here..." style="-fx-text-fill: rgb(128,128,128);" />
-      <Button layoutX="158.0" layoutY="15.0" mnemonicParsing="false" onAction="#on_path_select" prefHeight="25.0" prefWidth="121.0" text="Select generation path">
+      <Button layoutX="158.0" layoutY="15.0" mnemonicParsing="false" onAction="#on_path_select" prefHeight="25.0" prefWidth="121.0" text="Select working directory">
          <font>
             <Font size="10.0" />
          </font>

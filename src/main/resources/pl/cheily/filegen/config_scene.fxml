@@ -28,9 +28,9 @@
       <Pane layoutX="36.0" layoutY="14.0" prefHeight="214.0" prefWidth="559.0">
          <children>
             <CheckBox fx:id="chk_out_raw" layoutX="14.0" layoutY="55.0" mnemonicParsing="false" text="Make file-based output" />
-            <PasswordField fx:id="api_key" layoutX="14.0" layoutY="24.0" prefHeight="25.0" prefWidth="384.0" />
-            <Label layoutX="404.0" layoutY="28.0" text="Challonge API Key" />
-            <CheckBox fx:id="chk_out_html" layoutX="14.0" layoutY="75.0" mnemonicParsing="false" text="Make html (browser source) output" />
+            <PasswordField fx:id="api_key" disable="true" layoutX="14.0" layoutY="24.0" prefHeight="25.0" prefWidth="384.0" />
+            <Label disable="true" layoutX="404.0" layoutY="28.0" text="Challonge API Key" />
+            <CheckBox fx:id="chk_out_html" disable="true" layoutX="14.0" layoutY="75.0" mnemonicParsing="false" text="Make html (browser source) output" />
             <CheckBox fx:id="chk_ac_on" layoutX="14.0" layoutY="115.0" mnemonicParsing="false" text="Make search suggestions in controller combo boxes" />
             <CheckBox fx:id="chk_out_flags" layoutX="14.0" layoutY="95.0" mnemonicParsing="false" text="Put flags in output" />
             <CheckBox fx:id="chk_gf_radio" layoutX="14.0" layoutY="135.0" mnemonicParsing="false" text="Turn on GF radio toggle when round label matches &quot;gran(d)&quot;" />
