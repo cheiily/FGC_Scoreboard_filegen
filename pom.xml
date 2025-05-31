@@ -6,7 +6,7 @@
 
     <groupId>pl.cheily</groupId>
     <artifactId>filegen</artifactId>
-    <version>0.3.0-beta.1.0</version>
+    <version>0.3.0-alpha.1.0</version>
     <name>filegen</name>
 
     <properties>

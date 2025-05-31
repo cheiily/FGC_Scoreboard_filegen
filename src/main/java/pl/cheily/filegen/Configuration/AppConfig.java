@@ -20,8 +20,6 @@ import static pl.cheily.filegen.Configuration.PropKey.*;
  * @see PropKey
  */
 public class AppConfig {
-    public static final String version = "0.3.0-beta.1.0";
-
     private static final java.beans.PropertyChangeSupport _pcs = new PropertyChangeSupport(AppConfig.class);
     private static final String SECTION_NAME = "SETTINGS";
     /*==============================PROPERTIES==============================*/
