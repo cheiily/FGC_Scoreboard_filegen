@@ -268,4 +268,20 @@ public class WriterEditPopupUI implements Initializable {
         table_fmt.refresh();
         table_fmt.scrollTo(list_fmt.size() - 1);
     }
+
+    public void on_delete(ActionEvent actionEvent) {
+        if (_ogName == null) {
+            stage.close();
+        }
+
+        Alert alert = new Alert(Alert.AlertType.WARNING, "Are you sure you want to delete this writer? This action cannot be undone.", ButtonType.YES, ButtonType.CANCEL);
+        alert.setTitle("Delete Writer");
+        var result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.YES) {
+            dataManager.removeWriter(dataManager.getWriter(_ogName));
+            config_ui_table.getItems().setAll(dataManager.getWriters());
+            config_ui_table.refresh();
+            stage.close();
+        }
+    }
 }
