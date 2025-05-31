@@ -35,7 +35,7 @@ public abstract class OutputFormatterBase implements OutputFormatter {
 
     @Override
     public String getName() {
-        return "Default formatter for file-based output";
+        return name;
     }
 
     @Override

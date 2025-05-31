@@ -20,7 +20,10 @@ import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.PropKey;
 import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.DataManager;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatterType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
@@ -243,7 +246,7 @@ public class ConfigUI implements Initializable {
             });
             return new ReadOnlyObjectWrapper<>(btn);
         });
-        col_wrt_action.setGraphic(new Button("+"));
+//        col_wrt_action.setGraphic(new Button("+"));
         table_writers.getItems().addAll(dataManager.getWriters());
     }
 
@@ -382,5 +385,31 @@ public class ConfigUI implements Initializable {
             DataManager.defaultWriters().forEach(writer -> dataManager.addWriter(writer));
             new Thread(displayOK).start();
         }
+    }
+
+    public void on_add_writer(ActionEvent actionEvent) {
+        if ( !dataManager.isInitialized() ) {
+            new Alert(AlertType.ERROR, "No working directory selected - cannot add a new writer!").show();
+            new Thread(displayNOK).start();
+            return;
+        }
+
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Output Writer Editor");
+
+        FXMLLoader loader = new FXMLLoader(ScoreboardApplication.class.getResource("writer_edit_popup.fxml"));
+        try {
+            Parent root = loader.load();
+            WriterEditPopupUI controller = loader.getController();
+            controller.open(null);
+            controller.config_ui_table = table_writers;
+            controller.stage = popupStage;
+            Scene scene = new Scene(root);
+            popupStage.setScene(scene);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        popupStage.show();
     }
 }
