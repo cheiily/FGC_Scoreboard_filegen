@@ -3,67 +3,87 @@ package pl.cheily.filegen.UI;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
-import pl.cheily.filegen.LocalData.DataManager.EventProp;
+import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.PlayerTableUtil;
 
 import java.beans.PropertyChangeListener;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 
 public class PlayersUI implements Initializable {
+    enum EditMode {
+        PLAYERS,
+        COMMENTATORS
+    }
+    EditMode mode = EditMode.PLAYERS;
+
     public AnchorPane bg_pane;
     public ToggleButton scene_toggle_players;
     public TextField txt_url;
     public TextField txt_csv_path;
     public TableView<Player> player_table;
-    private final ObservableList<Player> playerList = FXCollections.observableList(dataManager.getAllPlayers());
+    private final ObservableList<Player> playerList = FXCollections.observableList(new ArrayList<>());
+    private final ObservableList<Player> commsList = FXCollections.observableList(new ArrayList<>());
     public TableColumn<Player, Integer> seed_col;
-    public TableColumn<Player, Image> icon_col;
     public TableColumn<Player, String> tag_col;
     public TableColumn<Player, String> name_col;
     public TableColumn<Player, String> nat_col;
-    public TableColumn<Player, Boolean> chkin_col;
+    public TableColumn<Player, String> pron_col;
+    public TableColumn<Player, String> sns_col;
+
 
 
     private final IntegerStringConverter _ISConverter = new IntegerStringConverter();
     private final PropertyChangeListener _listener = evt -> reload_table();
     public Button buttonDown;
     public Button buttonUp;
+    public Button buttonCog;
+    public Button btn_switch_table;
 
     {
-        dataManager.subscribe(EventProp.INIT, _listener);
+        dataManager.subscribe(DataEventProp.INIT, _listener);
     }
 
     /**
-     * Hides & disables {@link #buttonDown}, {@link #buttonUp}
+     * Hides & disables {@link #buttonDown}, {@link #buttonUp}, {@link #buttonCog}
      */
     private void hideMoveButtons() {
         buttonUp.setVisible(false);
         buttonDown.setVisible(false);
+        buttonCog.setVisible(false);
+        buttonCog.setDisable(true);
         buttonUp.setDisable(true);
         buttonDown.setDisable(true);
     }
 
     /**
-     * Shows & enables {@link #buttonDown}, {@link #buttonUp}
+     * Shows & enables {@link #buttonDown}, {@link #buttonUp}, {@link #buttonCog}
      */
     private void showMoveButtons() {
         buttonUp.setVisible(true);
         buttonDown.setVisible(true);
+        buttonCog.setVisible(true);
+        buttonCog.setDisable(false);
         buttonUp.setDisable(false);
         buttonDown.setDisable(false);
     }
@@ -76,13 +96,17 @@ public class PlayersUI implements Initializable {
         player_table.setItems(playerList);
 
         seed_col.setCellFactory(TextFieldTableCell.forTableColumn(_ISConverter));
-        seed_col.setCellValueFactory(new PropertyValueFactory<>("seed"));
+        seed_col.setCellValueFactory(new PropertyValueFactory<>("remoteSeed"));
         seed_col.setSortType(TableColumn.SortType.ASCENDING);
         player_table.getSortOrder().add(seed_col);
         seed_col.setOnEditCommit(
                 seedChangeEvent -> {
-                    seedChangeEvent.getRowValue().setSeed(seedChangeEvent.getNewValue());
-                    PlayerTableUtil.adjustSeeds(playerList, seedChangeEvent.getRowValue());
+                    seedChangeEvent.getRowValue().setRemoteSeed(seedChangeEvent.getNewValue());
+                    List<Player> list = switch (mode) {
+                        case PLAYERS -> playerList;
+                        case COMMENTATORS -> commsList;
+                    };
+                    PlayerTableUtil.adjustSeeds(list, seedChangeEvent.getRowValue());
                     player_table.sort();
                 }
         );
@@ -129,9 +153,11 @@ public class PlayersUI implements Initializable {
         });
         nat_col.setCellValueFactory(new PropertyValueFactory<>("nationality"));
 
+        pron_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        pron_col.setCellValueFactory(new PropertyValueFactory<>("pronouns"));
 
-        chkin_col.setCellFactory(CheckBoxTableCell.forTableColumn(chkin_col));
-        chkin_col.setCellValueFactory(new PropertyValueFactory<>("checkedIn"));
+        sns_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        sns_col.setCellValueFactory(new PropertyValueFactory<>("snsHandle"));
 
         player_table.setRowFactory(playerTableView -> {
             TableRow<Player> row = new TableRow<>();
@@ -142,14 +168,21 @@ public class PlayersUI implements Initializable {
                             player_table.getLayoutX() - buttonUp.getWidth()
                     );
                     buttonUp.setLayoutY(
-                            row.localToScene(row.getBoundsInLocal()).getMinY() - 0.5 * row.getHeight()
+                            row.localToScene(row.getBoundsInLocal()).getMinY() -  row.getHeight()
+                    );
+
+                    buttonCog.setLayoutX(
+                            player_table.getLayoutX() - buttonCog.getWidth()
+                    );
+                    buttonCog.setLayoutY(
+                            row.localToScene(row.getBoundsInLocal()).getMinY()
                     );
 
                     buttonDown.setLayoutX(
                             player_table.getLayoutX() - buttonDown.getWidth()
                     );
                     buttonDown.setLayoutY(
-                            row.localToScene(row.getBoundsInLocal()).getMinY() + 0.5 * row.getHeight()
+                            row.localToScene(row.getBoundsInLocal()).getMinY() + row.getHeight()
                     );
 
                     showMoveButtons();
@@ -178,10 +211,14 @@ public class PlayersUI implements Initializable {
      * @param actionEvent
      */
     public void on_save(ActionEvent actionEvent) {
-        dataManager.removeAllPlayers();
-        dataManager.putAllPlayers(playerList);
-        if ( !dataManager.saveLists() )
-            new Alert(Alert.AlertType.ERROR, "Failed to save player/commentary list. Changes have been applied to the cached lists.", ButtonType.OK).show();
+        if ( !dataManager.isInitialized() ) {
+            new Alert(Alert.AlertType.ERROR, "Working directory is not selected! Cannot save player list.").show();
+            return;
+        }
+        dataManager.playersDAO.deleteAll();
+        dataManager.playersDAO.setAll(playerList.stream().map(Player::getUuidStr).toList(), playerList);
+        dataManager.commentaryDAO.deleteAll();
+        dataManager.commentaryDAO.setAll(commsList.stream().map(Player::getUuidStr).toList(), commsList);
     }
 
     public void on_pull(ActionEvent actionEvent) {
@@ -195,13 +232,18 @@ public class PlayersUI implements Initializable {
      * @param actionEvent
      */
     public void on_add(ActionEvent actionEvent) {
-        int newSeed = playerList.stream()
-                .max(Comparator.comparingInt(Player::getSeed))
-                .orElseGet(Player::empty)
-                .getSeed() + 1;
-        Player newPlayer = Player.empty();
-        newPlayer.setSeed(newSeed);
-        playerList.add(newPlayer);
+        List<Player> list = switch (mode) {
+            case PLAYERS -> playerList;
+            case COMMENTATORS -> commsList;
+        };
+
+        int newSeed = list.stream()
+                .max(Comparator.comparingInt(Player::getRemoteSeed))
+                .orElseGet(Player::getInvalid)
+                .getRemoteSeed() + 1;
+        Player newPlayer = Player.newEmpty();
+        newPlayer.setRemoteSeed(newSeed);
+        list.add(newPlayer);
 
         player_table.refresh();
         hideMoveButtons();
@@ -215,7 +257,11 @@ public class PlayersUI implements Initializable {
         Player selected = player_table.getSelectionModel().getSelectedItem();
         if ( selected == null )
             return;
-        playerList.remove(selected);
+
+        switch (mode) {
+            case PLAYERS -> playerList.remove(selected);
+            case COMMENTATORS -> commsList.remove(selected);
+        }
 
         player_table.refresh();
         hideMoveButtons();
@@ -226,7 +272,13 @@ public class PlayersUI implements Initializable {
      * @param actionEvent
      */
     public void on_reload(ActionEvent actionEvent) {
-        dataManager.reinitialize();
+        if ( !dataManager.isInitialized() ) {
+            new Alert(Alert.AlertType.ERROR, "No working directory selected - cannot reload lists!").show();
+            return;
+        }
+
+        dataManager.playersDAO.refresh();
+        dataManager.commentaryDAO.refresh();
         reload_table();
     }
 
@@ -235,7 +287,9 @@ public class PlayersUI implements Initializable {
      */
     private void reload_table() {
         playerList.clear();
-        playerList.addAll(dataManager.getAllPlayers());
+        playerList.addAll(dataManager.playersDAO.getAll());
+        commsList.clear();
+        commsList.addAll(dataManager.commentaryDAO.getAll());
         player_table.refresh();
         player_table.sort();
         hideMoveButtons();
@@ -268,6 +322,7 @@ public class PlayersUI implements Initializable {
      */
     public void on_bg_click() {
         bg_pane.requestFocus();
+        hideMoveButtons();
     }
 
     /**
@@ -292,5 +347,48 @@ public class PlayersUI implements Initializable {
         if (seed_col.getSortType() == TableColumn.SortType.ASCENDING)
             PlayerTableUtil.decrementSelectedSeedAndSwap(player_table);
         else PlayerTableUtil.incrementSelectedSeedAndSwap(player_table);
+    }
+
+    public void onButtonCog(ActionEvent actionEvent) {
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Player Details");
+
+        FXMLLoader loader = new FXMLLoader(ScoreboardApplication.class.getResource("player_edit_popup.fxml"));
+        try {
+            Parent root = loader.load();
+            PlayerEditPopupUI controller = loader.getController();
+            controller.open(player_table.getSelectionModel().getSelectedItem());
+            controller.stage = popupStage;
+            Scene scene = new Scene(root);
+            popupStage.setScene(scene);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        popupStage.show();
+    }
+
+    public void on_switch_table(ActionEvent actionEvent) {
+        if (mode == EditMode.PLAYERS)
+            mode = EditMode.COMMENTATORS;
+        else mode = EditMode.PLAYERS;
+
+        switch (mode) {
+            case PLAYERS -> {
+                player_table.setItems(playerList);
+                seed_col.setEditable(true);
+                btn_switch_table.setText("Editing: Players");
+            }
+            case COMMENTATORS -> {
+                player_table.setItems(commsList);
+                seed_col.setEditable(false);
+                btn_switch_table.setText("Editing: Comms");
+            }
+        }
+        player_table.refresh();
+        if (player_table.getSortOrder().isEmpty())
+            player_table.getSortOrder().add(seed_col);
+        player_table.sort();
+        hideMoveButtons();
     }
 }

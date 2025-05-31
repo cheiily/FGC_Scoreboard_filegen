@@ -3,15 +3,24 @@ package pl.cheily.filegen.UI;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import pl.cheily.filegen.Configuration.AppConfig;
+import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.DataManager;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.ResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
@@ -29,7 +38,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
-import static pl.cheily.filegen.LocalData.MetaKey.*;
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
 import static pl.cheily.filegen.Utils.Util.scrollOpt;
 
@@ -49,7 +57,7 @@ public class ControllerUI implements Initializable {
     public ComboBox<String> combo_p2_name;
     public ComboBox<String> combo_comm1;
     public ComboBox<String> combo_comm2;
-    public ComboBox<String> combo_host;
+    public ComboBox<String> combo_comm3;
     public RadioButton radio_p1_W;
     public RadioButton radio_p1_L;
     public RadioButton radio_reset;
@@ -58,28 +66,65 @@ public class ControllerUI implements Initializable {
     public ToggleButton GF_toggle;
     public List<RadioButton> radio_buttons = new ArrayList<>();
     public ToggleButton scene_toggle_controller;
+    public TextField txt_p1_handle;
+    public TextField txt_p1_pronouns;
+    public TextField txt_p2_pronouns;
+    public TextField txt_p2_handle;
+    public TextField txt_comm1_tag;
+    public TextField txt_comm1_pronouns;
+    public TextField txt_comm1_handle;
+    public TextField txt_comm2_tag;
+    public TextField txt_comm2_pronouns;
+    public TextField txt_comm2_handle;
+    public TextField txt_comm3_tag;
+    public TextField txt_comm3_pronouns;
+    public TextField txt_comm3_handle;
+    public ComboBox<String> combo_comm1_nat;
+    public ComboBox<String> combo_comm2_nat;
+    public ComboBox<String> combo_comm3_nat;
+    public AnchorPane pane_comm3;
+    public AnchorPane pane_comm2;
+    public AnchorPane pane_comm1;
+    public Button btn_expand;
+    public Text label_comm1_header;
+    public Text label_comm2_header;
+    public Hyperlink lnk_add_rnd;
+    boolean expanded = false;
 
+    private float expandedX = 228;
+    private float expandedWidth = 184;
+    private float collapsedX = 320;
+    private float collapsedWidth = 276;
     private AutocompleteWrapper ac_p1_name,
             ac_p2_name,
             ac_p1_nation,
             ac_p2_nation,
             ac_round,
-            ac_host,
             ac_comm1,
-            ac_comm2;
+            ac_comm2,
+            ac_comm3,
+            ac_comm1_nat,
+            ac_comm2_nat,
+            ac_comm3_nat;
     private List<AutocompleteWrapper> acWrappers;
     private final PropertyChangeListener listener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            List<String> pNames = dataManager.getAllPlayerNames();
-            ac_p1_name.loadOriginList(pNames);
-            ac_p2_name.loadOriginList(pNames);
-            ac_p1_name.clearSuggestions();
-            ac_p2_name.clearSuggestions();
+            if (evt.getPropertyName() == DataEventProp.CHANGED_PLAYER_LIST.toString()) {
+                List<String> pNames = dataManager.playersDAO.getAll().stream().map(Player::getName).toList();
+                ac_p1_name.loadOriginList(pNames);
+                ac_p2_name.loadOriginList(pNames);
+                ac_p1_name.clearSuggestions();
+                ac_p2_name.clearSuggestions();
+            } else if (evt.getPropertyName() == DataEventProp.INIT.toString()) {
+                if (AppConfig.WRITE_COMM_3())
+                    expand();
+                else collapse();
+            }
         }
     };
     {
-        dataManager.subscribe(DataManager.EventProp.PLAYER_LIST, listener);
+        dataManager.subscribe(DataEventProp.CHANGED_PLAYER_LIST, listener);
     }
 
 
@@ -89,10 +134,67 @@ public class ControllerUI implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        combo_round.getItems().addAll(dataManager.getRoundLabelsSorted());
+        combo_round.setCellFactory(param -> new ListCell<>() {
+            private Button button = new Button("X");
+            private Label label = new Label();
+            private HBox graphic;
+            private Hyperlink link = new Hyperlink("X");
+
+            {
+                label.textProperty().bind(itemProperty());
+                label.setMaxWidth(Double.POSITIVE_INFINITY);
+                label.setOnMouseClicked(event -> combo_round.hide());
+                link.setVisited(true);
+                link.setStyle("-fx-underline: false; -fx-font-weight: bold;");
+                link.setOnMouseReleased(event -> {
+                    String item = getItem();
+                    if (dataManager.isInitialized()) dataManager.roundLabelDAO.delete(item);
+                    combo_round.getItems().remove(item);
+                    combo_round.show();
+                });
+                button.setFont(new Font(button.getFont().getFamily(), 9));
+                button.setTextAlignment(TextAlignment.CENTER);
+                button.setAlignment(Pos.CENTER);
+                button.setMaxSize(16, 16);
+                button.setBackground(null);
+                button.setOnMouseReleased(event -> {
+                    String item = getItem();
+                    if (dataManager.isInitialized()) dataManager.roundLabelDAO.delete(item);
+                    combo_round.getItems().remove(item);
+                    combo_round.show();
+                });
+
+                graphic = new HBox(label, link);
+                graphic.setPrefHeight(20);
+                graphic.setAlignment(Pos.CENTER);
+                HBox.setHgrow(label, Priority.ALWAYS);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(graphic);
+                }
+            }
+        });
+
+        lnk_add_rnd.disableProperty().bind(combo_round.editorProperty().get().textProperty().map(
+                text -> text.isBlank() || combo_round.getItems().contains(text.trim())
+        ));
+        lnk_add_rnd.opacityProperty().bind(lnk_add_rnd.disableProperty().map(disabled -> disabled ? 0 : 1));
+
+        if (!dataManager.isInitialized())
+            combo_round.getItems().addAll(RoundLabelDAO.getDefault());
+        else combo_round.getItems().addAll(dataManager.roundLabelDAO.getAllSorted());
 
         ObservableList<String> f1_opts = combo_p1_nation.getItems();
         ObservableList<String> f2_opts = combo_p2_nation.getItems();
+        ObservableList<String> cf1_opts = combo_comm1_nat.getItems();
+        ObservableList<String> cf2_opts = combo_comm2_nat.getItems();
+        ObservableList<String> cf3_opts = combo_comm3_nat.getItems();
         try ( Stream<Path> flags = Files.walk(dataManager.flagsDir) ) {
             flags.filter(path -> path.toString().endsWith(".png"))
                     .filter(path ->
@@ -102,6 +204,9 @@ public class ControllerUI implements Initializable {
                     .forEach(path -> {
                         f1_opts.add(path.toUpperCase());
                         f2_opts.add(path.toUpperCase());
+                        cf1_opts.add(path.toUpperCase());
+                        cf2_opts.add(path.toUpperCase());
+                        cf3_opts.add(path.toUpperCase());
                     });
 
         } catch (IOException e) {
@@ -125,10 +230,13 @@ public class ControllerUI implements Initializable {
         ac_p2_name = new AutocompleteWrapper(combo_p2_name);
         ac_p2_nation = new AutocompleteWrapper(combo_p2_nation);
         ac_round = new AutocompleteWrapper(combo_round);
-        ac_host = new AutocompleteWrapper(combo_host);
         ac_comm1 = new AutocompleteWrapper(combo_comm1);
         ac_comm2 = new AutocompleteWrapper(combo_comm2);
-        acWrappers = List.of(ac_p1_name, ac_p2_name, ac_p1_nation, ac_p2_nation, ac_round, ac_host, ac_comm1, ac_comm2);
+        ac_comm3 = new AutocompleteWrapper(combo_comm3);
+        ac_comm1_nat = new AutocompleteWrapper(combo_comm1_nat);
+        ac_comm2_nat = new AutocompleteWrapper(combo_comm2_nat);
+        ac_comm3_nat = new AutocompleteWrapper(combo_comm3_nat);
+        acWrappers = List.of(ac_p1_name, ac_p2_name, ac_p1_nation, ac_p2_nation, ac_round, ac_comm1, ac_comm2, ac_comm3, ac_comm1_nat, ac_comm2_nat, ac_comm3_nat);
     }
 
 
@@ -148,25 +256,71 @@ public class ControllerUI implements Initializable {
         Player p1 = new Player(
                 txt_p1_tag.getText(),
                 combo_p1_name.getValue(),
-                combo_p1_nation.getValue()
+                combo_p1_nation.getValue(),
+                txt_p1_pronouns.getText(),
+                txt_p1_handle.getText()
         );
         Player p2 = new Player(
                 txt_p2_tag.getText(),
                 combo_p2_name.getValue(),
-                combo_p2_nation.getValue()
+                combo_p2_nation.getValue(),
+                txt_p2_pronouns.getText(),
+                txt_p2_handle.getText()
         );
         String score_1 = txt_p1_score.getText();
         String score_2 = txt_p2_score.getText();
+        Player c1 = new Player(
+                txt_comm1_tag.getText(),
+                combo_comm1.getValue(),
+                combo_comm1_nat.getValue(),
+                txt_comm1_pronouns.getText(),
+                txt_comm1_handle.getText()
+        );
+        Player c2 = new Player(
+                txt_comm2_tag.getText(),
+                combo_comm2.getValue(),
+                combo_comm2_nat.getValue(),
+                txt_comm2_pronouns.getText(),
+                txt_comm2_handle.getText()
+        );
+        Player c3 = new Player(
+                txt_comm3_tag.getText(),
+                combo_comm3.getValue(),
+                combo_comm3_nat.getValue(),
+                txt_comm3_pronouns.getText(),
+                txt_comm3_handle.getText()
+        );
 
         for (AutocompleteWrapper wrapper : acWrappers) wrapper.clearSuggestions();
         combo_p1_name.setValue(p1.getName());
         txt_p1_tag.setText(p1.getTag());
         combo_p1_nation.setValue(p1.getNationality());
+        txt_p1_pronouns.setText(p1.getPronouns());
+        txt_p1_handle.setText(p1.getSnsHandle());
         combo_p2_name.setValue(p2.getName());
         txt_p2_tag.setText(p2.getTag());
         combo_p2_nation.setValue(p2.getNationality());
+        txt_p2_pronouns.setText(p2.getPronouns());
+        txt_p2_handle.setText(p2.getSnsHandle());
+
         txt_p1_score.setText(score_1);
         txt_p2_score.setText(score_2);
+
+        combo_comm1.setValue(c1.getName());
+        txt_comm1_tag.setText(c1.getTag());
+        combo_comm1_nat.setValue(c1.getNationality());
+        txt_comm1_pronouns.setText(c1.getPronouns());
+        txt_comm1_handle.setText(c1.getSnsHandle());
+        combo_comm2.setValue(c2.getName());
+        txt_comm2_tag.setText(c2.getTag());
+        combo_comm2_nat.setValue(c2.getNationality());
+        txt_comm2_pronouns.setText(c2.getPronouns());
+        txt_comm2_handle.setText(c2.getSnsHandle());
+        combo_comm3.setValue(c3.getName());
+        txt_comm3_tag.setText(c3.getTag());
+        combo_comm3_nat.setValue(c3.getNationality());
+        txt_comm3_pronouns.setText(c3.getPronouns());
+        txt_comm3_handle.setText(c3.getSnsHandle());
     }
 
     /**
@@ -224,9 +378,9 @@ public class ControllerUI implements Initializable {
 
         combo_p1_name.getItems().clear();
         combo_p2_name.getItems().clear();
-        combo_host.getItems().clear();
         combo_comm1.getItems().clear();
         combo_comm2.getItems().clear();
+        combo_comm3.getItems().clear();
 
         dataManager.initialize(dir.toPath().toAbsolutePath());
         txt_path.setText(dir.toPath().toAbsolutePath().toString());
@@ -240,67 +394,85 @@ public class ControllerUI implements Initializable {
     private void tryLoadData() {
 
         combo_round.getItems().clear();
-        List<String> rnds = dataManager.getRoundLabelsSorted();
+        List<String> rnds = dataManager.roundLabelDAO.getAllSorted();
+        if (rnds.isEmpty()) rnds = RoundLabelDAO.getDefault();
         combo_round.getItems().addAll(rnds);
         ac_round.loadOriginList(rnds);
 
-        List<String> allPlayers = dataManager.getAllPlayerNames();
-        List<String> allComms = dataManager.getAllCommentatorNames();
+        List<String> allPlayers = dataManager.playersDAO.getAll().stream().map(Player::getName).toList();
+        List<String> allComms = dataManager.commentaryDAO.getAll().stream().map(Player::getName).toList();
         combo_p1_name.getItems().addAll(allPlayers);
         combo_p2_name.getItems().addAll(allPlayers);
-        combo_host.getItems().addAll(allComms);
+        combo_comm3.getItems().addAll(allComms);
         combo_comm1.getItems().addAll(allComms);
         combo_comm2.getItems().addAll(allComms);
 
         ac_p1_name.loadOriginList(allPlayers);
         ac_p2_name.loadOriginList(allPlayers);
-        ac_host.loadOriginList(allComms);
         ac_comm1.loadOriginList(allComms);
         ac_comm2.loadOriginList(allComms);
+        ac_comm3.loadOriginList(allComms);
 
         for (AutocompleteWrapper acWrapper : acWrappers) {
             acWrapper.clearSuggestions();
         }
 
         //round data
-        combo_round.setValue(dataManager.getMeta(SEC_ROUND, KEY_ROUND_LABEL));
-        txt_p1_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_1, int.class)));
-        txt_p2_score.setText(String.valueOf(dataManager.getMeta(SEC_ROUND, KEY_SCORE_2, int.class)));
+        combo_round.setValue(dataManager.matchDAO.get(MatchDataKey.ROUND_LABEL));
+        txt_p1_score.setText(String.valueOf(dataManager.matchDAO.get(MatchDataKey.P1_SCORE)));
+        txt_p2_score.setText(String.valueOf(dataManager.matchDAO.get(MatchDataKey.P2_SCORE)));
 
-        boolean is_reset = dataManager.getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
-        boolean is_p1_w = dataManager.getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
+//        boolean is_reset = dataManager.getMeta(SEC_ROUND, KEY_GF_RESET, boolean.class);
+//        boolean is_p1_w = dataManager.getMeta(SEC_ROUND, KEY_GF_W1, boolean.class);
         //enable radio to allow "chained" setting
         radio_buttons.forEach(r -> r.setDisable(false));
 
-        if ( is_reset && !radio_reset.isSelected() )
+        if ( Boolean.parseBoolean(dataManager.matchDAO.get(MatchDataKey.IS_GF_RESET)) && !radio_reset.isSelected() )
             radio_reset.fire();
-        else if ( is_p1_w && !radio_p1_W.isSelected() )
+        else if ( Boolean.parseBoolean(dataManager.matchDAO.get(MatchDataKey.IS_GF_P1_WINNER)) && !radio_p1_W.isSelected() )
             radio_p1_W.fire();
-        else if ( !is_p1_w && radio_p1_W.isSelected() )
+        else if ( Boolean.parseBoolean(dataManager.matchDAO.get(MatchDataKey.IS_GF_P2_WINNER)) && radio_p1_W.isSelected() )
             radio_p1_W.fire();
 
         //disable radio
         GF_toggle.setSelected(false);
 
         //finally set radio in the proper state
-        boolean is_gf = dataManager.getMeta(SEC_ROUND, KEY_GF, boolean.class);
+        boolean is_gf = Boolean.parseBoolean(dataManager.matchDAO.get(MatchDataKey.IS_GF));
         GF_toggle.setSelected(is_gf);
 
         //p1 data
-        combo_p1_name.setValue(dataManager.getMeta(SEC_P1, KEY_NAME));
-        txt_p1_tag.setText(dataManager.getMeta(SEC_P1, KEY_TAG));
-        combo_p1_nation.setValue(dataManager.getMeta(SEC_P1, KEY_NATION));
+        combo_p1_name.setValue(dataManager.matchDAO.get(MatchDataKey.P1_NAME));
+        txt_p1_tag.setText(dataManager.matchDAO.get(MatchDataKey.P1_TAG));
+        combo_p1_nation.setValue(dataManager.matchDAO.get(MatchDataKey.P1_NATIONALITY));
+        txt_p1_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.P1_PRONOUNS));
+        txt_p1_handle.setText(dataManager.matchDAO.get(MatchDataKey.P1_HANDLE));
 
         //p2 data
-        combo_p2_name.setValue(dataManager.getMeta(SEC_P2, KEY_NAME));
-        txt_p2_tag.setText(dataManager.getMeta(SEC_P2, KEY_TAG));
-        combo_p2_nation.setValue(dataManager.getMeta(SEC_P2, KEY_NATION));
+        combo_p2_name.setValue(dataManager.matchDAO.get(MatchDataKey.P2_NAME));
+        txt_p2_tag.setText(dataManager.matchDAO.get(MatchDataKey.P2_TAG));
+        combo_p2_nation.setValue(dataManager.matchDAO.get(MatchDataKey.P2_NATIONALITY));
+        txt_p2_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.P2_PRONOUNS));
+        txt_p2_handle.setText(dataManager.matchDAO.get(MatchDataKey.P2_HANDLE));
 
         //comms data
-        combo_host.setValue(dataManager.getMeta(SEC_COMMS, KEY_HOST));
-        combo_comm1.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_1));
-        combo_comm2.setValue(dataManager.getMeta(SEC_COMMS, KEY_COMM_2));
+        combo_comm1.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_1));
+        txt_comm1_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_1));
+        combo_comm1_nat.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NATIONALITY_1));
+        txt_comm1_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_1));
+        txt_comm1_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_1));
 
+        combo_comm2.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_2));
+        txt_comm2_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_2));
+        combo_comm2_nat.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NATIONALITY_2));
+        txt_comm2_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_2));
+        txt_comm2_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_2));
+
+        combo_comm3.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NAME_3));
+        txt_comm3_tag.setText(dataManager.matchDAO.get(MatchDataKey.COMM_TAG_3));
+        combo_comm3_nat.setValue(dataManager.matchDAO.get(MatchDataKey.COMM_NATIONALITY_3));
+        txt_comm3_pronouns.setText(dataManager.matchDAO.get(MatchDataKey.COMM_PRONOUNS_3));
+        txt_comm3_handle.setText(dataManager.matchDAO.get(MatchDataKey.COMM_HANDLE_3));
 
     }
 
@@ -321,38 +493,58 @@ public class ControllerUI implements Initializable {
     }
 
     /**
-     * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
-     * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
+     * Searches for the selected player via .
+     * If no such player is found within the defined set (i.e. equal to {@link Player#getInvalid()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
      */
     public void on_p1_selection() {
         txt_p1_score.setText("0");
 
-        Player selected = dataManager.getPlayer(combo_p1_name.getValue())
-                .orElse(Player.empty());
+        Player selected;
+        if ( dataManager.isInitialized() ) {
+            var found = dataManager.playersDAO.findByName(combo_p1_name.getValue());
+            if (found.isEmpty()) selected = Player.getInvalid();
+            else selected = found.get(0);
+        } else {
+            selected = Player.getInvalid();
+        }
+//        Player selected = dataManager.getPlayer(combo_p1_name.getValue())
+//                .orElse(Player.empty());
 
-        if ( selected != Player.empty() ) {
+        if ( selected != null && selected != Player.getInvalid() ) {
             txt_p1_tag.setText(selected.getTag());
             combo_p1_nation.setValue(selected.getNationality());
+            txt_p1_pronouns.setText(selected.getPronouns());
+            txt_p1_handle.setText(selected.getSnsHandle());
         }
     }
 
     /**
-     * Searches for the selected player via {@link pl.cheily.filegen.LocalData.DataManager#getPlayer(String)}.
-     * If no such player is found within the defined set (i.e. equal to {@link Player#empty()}),
+     * Searches for the selected player via .
+     * If no such player is found within the defined set (i.e. equal to {@link Player#getInvalid()}),
      * the related fields are not cleared, so as not to overwrite any previously entered data
      * that might be related to the undefined player.
      */
     public void on_p2_selection() {
         txt_p2_score.setText("0");
 
-        Player selected = dataManager.getPlayer(combo_p2_name.getValue())
-                .orElse(Player.empty());
+        Player selected;
+        if ( dataManager.isInitialized() ) {
+            var found = dataManager.playersDAO.findByName(combo_p2_name.getValue());
+            if (found.isEmpty()) selected = Player.getInvalid();
+            else selected = found.get(0);
+        } else {
+            selected = Player.getInvalid();
+        }
+//        Player selected = dataManager.getPlayer(combo_p2_name.getValue())
+//                .orElse(Player.empty());
 
-        if ( selected != Player.empty() ) {
+        if ( selected != null && selected != Player.getInvalid() ) {
             txt_p2_tag.setText(selected.getTag());
             combo_p2_nation.setValue(selected.getNationality());
+            txt_p2_pronouns.setText(selected.getPronouns());
+            txt_p2_handle.setText(selected.getSnsHandle());
         }
     }
 
@@ -406,8 +598,8 @@ public class ControllerUI implements Initializable {
         scrollOpt(combo_comm2, scrollEvent);
     }
 
-    public void on_host_scroll(ScrollEvent scrollEvent) {
-        scrollOpt(combo_host, scrollEvent);
+    public void on_comm3_scroll(ScrollEvent scrollEvent) {
+        scrollOpt(combo_comm3, scrollEvent);
     }
 
     public void on_p1_flag_scroll(ScrollEvent scrollEvent) {
@@ -496,20 +688,28 @@ public class ControllerUI implements Initializable {
         String p1_name = combo_p1_name.getValue();
         String p1_tag = txt_p1_tag.getText();
         String p1_nat = combo_p1_nation.getValue();
+        String p1_pronouns = txt_p1_pronouns.getText();
+        String p1_handle = txt_p1_handle.getText();
         String p1_score = txt_p1_score.getText();
         String p2_name = combo_p2_name.getValue();
         String p2_tag = txt_p2_tag.getText();
         String p2_nat = combo_p2_nation.getValue();
+        String p2_pronouns = txt_p2_pronouns.getText();
+        String p2_handle = txt_p2_handle.getText();
         String p2_score = txt_p2_score.getText();
 
         combo_p1_name.setValue(p2_name);
         txt_p1_tag.setText(p2_tag);
         combo_p1_nation.setValue(p2_nat);
         txt_p1_score.setText(p2_score);
+        txt_p1_pronouns.setText(p2_pronouns);
+        txt_p1_handle.setText(p2_handle);
         combo_p2_name.setValue(p1_name);
         txt_p2_tag.setText(p1_tag);
         combo_p2_nation.setValue(p1_nat);
         txt_p2_score.setText(p1_score);
+        txt_p2_pronouns.setText(p1_pronouns);
+        txt_p2_handle.setText(p1_handle);
 
         if ( GF_toggle.isSelected() && !radio_reset.isSelected() ) {
             boolean p1w = radio_p1_W.isSelected();
@@ -553,5 +753,54 @@ public class ControllerUI implements Initializable {
      */
     public void on_bg_click() {
         bg_pane.requestFocus();
+    }
+
+    public void on_comm1_nat_scroll(ScrollEvent scrollEvent) {
+        scrollOpt(combo_comm1_nat, scrollEvent);
+    }
+
+    public void on_comm2_nat_scroll(ScrollEvent scrollEvent) {
+        scrollOpt(combo_comm2_nat, scrollEvent);
+    }
+
+    public void on_comm3_nat_scroll(ScrollEvent scrollEvent) {
+        scrollOpt(combo_comm3_nat, scrollEvent);
+    }
+
+    public void on_button_expand(ActionEvent actionEvent) {
+        expanded = !expanded;
+        if (expanded) expand();
+        else collapse();
+        AppConfig.WRITE_COMM_3(expanded);
+    }
+
+    private void expand() {
+        expanded = true;
+        btn_expand.setText("-");
+        pane_comm3.setVisible(true);
+        pane_comm1.setPrefWidth(expandedWidth);
+        pane_comm2.relocate(expandedX, pane_comm2.getLayoutY());
+        pane_comm2.setPrefWidth(expandedWidth);
+        label_comm1_header.setLayoutX(51);
+        label_comm2_header.setLayoutX(51);
+    }
+
+    private void collapse() {
+        expanded = false;
+        btn_expand.setText("+");
+        pane_comm3.setVisible(false);
+        pane_comm1.setPrefWidth(collapsedWidth);
+        pane_comm2.relocate(collapsedX, pane_comm2.getLayoutY());
+        pane_comm2.setPrefWidth(collapsedWidth);
+        label_comm1_header.setLayoutX(96);
+        label_comm2_header.setLayoutX(96);
+    }
+
+    public void on_lnk_add_rnd(ActionEvent actionEvent) {
+        String text = combo_round.getEditor().getText().trim();
+        ac_round.clearSuggestions();
+        combo_round.getItems().add(text);
+        ac_round.loadOriginList(combo_round.getItems());
+        if (dataManager.isInitialized()) dataManager.roundLabelDAO.set(text, text);
     }
 }

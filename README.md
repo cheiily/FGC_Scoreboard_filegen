@@ -1,94 +1,63 @@
 ### This is a small GUI project made to easily generate FGC scoreboard source files.
-The sources are generated into separate files which means they need to all be imported and manually placed into a scene in your streaming software. They're `.txt` and `.png` files with quite self-descriptive names.
-They're also made so that OBS (or any software which polls the modification timestamp) can discover changes and re-load them automatically.
+The sources are generated into separate files which means they need to all be imported and manually placed into a scene in your streaming software. They're `.txt` and `.png` files with self-descriptive names.
+They're also made so that OBS (or any software which polls the modification timestamp) can discover changes and reload them automatically.
 
 ## How to run
-To run the jar, you need a JRE of version 19 or higher. For it to be compiled correctly, in the same directory there needs to be present a directory named "flags" with at least one file inside - a "null.png" for people of unknown / unspecified origin. Any additional flag images to be put inside should be of .png format. It does not matter how they are named but the filenames will be displayed as selection options so it would be wise for them to bear either full country names or their short codes.
+To run the jar, you need a JRE of version 19 or higher. For it to be compiled correctly, in the same directory there needs to be present a directory named "flags" with at least one file inside - a "null.png" for people of unknown / unspecified origin. Any additional flag images you wish to add should be of .png format. It does not matter how they are named but the filenames will be displayed as selection options so it would be wise for them to bear either full country names or their short codes.
 There is no attached flag collection, you need to download one on your own, personally I recommend `https://flagpedia.net/`.
 
-To run the app open any terminal and type `java -jar filegen.jar`.
+To run the app open any terminal and type `java -jar filegen.jar`. Optionally use the attached runner script.
 
 ### Usage instructions
 Once the app is run, the first thing you should do is select a target directory.
-  Once you hit save, the app will try to generate the basic file structure there, so it's a good idea to do a preemptive check.
-Within the target dir a new catalogues will be generated - "meta" and "lists". 
-Inside "lists" you can put three additional files for easier usage, namely "player_list.csv", "comms_list.csv" and "round_list.csv", though they're all optional.
-  Contents of these files will be loaded on path selection.
+Once you hit save, the app will try to generate the basic file structure there, so it's a good idea to do a preemptive check.
 
-All of these custom files are of [.csv format](https://en.wikipedia.org/wiki/Comma-separated_values), they're quite basic in usage:
-* "comms_list.csv" & "round_list.csv" only require the entries to be separated by a newline:
-  ```
-  Grand finals
-  Winners finals
-  Losers finals
-  etc...
-  ```
-* For "player_list.csv", each player can be assigned an organization tag, a player name and nationality.
-  The player name is the only mandatory field, however the csv formatting requires the appropriate amount of separators to still be contained:
-  ```
-  ORG,Player 1,GB
-  ,Unaffiliated gamer,Portugal
-  SKILL ISSUE,Mr worldwide,
-  ,Anonymous, 
-  ```
+Within the target dir a new catalogue will be generated, called "meta".
+That is where the app stores its configuration files, as well as player lists, current match data, etc.
+Some of these files are generated on path-select, some are generated on the first save. It is encouraged to take a peek and familiarize yourself with the contents of these files, as they are mostly OK to edit manually, with a text editor (except for the lists that use GUIDs).
+Note: some config values in particular might be obsolete or not-yet used.
 
 Most of the GUI elements should feel quite natural in usage, additionally for convenience - most elements can be operated with the mouse scroll.
 Combo boxes are also fitted with search suggestions.
 
 
 
-### TODO's
+### TODO
 <details>
-<summary>Detailed</summary>
-
-App-core todo:
-- [x] Combobox autocomplete / suggestions (V0.2)
-- [ ] Attach a sample OBS scene
-- [x] Allow round names list file, if none is found - add the default opts (V0.2)
-- [x] Make Util.saveImg copy the null flag if no corresponding file is found but still display a warning, not err (V0.2)
-- [x] Make lists Ini-format to allow spaces in names (V0.2)
-- [ ] Make html output
-- [x] Move output writing to DataManager (V0.2)
-- [ ] UI-Meta bindings
-- [ ] Adjust check to allow different extensions
-
-Config todo:
-- [x] Ignoring case when searching player name by manual input
-- [x] API Key for challonge import
-- [ ] (maybe) splitting up the commentary file into separate files.
-- [x] Flag output toggle w/ directory selection & deduced-default file extension
-
-UI todo:
-- [x] Controller tab (V0.1)
-  - [x] Set radio buttons on load if it's a grand final round 
-  - [x] Quick player switch button (V0.2)
-- [ ] Players tab
-  - [x] drag to seed manip (arrow buttons)
-  - [x] check-in button
-  - [ ] top 8 results highlight
-  - [x] scene
-  - [ ] controller
-- [x] Config tab
-  - [x] scene
-  - [x] controller
-- [ ] ResourceBundle localization
-
-Integration todo:
-- [ ] Challonge: 
-  - [ ] import player list
-  - [ ] update participant status
-
-</details>
-
-<details>
-<summary>Roadmap / history</summary>
+<summary>Roadmap</summary>
 
 Fixes/Next commit/Minor todo:
-- [ ] V0.3
-  - [ ] Move null-flag & default flag collection to resource
-  - [x] Apply config settings
-  - [ ] Adjust the outputwriter architecture for fork merge
+- [ ] V0.5
+  - [ ] Challonge integration
+  - [ ] All controls working
+- [ ] V0.4
   - [ ] Merge and appropriate the websocket fork
+  - [ ] Offer a basic, free html overlay
+  - [ ] Offer a basic, free file-based obs overlay setup
+- [ ] V0.3
+  - [ ] move config to a persistent %appdata% location
+    - [ ] get rid of flag extension in favor of reading all files in folder
+  - [ ] Make Formattingunits take custom, tokenized paths
+    - [ ] Change ResourcePath.toPath to ::toPath(String tokenized) to allow more flexibility 
+  - [ ] ~~add an "add player to list / save changes to player / add as new player" plus button on the controller~~ (resigned)
+  - [x] get rid of custom lists outside the app
+    - [x] Create appropriate scenes for each list edition
+  - [x] Rework metadata storage
+    - [ ] DAO architecture
+      - [x] ini impl
+      - [ ] db impl
+    - [ ] selectable save format 
+  - [x] Rework output writer/formatter architecture to work with new meta storage
+    - [x] offer writer-formatter config detailing which field should be formatted, with selectable formatter per-writer & selectable output resource (input data is bundled into output resource) per-formatter, optional per-option setting?
+    - [x] split comms output
+    - [ ] ~~make comms amount arbitrary~~ (resigned)
+    - [x] get rid of [W] mark
+    - [x] get rid of host
+    - [x] get rid of emojis
+  - [ ] Move null-flag & default flag collection to resource
+    - [ ] collect basic pride flags
+  - [x] Apply config settings
+  - [ ] ~~Merge and appropriate the websocket fork~~ (moved to 0.4)
   - [x] Move P2 GF tag to the left
   - [x] Fix a bug where autcomplete clear on-save causes automated related-field load and loses changes
 - [x] V0.2

@@ -1,20 +1,25 @@
 package pl.cheily.filegen;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.cheily.filegen.LocalData.DataManager;
-import pl.cheily.filegen.LocalData.DataWebSocket;
-import pl.cheily.filegen.LocalData.DefaultOutputFormatter;
-import pl.cheily.filegen.LocalData.RawOutputWriter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.DataWebSocket;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.DefaultOutputFormatter;
+import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.RawOutputWriter;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ScoreboardApplication extends Application {
+    public static ScoreboardApplication instance;
+
     public static Scene controllerScene,
                         playersScene,
                         configScene;
@@ -37,8 +42,16 @@ public class ScoreboardApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        instance = this;
+
+        var rootlog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        var appender = new AlertingAppender();
+        appender.setContext(rootlog.getLoggerContext());
+//        appender.start();//?
+        rootlog.addAppender(appender);
+
         mainStage = stage;
-        dataManager = new DataManager(new RawOutputWriter("default raw-output writer #1", new DefaultOutputFormatter()));
+        dataManager = new DataManager();
         controllerScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("controller_scene.fxml")).load());
         playersScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("players_scene.fxml")).load());
         configScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("config_scene.fxml")).load());
@@ -47,6 +60,7 @@ public class ScoreboardApplication extends Application {
         mainStage.setScene(controllerScene);
         mainStage.show();
 
+        VersionChecker.queueUpdateCheck();
 //        dataWebSocket.start();
 //
 //        // Destruct the server on app closure.

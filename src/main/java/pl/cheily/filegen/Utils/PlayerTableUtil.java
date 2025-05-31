@@ -23,16 +23,16 @@ public class PlayerTableUtil {
     public static void incrementSelectedSeedAndSwap(TableView<Player> player_table) {
         int selectedI = player_table.getSelectionModel().getSelectedIndex();
         Player selected = player_table.getItems().get(selectedI);
-        int oldSeed = selected.getSeed();
+        int oldSeed = selected.getRemoteSeed();
         int newSeed = oldSeed + 1;
 
-        selected.setSeed(newSeed);
+        selected.setRemoteSeed(newSeed);
 
         Player next;
         if ( selectedI != player_table.getItems().size() - 1
-            && (next = player_table.getItems().get(selectedI + 1)).getSeed() == newSeed
+            && (next = player_table.getItems().get(selectedI + 1)).getRemoteSeed() == newSeed
         ) {
-            next.setSeed(oldSeed);
+            next.setRemoteSeed(oldSeed);
         }
 
         player_table.sort();
@@ -50,16 +50,16 @@ public class PlayerTableUtil {
     public static void decrementSelectedSeedAndSwap(TableView<Player> player_table) {
         int selectedI = player_table.getSelectionModel().getSelectedIndex();
         Player selected = player_table.getItems().get(selectedI);
-        int oldSeed = selected.getSeed();
+        int oldSeed = selected.getRemoteSeed();
         int newSeed = oldSeed - 1;
 
-        selected.setSeed(newSeed);
+        selected.setRemoteSeed(newSeed);
 
         Player previous;
         if ( selectedI != 0
-            && (previous = player_table.getItems().get(selectedI - 1)).getSeed() == newSeed
+            && (previous = player_table.getItems().get(selectedI - 1)).getRemoteSeed() == newSeed
         ) {
-            previous.setSeed(oldSeed);
+            previous.setRemoteSeed(oldSeed);
         }
 
         player_table.sort();
@@ -76,7 +76,7 @@ public class PlayerTableUtil {
             Player collidingPlayer = null;
 
             for (Player player : players) {
-                if (player != newPlayer && player.getSeed() == newPlayer.getSeed()) {
+                if (player != newPlayer && player.getRemoteSeed() == newPlayer.getRemoteSeed()) {
                     collidingPlayer = player;
                     break;
                 }
@@ -85,7 +85,7 @@ public class PlayerTableUtil {
             if (collidingPlayer == null) {
                 break; // No colliding player, end algorithm
             } else {
-                collidingPlayer.setSeed(collidingPlayer.getSeed() + 1);
+                collidingPlayer.setRemoteSeed(collidingPlayer.getRemoteSeed() + 1);
                 newPlayer = collidingPlayer;
             }
         }

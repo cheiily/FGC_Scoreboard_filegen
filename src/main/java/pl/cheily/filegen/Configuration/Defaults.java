@@ -20,6 +20,8 @@ public class Defaults {
 
     public static final boolean GF_RADIO_ON_LABEL_MATCH = true;
 
+    public static final boolean WRITE_COMM_3 = false;
+
     public static final boolean PUT_FLAGS = true;
 
     public static final String FLAG_EXTENSION = ".png";
