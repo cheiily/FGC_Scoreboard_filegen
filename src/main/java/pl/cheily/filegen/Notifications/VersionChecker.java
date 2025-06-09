@@ -1,4 +1,4 @@
-package pl.cheily.filegen;
+package pl.cheily.filegen.Notifications;
 
 import javafx.application.Platform;
 import javafx.util.Duration;
@@ -6,8 +6,11 @@ import org.controlsfx.control.Notifications;
 import org.controlsfx.control.action.Action;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONParserConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.cheily.filegen.Launcher;
+import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.Pair;
 
 import javax.net.ssl.HttpsURLConnection;
