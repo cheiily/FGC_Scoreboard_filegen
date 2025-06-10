@@ -135,7 +135,6 @@ public class ControllerUI implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         combo_round.setCellFactory(param -> new ListCell<>() {
-            private Button button = new Button("X");
             private Label label = new Label();
             private HBox graphic;
             private Hyperlink link = new Hyperlink("X");
@@ -148,19 +147,9 @@ public class ControllerUI implements Initializable {
                 link.setStyle("-fx-underline: false; -fx-font-weight: bold;");
                 link.setOnMouseReleased(event -> {
                     String item = getItem();
-                    if (dataManager.isInitialized()) dataManager.roundLabelDAO.delete(item);
+                    ac_round.clearSuggestions();
                     combo_round.getItems().remove(item);
-                    combo_round.show();
-                });
-                button.setFont(new Font(button.getFont().getFamily(), 9));
-                button.setTextAlignment(TextAlignment.CENTER);
-                button.setAlignment(Pos.CENTER);
-                button.setMaxSize(16, 16);
-                button.setBackground(null);
-                button.setOnMouseReleased(event -> {
-                    String item = getItem();
-                    if (dataManager.isInitialized()) dataManager.roundLabelDAO.delete(item);
-                    combo_round.getItems().remove(item);
+                    ac_round.loadOriginList(combo_round.getItems());
                     combo_round.show();
                 });
 
@@ -801,6 +790,5 @@ public class ControllerUI implements Initializable {
         ac_round.clearSuggestions();
         combo_round.getItems().add(text);
         ac_round.loadOriginList(combo_round.getItems());
-        if (dataManager.isInitialized()) dataManager.roundLabelDAO.set(text, text);
     }
 }
