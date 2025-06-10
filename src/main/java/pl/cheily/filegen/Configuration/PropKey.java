@@ -10,15 +10,13 @@ import java.util.function.Function;
 public enum PropKey {
     CHALLONGE_API("CHALLONGE_API", String.class, null),
     AUTOCOMPLETE_ON("AUTOCOMPLETE_ON", Boolean.class, null),
-    MAKE_RAW_OUTPUT("MAKE_RAW_OUTPUT", Boolean.class, null),
-    MAKE_HTML_OUTPUT("MAKE_HTML_OUTPUT", Boolean.class, null),
     GF_RADIO_ON_LABEL_MATCH("GF_RADIO_ON_LABEL_MATCH", Boolean.class, null),
     WRITE_COMM_3("WRITE_COMM_3", Boolean.class, null),
-    PUT_FLAGS("PUT_FLAGS", Boolean.class, null),
     FLAG_EXTENSION("FLAG_EXTENSION", String.class, null),
     FLAG_DIRECTORY( "FLAG_DIRECTORY", Path.class, obj ->
             obj != null && (obj.getClass() == String.class || obj.getClass() == Path.of("").getClass())
-    );
+    ),
+    CHECK_NOTIFICATIONS("CHECK_NOTIFICATIONS", Boolean.class, null);
 
     /**
      * Stringified property name. May be used for issuing & subscribing to events, saving a configuration file, etc.

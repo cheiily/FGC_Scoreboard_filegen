@@ -25,11 +25,9 @@ public class AppConfig {
     /*==============================PROPERTIES==============================*/
     private static String _challongeAPI = Defaults.CHALLONGE_API;
     private static boolean _autocompleteOn = Defaults.AUTOCOMPLETE_ON;
-    private static boolean _makeRawOutput = Defaults.MAKE_RAW_OUTPUT;
-    private static boolean _makeHtmlOutput = Defaults.MAKE_HTML_OUTPUT;
     private static boolean _gfRadio = Defaults.GF_RADIO_ON_LABEL_MATCH;
     private static boolean _writeComm3 = Defaults.WRITE_COMM_3;
-    private static boolean _putFlags = Defaults.PUT_FLAGS;
+    private static boolean _checkNotifications = Defaults.CHECK_NOTIFICATIONS;
     private static String _flagExtension = Defaults.FLAG_EXTENSION;
     private static Path _flagDirectory = Defaults.FLAG_DIRECTORY;
     /*==============================PROPERTIES==============================*/
@@ -42,13 +40,11 @@ public class AppConfig {
     public static void reset() {
         CHALLONGE_API(Defaults.CHALLONGE_API);
         AUTOCOMPLETE_ON(Defaults.AUTOCOMPLETE_ON);
-        MAKE_RAW_OUTPUT(Defaults.MAKE_RAW_OUTPUT);
-        MAKE_HTML_OUTPUT(Defaults.MAKE_HTML_OUTPUT);
         GF_RADIO_ON_LABEL_MATCH(Defaults.GF_RADIO_ON_LABEL_MATCH);
-        PUT_FLAGS(Defaults.PUT_FLAGS);
         FLAG_EXTENSION(Defaults.FLAG_EXTENSION);
         FLAG_DIRECTORY(Defaults.FLAG_DIRECTORY);
         // don't reset writeComm3, it's only loaded on init & changed by a separate button
+        CHECK_NOTIFICATIONS(Defaults.CHECK_NOTIFICATIONS);
     }
 
     /**
@@ -153,74 +149,6 @@ public class AppConfig {
     }
 
     /**
-     * Getter method for {@link PropKey#MAKE_RAW_OUTPUT}.
-     *
-     * @return whether the app should make "raw" file output.
-     * @see RawOutputWriter
-     * @see pl.cheily.filegen.LocalData.DataManager
-     */
-    public synchronized static boolean MAKE_RAW_OUTPUT() {
-        return _makeRawOutput;
-    }
-
-    /**
-     * Setter method for {@link PropKey#MAKE_RAW_OUTPUT}.
-     * No changes applied if the value is invalid.
-     *
-     * @param newValue
-     * @return true if value was valid & was applied, false otherwise
-     * @see #MAKE_RAW_OUTPUT()
-     */
-    public static boolean MAKE_RAW_OUTPUT(Boolean newValue) {
-        if ( !MAKE_RAW_OUTPUT.validateParam(newValue) ) return false;
-
-        boolean old;
-        synchronized (MAKE_RAW_OUTPUT) {
-            if ( newValue == _makeRawOutput ) return true;
-
-            old = _makeRawOutput;
-            _makeRawOutput = newValue;
-        }
-        _pcs.firePropertyChange(MAKE_RAW_OUTPUT.propName, old, _makeRawOutput);
-
-        return true;
-    }
-
-    /**
-     * Getter method for {@link PropKey#MAKE_HTML_OUTPUT}.
-     *
-     * @return whether the app should make browser source output.
-     * @see OutputWriter
-     * @see pl.cheily.filegen.LocalData.DataManager
-     */
-    public synchronized static boolean MAKE_HTML_OUTPUT() {
-        return _makeHtmlOutput;
-    }
-
-    /**
-     * Setter method for {@link PropKey#MAKE_HTML_OUTPUT}.
-     * No changes applied if the value is invalid.
-     *
-     * @param newValue
-     * @return true if value was valid & was applied, false otherwise
-     * @see #MAKE_HTML_OUTPUT()
-     */
-    public static boolean MAKE_HTML_OUTPUT(Boolean newValue) {
-        if ( !MAKE_HTML_OUTPUT.validateParam(newValue) ) return false;
-
-        boolean old;
-        synchronized (MAKE_HTML_OUTPUT) {
-            if ( newValue == _makeHtmlOutput ) return true;
-
-            old = _makeHtmlOutput;
-            _makeHtmlOutput = newValue;
-        }
-        _pcs.firePropertyChange(MAKE_HTML_OUTPUT.propName, old, _makeHtmlOutput);
-
-        return true;
-    }
-
-    /**
      * Getter method for {@link PropKey#GF_RADIO_ON_LABEL_MATCH}.
      *
      * @return whether the GF radio will be automatically turned on depending on the current round label.
@@ -279,39 +207,6 @@ public class AppConfig {
         }
         _pcs.firePropertyChange(WRITE_COMM_3.propName, old, _writeComm3);
 
-        return true;
-    }
-
-    /**
-     * Getter method for {@link PropKey#PUT_FLAGS}.<br/>
-     * Note that, depending on the current version, the output may be not written at all,
-     * or the flags may be substituted with a transparent pixel image.
-     *
-     * @return whether the app should write flag images in the output.
-     */
-    public synchronized static boolean PUT_FLAGS() {
-        return _putFlags;
-    }
-
-    /**
-     * Setter method for {@link PropKey#PUT_FLAGS}.
-     * No changes applied if the value is invalid.
-     *
-     * @param newValue
-     * @return true if value was valid & was applied, false otherwise
-     * @see #PUT_FLAGS()
-     */
-    public static boolean PUT_FLAGS(Boolean newValue) {
-        if ( !PUT_FLAGS.validateParam(newValue) ) return false;
-
-        boolean old;
-        synchronized (PUT_FLAGS) {
-            if ( newValue == _putFlags ) return true;
-
-            old = _putFlags;
-            _putFlags = newValue;
-        }
-        _pcs.firePropertyChange(PUT_FLAGS.propName, old, _putFlags);
         return true;
     }
 
@@ -378,6 +273,38 @@ public class AppConfig {
 
         return true;
     }
+    
+    /**
+     * Getter method for {@link PropKey#CHECK_NOTIFICATIONS}.
+     *
+     * @return the declared source directory for flag files.
+     */
+    public synchronized static boolean CHECK_NOTIFICATIONS() {
+        return _checkNotifications;
+    }
+
+    /**
+     * Setter method for {@link PropKey#CHECK_NOTIFICATIONS}.
+     * No changes applied if the value is invalid.
+     *
+     * @param newValue
+     * @return true if value was valid & was applied, false otherwise
+     * @see #CHECK_NOTIFICATIONS()
+     */
+    public static boolean CHECK_NOTIFICATIONS(boolean newValue) {
+        if ( !CHECK_NOTIFICATIONS.validateParam(newValue) ) return false;
+        boolean old;
+
+        synchronized (CHECK_NOTIFICATIONS) {
+            if (newValue == _checkNotifications) return true;
+
+            old = _checkNotifications;
+            _checkNotifications = newValue;
+        }
+        _pcs.firePropertyChange(CHECK_NOTIFICATIONS.propName, old, _checkNotifications);
+
+        return true;
+    }
 
     /*==============================DAO FRIEND ACCESS METHODS==============================*/
     public static PropertyChangeSupport getInternalPCS(ConfigDAO accessor) {
@@ -395,24 +322,9 @@ public class AppConfig {
         _autocompleteOn = val;
     }
 
-    public static void setInternalMakeRawOutput(ConfigDAO accessor, boolean val) {
-        Objects.requireNonNull(accessor);
-        _makeRawOutput = val;
-    }
-
-    public static void setInternalMakeHtmlOutput(ConfigDAO accessor, boolean val) {
-        Objects.requireNonNull(accessor);
-        _makeHtmlOutput = val;
-    }
-
     public static void setInternalGfRadio(ConfigDAO accessor, boolean val) {
         Objects.requireNonNull(accessor);
         _gfRadio = val;
-    }
-
-    public static void setInternalPutFlags(ConfigDAO accessor, boolean val) {
-        Objects.requireNonNull(accessor);
-        _putFlags = val;
     }
 
     public static void setInternalFlagExtension(ConfigDAO accessor, String val) {
@@ -428,6 +340,11 @@ public class AppConfig {
     public static void setInternalWriteComm3(ConfigDAO accessor, boolean val) {
         Objects.requireNonNull(accessor);
         _writeComm3 = val;
+    }
+
+    public static void setInternalCheckNotifications(ConfigDAO accessor, boolean val) {
+        Objects.requireNonNull(accessor);
+        _checkNotifications = val;
     }
     /*==============================DAO FRIEND ACCESS METHODS==============================*/
 }

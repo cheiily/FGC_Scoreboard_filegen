@@ -1,9 +1,8 @@
 package pl.cheily.filegen.LocalData.FileManagement.Meta.Config;
 
-import javafx.scene.control.Alert;
+import org.ini4j.Config;
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile;
-import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.PropKey;
@@ -21,20 +20,25 @@ import java.util.function.Predicate;
 
 import static pl.cheily.filegen.Configuration.AppConfig.AUTOCOMPLETE_ON;
 import static pl.cheily.filegen.Configuration.AppConfig.CHALLONGE_API;
+import static pl.cheily.filegen.Configuration.AppConfig.CHECK_NOTIFICATIONS;
 import static pl.cheily.filegen.Configuration.AppConfig.FLAG_DIRECTORY;
 import static pl.cheily.filegen.Configuration.AppConfig.FLAG_EXTENSION;
 import static pl.cheily.filegen.Configuration.AppConfig.GF_RADIO_ON_LABEL_MATCH;
-import static pl.cheily.filegen.Configuration.AppConfig.MAKE_HTML_OUTPUT;
-import static pl.cheily.filegen.Configuration.AppConfig.MAKE_RAW_OUTPUT;
-import static pl.cheily.filegen.Configuration.AppConfig.PUT_FLAGS;
 import static pl.cheily.filegen.Configuration.AppConfig.WRITE_COMM_3;
 import static pl.cheily.filegen.Configuration.PropKey.*;
 
 public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
     private static final String SECTION_NAME = "SETTINGS";
 
+    private static Config getConfig() {
+        Config config = new Config();
+        config.setMultiOption(false);
+        config.setMultiSection(false);
+        return config;
+    }
+
     public ConfigDAOIni(ResourcePath path) {
-        super(path);
+        super(path, getConfig());
         if (cache.get(SECTION_NAME) == null)
             cache.add(SECTION_NAME);
     }
@@ -48,13 +52,11 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
         List<String> vals = new ArrayList<>();
         vals.add(cfg_sec.getOrDefault(CHALLONGE_API.propName, ""));
         vals.add(cfg_sec.getOrDefault(AUTOCOMPLETE_ON.propName, ""));
-        vals.add(cfg_sec.getOrDefault(MAKE_RAW_OUTPUT.propName, ""));
-        vals.add(cfg_sec.getOrDefault(MAKE_HTML_OUTPUT.propName, ""));
         vals.add(cfg_sec.getOrDefault(GF_RADIO_ON_LABEL_MATCH.propName, ""));
-        vals.add(cfg_sec.getOrDefault(PUT_FLAGS.propName, ""));
         vals.add(cfg_sec.getOrDefault(FLAG_EXTENSION.propName, ""));
         vals.add(cfg_sec.getOrDefault(FLAG_DIRECTORY.propName, ""));
         vals.add(cfg_sec.getOrDefault(WRITE_COMM_3.propName, ""));
+        vals.add(cfg_sec.getOrDefault(CHECK_NOTIFICATIONS.propName, ""));
 
         return vals;
     }
@@ -166,13 +168,11 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
         synchronized (AppConfig.class) {
             cache.put(SECTION_NAME, CHALLONGE_API.propName, CHALLONGE_API());
             cache.put(SECTION_NAME, AUTOCOMPLETE_ON.propName, AUTOCOMPLETE_ON());
-            cache.put(SECTION_NAME, MAKE_RAW_OUTPUT.propName, MAKE_RAW_OUTPUT());
-            cache.put(SECTION_NAME, MAKE_HTML_OUTPUT.propName, MAKE_HTML_OUTPUT());
             cache.put(SECTION_NAME, GF_RADIO_ON_LABEL_MATCH.propName, GF_RADIO_ON_LABEL_MATCH());
-            cache.put(SECTION_NAME, PUT_FLAGS.propName, PUT_FLAGS());
             cache.put(SECTION_NAME, FLAG_EXTENSION.propName, FLAG_EXTENSION());
             cache.put(SECTION_NAME, FLAG_DIRECTORY.propName, FLAG_DIRECTORY());
             cache.put(SECTION_NAME, WRITE_COMM_3.propName, WRITE_COMM_3());
+            cache.put(SECTION_NAME, CHECK_NOTIFICATIONS.propName, CHECK_NOTIFICATIONS());
         }
         return store();
     }
@@ -190,23 +190,19 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
             // purposefully don't return defaults to flow into the catch clause if there are invalid values saved
             String newApi = cfg_sec.get(CHALLONGE_API.propName, String.class);
             Boolean newAutocomplete = cfg_sec.get(AUTOCOMPLETE_ON.propName, Boolean.class);
-            Boolean newRawOut = cfg_sec.get(MAKE_RAW_OUTPUT.propName, Boolean.class);
-            Boolean newHtmlOut = cfg_sec.get(MAKE_HTML_OUTPUT.propName, Boolean.class);
             Boolean newGFRadio = cfg_sec.get(GF_RADIO_ON_LABEL_MATCH.propName, Boolean.class);
-            Boolean newPutFlags = cfg_sec.get(PUT_FLAGS.propName, Boolean.class);
             String newFlagExt = cfg_sec.get(FLAG_EXTENSION.propName, String.class);
             String strFlagPth = cfg_sec.get(FLAG_DIRECTORY.propName, String.class);
             Boolean newWriteComm3 = cfg_sec.get(WRITE_COMM_3.propName, Boolean.class);
+            Boolean newCheckNotifications = cfg_sec.get(CHECK_NOTIFICATIONS.propName, Boolean.class);
 
             boolean correct = CHALLONGE_API.validateParam(newApi)
                     && AUTOCOMPLETE_ON.validateParam(newAutocomplete)
-                    && MAKE_RAW_OUTPUT.validateParam(newRawOut)
-                    && MAKE_HTML_OUTPUT.validateParam(newHtmlOut)
                     && GF_RADIO_ON_LABEL_MATCH.validateParam(newGFRadio)
-                    && PUT_FLAGS.validateParam(newPutFlags)
                     && FLAG_EXTENSION.validateParam(newFlagExt)
                     && FLAG_DIRECTORY.validateParam(strFlagPth)
-                    && WRITE_COMM_3.validateParam(newWriteComm3);
+                    && WRITE_COMM_3.validateParam(newWriteComm3)
+                    && CHECK_NOTIFICATIONS.validateParam(newCheckNotifications);
 
             if (!correct) {
                 logger.error("Invalid config.ini file - loaded data didn't pass validation.");
@@ -217,45 +213,37 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
 
             String oldApi;
             Boolean oldAutocomplete;
-            Boolean oldRawOut;
-            Boolean oldHtmlOut;
             Boolean oldGFRadio;
-            Boolean oldPutFlags;
             String oldFlagExt;
             Path oldFlagPth;
             Boolean oldWriteComm3;
+            Boolean oldCheckNotifications;
 
             synchronized (AppConfig.class) {
                 oldApi = CHALLONGE_API();
                 oldAutocomplete = AUTOCOMPLETE_ON();
-                oldRawOut = MAKE_RAW_OUTPUT();
-                oldHtmlOut = MAKE_HTML_OUTPUT();
                 oldGFRadio = GF_RADIO_ON_LABEL_MATCH();
-                oldPutFlags = PUT_FLAGS();
                 oldFlagExt = FLAG_EXTENSION();
                 oldFlagPth = FLAG_DIRECTORY();
                 oldWriteComm3 = WRITE_COMM_3();
+                oldCheckNotifications = CHECK_NOTIFICATIONS();
 
                 AppConfig.setInternalChallongeAPI(this, newApi);
                 AppConfig.setInternalAutocompleteOn(this, newAutocomplete);
-                AppConfig.setInternalMakeRawOutput(this, newRawOut);
-                AppConfig.setInternalMakeHtmlOutput(this, newHtmlOut);
                 AppConfig.setInternalGfRadio(this, newGFRadio);
-                AppConfig.setInternalPutFlags(this, newPutFlags);
                 AppConfig.setInternalFlagExtension(this, newFlagExt);
                 AppConfig.setInternalFlagDirectory(this, newFlagPth);
                 AppConfig.setInternalWriteComm3(this, newWriteComm3);
+                AppConfig.setInternalCheckNotifications(this, newCheckNotifications);
             }
 
             _pcs.firePropertyChange(CHALLONGE_API.propName, oldApi, newApi);
             _pcs.firePropertyChange(AUTOCOMPLETE_ON.propName, oldAutocomplete, newAutocomplete);
-            _pcs.firePropertyChange(MAKE_RAW_OUTPUT.propName, oldRawOut, newRawOut);
-            _pcs.firePropertyChange(MAKE_HTML_OUTPUT.propName, oldHtmlOut, newHtmlOut);
             _pcs.firePropertyChange(GF_RADIO_ON_LABEL_MATCH.propName, oldGFRadio, newGFRadio);
-            _pcs.firePropertyChange(PUT_FLAGS.propName, oldPutFlags, newPutFlags);
             _pcs.firePropertyChange(FLAG_EXTENSION.propName, oldFlagExt, newFlagExt);
             _pcs.firePropertyChange(FLAG_DIRECTORY.propName, oldFlagPth, newFlagPth);
             _pcs.firePropertyChange(WRITE_COMM_3.propName, oldWriteComm3, newWriteComm3);
+            _pcs.firePropertyChange(CHECK_NOTIFICATIONS.propName, oldCheckNotifications, newCheckNotifications);
         } catch (DataManagerNotInitializedException e) {
             logger.warn("Attempted config read while Data Manager isn't initialized.", e);
             return false;
