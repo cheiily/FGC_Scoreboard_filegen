@@ -2,7 +2,6 @@ package pl.cheily.filegen.LocalData;
 
 import com.opencsv.CSVReader;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,6 @@ import java.util.stream.Collectors;
 import static pl.cheily.filegen.LocalData.DataEventProp.*;
 import static pl.cheily.filegen.LocalData.ResourcePath.COMMS_LIST;
 import static pl.cheily.filegen.LocalData.ResourcePath.ROUND_LIST;
-import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
 
 public class DataManager {
     private final static Logger logger = LoggerFactory.getLogger(DataManager.class);
@@ -108,7 +106,7 @@ public class DataManager {
      * Initializes the Manager with the specified target directory.
      * The Manager will clear any of its stored (unsaved) data and attempt to load data from files contained within the directory.
      * The loading proceeds in the following order: <ol>
-     * <li>{@link ResourcePath#METADATA}</li>
+     * <li>{@link ResourcePath#MATCH_DATA}</li>
      * <li>Data stored within other internal files, i.e. in the "meta" directory in order to restore the previous or imported configuration.</li>
      * <li>Data stored within custom lists, i.e. in the "lists" directory - in order to complement the lists with any updates or missing entries.</li>
      * </ol>
@@ -129,7 +127,7 @@ public class DataManager {
 
         // todo change resourcepaths to ini
         var configDAOWrapper = new EventfulCachedIniDAOWrapper<>(new ConfigDAOIni(ResourcePath.CONFIG), ConfigDAO.class, CHANGED_CONFIG.name());
-        var matchDAOWrapper = new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(ResourcePath.METADATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
+        var matchDAOWrapper = new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(ResourcePath.MATCH_DATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
         var playersDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(ResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
         var commentaryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(COMMS_LIST), PlayersDAO.class, CHANGED_COMMENTARY_LIST.name());
         var roundLabelDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RoundLabelDAOIni(ROUND_LIST), RoundLabelDAO.class, CHANGED_ROUND_LABELS.name());
@@ -164,7 +162,7 @@ public class DataManager {
 
     /**
      * Writes the stored data to files.<br/>
-     * Note that the manager will only write to the {@link ResourcePath#METADATA} and output files.
+     * Note that the manager will only write to the {@link ResourcePath#MATCH_DATA} and output files.
      * The manager will NOT write any of the data contained within  or .<br>
      * In case any of the save operations failed, an {@link Alert} will be displayed, listing the filenames.
      * <p>

@@ -62,7 +62,8 @@ public enum ResourcePath {
     PLAYER_LIST("meta/player_list.ini"),
     COMMS_LIST("meta/comms_list.ini"),
     ROUND_LIST("meta/round_list.ini"),
-    METADATA("meta/metadata.ini"),
+    NOTIF_CACHE("meta/notif_cache.ini"),
+    MATCH_DATA("meta/match_data.ini"), // formerly METADATA(meta/metadata.ini)
     CONFIG("meta/config.ini"),
     WRITER_CONFIG("meta/writer_config.ini");
 

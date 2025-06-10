@@ -21,6 +21,7 @@ public class NotificationAPIChecker {
     private final static Logger logger = LoggerFactory.getLogger(NotificationAPIChecker.class);
     private static final String API_URL = "Https://cheily.one/api/sscnotif.json";
     private static final HashMap<Integer, Consumer<NotificationData>> handlerMap = new HashMap<>(2);
+    private static NotificationCache cache = new NotificationCache();
 
     public static int currentNotifs = 0;
     public static final int maxNotifs = 3;
@@ -52,6 +53,16 @@ public class NotificationAPIChecker {
                 }
                 getHandler(notif.version).accept(notif);
                 currentNotifs++;
+                cache = NotificationCache.handledNow(notif);
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(10 * 1000);
+                    } catch (InterruptedException e) {
+                        logger.error("Notification count reduce thread interrupted. Reducing anyway", e);
+                    } finally {
+                        currentNotifs--;
+                    }
+                }).start();
             });
         });
     }

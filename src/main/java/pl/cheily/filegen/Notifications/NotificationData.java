@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 public class NotificationData {
     public int version;
+    public int id;
     public boolean draft;
     public ZonedDateTime postTime;
     public int validDays;
@@ -23,8 +24,9 @@ public class NotificationData {
         }
     }
 
-    public NotificationData(int version, boolean draft, ZonedDateTime postTime, int validDays, String header, String content, ButtonData button) {
+    public NotificationData(int version, int id, boolean draft, ZonedDateTime postTime, int validDays, String header, String content, ButtonData button) {
         this.version = version;
+        this.id = id;
         this.draft = draft;
         this.postTime = postTime;
         this.validDays = validDays;
@@ -37,6 +39,7 @@ public class NotificationData {
         HashMap jsonMap = (HashMap) obj;
         return new NotificationData(
                 (int)jsonMap.get("version"),
+                (int)jsonMap.get("id"),
                 (boolean)jsonMap.get("draft"),
                 ZonedDateTime.parse((String)jsonMap.get("posttime"), DateTimeFormatter.ISO_DATE_TIME),
                 (int)jsonMap.get("validdays"),
