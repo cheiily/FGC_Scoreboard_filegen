@@ -1,5 +1,6 @@
 package pl.cheily.filegen.LocalData;
 
+import net.harawata.appdirs.AppDirsFactory;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.nio.file.Path;
@@ -62,16 +63,29 @@ public enum ResourcePath {
     PLAYER_LIST("meta/player_list.ini"),
     COMMS_LIST("meta/comms_list.ini"),
     ROUND_LIST("meta/round_list.ini"),
-    NOTIF_CACHE("meta/notif_cache.ini"),
     MATCH_DATA("meta/match_data.ini"), // formerly METADATA(meta/metadata.ini)
     CONFIG("meta/config.ini"),
-    WRITER_CONFIG("meta/writer_config.ini");
+    WRITER_CONFIG("meta/writer_config.ini"),
+    NOTIFICATION_CACHE("<persistent>/notification_cache.ini");
 
 
     private final String fileName;
 
     ResourcePath(String fileName) {
         this.fileName = fileName;
+    }
+
+    private static int _persistentDirOffset = 13;
+    private static String _persistentDataDir = null;
+    public static String persistentDataDir() {
+        if ( _persistentDataDir == null ) {
+            _persistentDataDir = Path.of(AppDirsFactory.getInstance().getUserDataDir(
+                    "SimpleScoreboardController",
+                    "_",
+                    "_cheily"
+            ) + "/").toString();
+        }
+        return _persistentDataDir;
     }
 
     /**
@@ -88,11 +102,18 @@ public enum ResourcePath {
         return null;
     }
 
+    private Path persistentPath() {
+        return Path.of(persistentDataDir() + fileName.substring(_persistentDirOffset));
+    }
+
     /**
      * @return valid absolute {@link Path}
      * @throws DataManagerNotInitializedException if {@link DataManager#isInitialized()} returns false
      */
     public Path toPath() throws DataManagerNotInitializedException {
+        if ( this.isPersistentDataPath() )
+            return this.persistentPath();
+
         // todo if key starts with DIV_, throw new exception
         if ( !ScoreboardApplication.dataManager.isInitialized() ) throw new DataManagerNotInitializedException();
 
@@ -123,6 +144,10 @@ public enum ResourcePath {
 
     public boolean isOutputFile() {
         return !this.fileName.contains("/");
+    }
+
+    public boolean isPersistentDataPath() {
+        return this.fileName.startsWith("<persistent>/");
     }
 
     // todo .format() -> .ini(), .csv(), .db() | .folder() -> .local() .appdata()
