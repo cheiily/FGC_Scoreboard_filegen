@@ -8,6 +8,7 @@ public class NotificationData {
     public int version;
     public int id;
     public boolean draft;
+    public boolean repeat;
     public ZonedDateTime postTime;
     public int validDays;
     public String header;
@@ -24,10 +25,11 @@ public class NotificationData {
         }
     }
 
-    public NotificationData(int version, int id, boolean draft, ZonedDateTime postTime, int validDays, String header, String content, ButtonData button) {
+    public NotificationData(int version, int id, boolean draft, boolean repeat, ZonedDateTime postTime, int validDays, String header, String content, ButtonData button) {
         this.version = version;
         this.id = id;
         this.draft = draft;
+        this.repeat = repeat;
         this.postTime = postTime;
         this.validDays = validDays;
         this.header = header;
@@ -41,6 +43,7 @@ public class NotificationData {
                 (int)jsonMap.get("version"),
                 (int)jsonMap.get("id"),
                 (boolean)jsonMap.get("draft"),
+                (boolean)jsonMap.get("repeat"),
                 ZonedDateTime.parse((String)jsonMap.get("posttime"), DateTimeFormatter.ISO_DATE_TIME),
                 (int)jsonMap.get("validdays"),
                 (String)jsonMap.get("header"),

@@ -24,12 +24,12 @@ public class SharedNotificationCache {
     }
 
     public static SharedNotificationCache load() {
-        return ScoreboardApplication.dataManager.notificationCacheDAO.get();
+        return ScoreboardApplication.dataManager.sharedNotificationCacheDAO.get();
     }
 
     public static SharedNotificationCache handledNow(NotificationData notification) {
         var ret = new SharedNotificationCache(notification.id, notification.postTime, ZonedDateTime.now());
-        ScoreboardApplication.dataManager.notificationCacheDAO.set(ret);
+        ScoreboardApplication.dataManager.sharedNotificationCacheDAO.set(ret);
         return ret;
     }
 }

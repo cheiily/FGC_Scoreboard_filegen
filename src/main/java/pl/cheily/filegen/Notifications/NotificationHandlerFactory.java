@@ -19,27 +19,43 @@ public class NotificationHandlerFactory {
     public static Consumer<NotificationData> version1Handler() {
         return notification -> {
             NotificationData.ButtonData button;
-            var notif = Notifications.create()
+            var display = Notifications.create()
                     .title(notification.header)
                     .text(notification.content)
                     .hideAfter(Duration.seconds(10))
                     .onAction(event -> System.out.println("here"));
             if ((button = notification.button) != null) {
-                notif.action(new Action(
+                display.action(new Action(
                         button.text,
                         event -> new Thread(() -> {
                             ScoreboardApplication.instance.getHostServices().showDocument(button.url);
+                            if (notification.repeat) {
+                                RepeatingNotificationMemory.setInteracted(notification);
+                            }
                         }).run()
                 ));
             }
-            notif.show();
+
+            // Because there is no onAction called upon clicking the close button, nor a way to subscribe or even access it from outside,
+            // we simply remove that possibility.
+            display.hideCloseButton();
+
+            if (notification.repeat) {
+                display.onAction( evt -> {
+                    RepeatingNotificationMemory.setInteracted(notification);
+                });
+
+                RepeatingNotificationMemory.incrementShowCount(notification);
+            }
+
+            display.show();
         };
     }
 
     public static Consumer<NotificationData> versionUndefinedHandler() {
         return notification -> {
             LoggerFactory.getLogger(NotificationAPIChecker.class).warn(
-                    "Received notification with undefined version: {}", notification
+                    "Received notification with undefined or unhandled version: {}", notification
             );
         };
     }

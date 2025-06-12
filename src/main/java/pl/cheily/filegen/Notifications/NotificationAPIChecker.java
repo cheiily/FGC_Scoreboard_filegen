@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.cheily.filegen.ScoreboardApplication;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -25,6 +27,7 @@ public class NotificationAPIChecker {
 
     public static int currentNotifs = 0;
     public static final int maxNotifs = 3;
+    public static final int maxRepeats = 3;
 
     public static void queueNotificationChecks() {
         cache = SharedNotificationCache.load();
@@ -46,16 +49,16 @@ public class NotificationAPIChecker {
                     .map(NotificationData::parse);
             if (!response.getBoolean("filter")) {
                 logger.debug("Notifications are not pre-filtered. Filtering them now.");
-                notifications = notifications.filter(NotificationAPIChecker::filterNotif);
+                notifications = notifications.filter(NotificationAPIChecker::filterNotifServerEquivalent);
             }
+            notifications = notifications
+                    .filter(NotificationAPIChecker::filterNotifID)
+                    .filter(NotificationAPIChecker::filterNotifRepeating);
             notifications.forEach(notif -> {
                 if (currentNotifs >= maxNotifs) {
                     logger.info("Maximum number of notifications reached.");
                     return;
                 }
-                if (notif.id <= cache.last_id)
-                    return;
-                // todo "repeat" caching
 
                 getHandler(notif.version).accept(notif);
                 currentNotifs++;
@@ -79,11 +82,7 @@ public class NotificationAPIChecker {
         return handlerMap.get(version);
     }
 
-    private static boolean filterNotif(NotificationData notification) {
-        if (notification == null) {
-            return false;
-        }
-
+    private static boolean filterNotifServerEquivalent(NotificationData notification) {
         if (notification.draft)
             return false;
 
@@ -95,6 +94,30 @@ public class NotificationAPIChecker {
             logger.error("Could not filter notification due to a date parsing error. Discarding. ", e);
             return false;
         }
+
+        return true;
+    }
+
+    private static boolean filterNotifID(NotificationData notification) {
+        if (notification.id <= cache.last_id && !notification.repeat) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean filterNotifRepeating(NotificationData notification) {
+        if (!notification.repeat)
+            return true;
+
+        RepeatingNotificationMemory memory = ScoreboardApplication.dataManager.repeatingNotificationMemoryDAO.get(notification.id);
+        if (memory == null)
+            return true;
+
+        if (memory.interacted)
+            return false;
+        if (memory.timesShown >= maxRepeats)
+            return false;
 
         return true;
     }

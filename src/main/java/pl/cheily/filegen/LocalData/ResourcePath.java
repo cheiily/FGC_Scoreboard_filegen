@@ -66,7 +66,8 @@ public enum ResourcePath {
     MATCH_DATA("meta/match_data.ini"), // formerly METADATA(meta/metadata.ini)
     CONFIG("meta/config.ini"),
     WRITER_CONFIG("meta/writer_config.ini"),
-    NOTIFICATION_CACHE("<persistent>/notification_cache.ini");
+    SHARED_NOTIFICATION_CACHE("<persistent>/notification_cache.ini"),
+    REPEATING_NOTIFICATION_MEMORY("<persistent>/notification_memory.ini");
 
 
     private final String fileName;

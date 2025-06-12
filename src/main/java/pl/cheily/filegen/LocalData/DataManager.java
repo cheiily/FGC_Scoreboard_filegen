@@ -12,6 +12,8 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.EventfulCachedIniDAOWrapp
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.RepeatingNotificationMemoryDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.RepeatingNotificationMemoryDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.SharedNotificationCacheDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.SharedNotificationCacheDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAO;
@@ -59,7 +61,8 @@ public class DataManager {
     public PlayersDAO commentaryDAO;
     public RoundLabelDAO roundLabelDAO;
     public OutputWriterDAO outputWriterDAO;
-    public SharedNotificationCacheDAO notificationCacheDAO;
+    public SharedNotificationCacheDAO sharedNotificationCacheDAO;
+    public RepeatingNotificationMemoryDAO repeatingNotificationMemoryDAO;
 
     private boolean initialized;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -104,9 +107,14 @@ public class DataManager {
      * Constructs a DataWriter.
      */
     public DataManager() {
-        var notifCacheDAOWrapper = new EventfulCachedIniDAOWrapper<>(new SharedNotificationCacheDAOIni(ResourcePath.NOTIFICATION_CACHE), SharedNotificationCacheDAOIni.class, CHANGED_NOTIFICATION_CACHE.name());
-        notifCacheDAOWrapper.subscribe(propagator);
-        notificationCacheDAO = notifCacheDAOWrapper.getDAO();
+        var sharedNotifCacheDAOWrapper = new EventfulCachedIniDAOWrapper<>(new SharedNotificationCacheDAOIni(ResourcePath.SHARED_NOTIFICATION_CACHE), SharedNotificationCacheDAOIni.class, CHANGED_NOTIFICATION_CACHE.name());
+        var repeatingNotifMemoryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RepeatingNotificationMemoryDAOIni(ResourcePath.REPEATING_NOTIFICATION_MEMORY), RepeatingNotificationMemoryDAO.class, CHANGED_REPEATING_NOTIFICATION_MEMORY.name());
+
+        sharedNotifCacheDAOWrapper.subscribe(propagator);
+        repeatingNotifMemoryDAOWrapper.subscribe(propagator);
+
+        sharedNotificationCacheDAO = sharedNotifCacheDAOWrapper.getDAO();
+        repeatingNotificationMemoryDAO = repeatingNotifMemoryDAOWrapper.getDAO();
     }
 
     /**
