@@ -12,7 +12,8 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.EventfulCachedIniDAOWrapp
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
-import pl.cheily.filegen.LocalData.FileManagement.Meta.NotificationCache.NotificationCacheDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.SharedNotificationCacheDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.SharedNotificationCacheDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
@@ -58,7 +59,7 @@ public class DataManager {
     public PlayersDAO commentaryDAO;
     public RoundLabelDAO roundLabelDAO;
     public OutputWriterDAO outputWriterDAO;
-    public NotificationCacheDAO notificationCacheDAO;
+    public SharedNotificationCacheDAO notificationCacheDAO;
 
     private boolean initialized;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -103,7 +104,7 @@ public class DataManager {
      * Constructs a DataWriter.
      */
     public DataManager() {
-        var notifCacheDAOWrapper = new EventfulCachedIniDAOWrapper<>(new NotificationCacheDAO(ResourcePath.NOTIFICATION_CACHE), NotificationCacheDAO.class, CHANGED_NOTIFICATION_CACHE.name());
+        var notifCacheDAOWrapper = new EventfulCachedIniDAOWrapper<>(new SharedNotificationCacheDAOIni(ResourcePath.NOTIFICATION_CACHE), SharedNotificationCacheDAOIni.class, CHANGED_NOTIFICATION_CACHE.name());
         notifCacheDAOWrapper.subscribe(propagator);
         notificationCacheDAO = notifCacheDAOWrapper.getDAO();
     }

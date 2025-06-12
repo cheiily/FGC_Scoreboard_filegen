@@ -21,13 +21,13 @@ public class NotificationAPIChecker {
     private final static Logger logger = LoggerFactory.getLogger(NotificationAPIChecker.class);
     private static final String API_URL = "Https://cheily.one/api/sscnotif.json";
     private static final HashMap<Integer, Consumer<NotificationData>> handlerMap = new HashMap<>(2);
-    private static NotificationCache cache = NotificationCache.empty();
+    private static SharedNotificationCache cache = SharedNotificationCache.empty();
 
     public static int currentNotifs = 0;
     public static final int maxNotifs = 3;
 
     public static void queueNotificationChecks() {
-        cache = NotificationCache.load();
+        cache = SharedNotificationCache.load();
 
         Platform.runLater(() -> {
             JSONObject response = getResponse();
@@ -53,14 +53,13 @@ public class NotificationAPIChecker {
                     logger.info("Maximum number of notifications reached.");
                     return;
                 }
-                System.out.println(notif.id + " " + cache.last_id);
                 if (notif.id <= cache.last_id)
                     return;
                 // todo "repeat" caching
 
                 getHandler(notif.version).accept(notif);
                 currentNotifs++;
-                cache = NotificationCache.handledNow(notif);
+                cache = SharedNotificationCache.handledNow(notif);
                 new Thread(() -> {
                     try {
                         Thread.sleep(10 * 1000);

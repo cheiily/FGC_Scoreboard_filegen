@@ -1,14 +1,14 @@
-package pl.cheily.filegen.LocalData.FileManagement.Meta.NotificationCache;
+package pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications;
 
 import pl.cheily.filegen.LocalData.FileManagement.Meta.StringKVCachedDAO;
 import pl.cheily.filegen.LocalData.ResourcePath;
-import pl.cheily.filegen.Notifications.NotificationCache;
+import pl.cheily.filegen.Notifications.SharedNotificationCache;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class NotificationCacheDAO extends StringKVCachedDAO {
-    public NotificationCacheDAO(ResourcePath path) {
+public class SharedNotificationCacheDAOIni extends StringKVCachedDAO implements SharedNotificationCacheDAO {
+    public SharedNotificationCacheDAOIni(ResourcePath path) {
         super(path);
     }
 
@@ -17,7 +17,8 @@ public class NotificationCacheDAO extends StringKVCachedDAO {
         return "NOTIFICATION CACHE";
     }
 
-    public void set(NotificationCache cache) {
+    @Override
+    public void set(SharedNotificationCache cache) {
         if (cache == null) return;
         set("last_id", String.valueOf(cache.last_id));
         set("last_postTime", cache.last_postTime.format(DateTimeFormatter.ISO_DATE_TIME));
@@ -25,12 +26,13 @@ public class NotificationCacheDAO extends StringKVCachedDAO {
         store();
     }
 
-    public NotificationCache get() {
+    @Override
+    public SharedNotificationCache get() {
         String lastId = get("last_id");
         String lastPostTime = get("last_postTime");
         String checkedAt = get("checked_at");
 
-        NotificationCache ret = NotificationCache.empty();
+        SharedNotificationCache ret = SharedNotificationCache.empty();
         if (lastId == null || lastId.isEmpty()) {
             ret.last_id = 0; // Default to 0 if not set
         } else {
