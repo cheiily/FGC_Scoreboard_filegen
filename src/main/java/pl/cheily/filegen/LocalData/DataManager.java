@@ -2,7 +2,6 @@ package pl.cheily.filegen.LocalData;
 
 import com.opencsv.CSVReader;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,10 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.EventfulCachedIniDAOWrapp
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.RepeatingNotificationMemoryDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.RepeatingNotificationMemoryDAOIni;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.SharedNotificationCacheDAO;
+import pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications.SharedNotificationCacheDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Players.PlayersDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
@@ -37,7 +40,6 @@ import java.util.stream.Collectors;
 import static pl.cheily.filegen.LocalData.DataEventProp.*;
 import static pl.cheily.filegen.LocalData.ResourcePath.COMMS_LIST;
 import static pl.cheily.filegen.LocalData.ResourcePath.ROUND_LIST;
-import static pl.cheily.filegen.ScoreboardApplication.dataWebSocket;
 
 public class DataManager {
     private final static Logger logger = LoggerFactory.getLogger(DataManager.class);
@@ -58,13 +60,15 @@ public class DataManager {
     public PlayersDAO playersDAO;
     public PlayersDAO commentaryDAO;
     public RoundLabelDAO roundLabelDAO;
-    private OutputWriterDAO outputWriterDAO;
+    public OutputWriterDAO outputWriterDAO;
+    public SharedNotificationCacheDAO sharedNotificationCacheDAO;
+    public RepeatingNotificationMemoryDAO repeatingNotificationMemoryDAO;
 
     private boolean initialized;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private final PropertyChangeListener propagator = evt -> pcs.firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
 
-   /**
+    /**
      * @param toProp   property to subscribe to
      * @param listener listener to add as a subscriber
      */
@@ -102,13 +106,22 @@ public class DataManager {
     /**
      * Constructs a DataWriter.
      */
-    public DataManager() {}
+    public DataManager() {
+        var sharedNotifCacheDAOWrapper = new EventfulCachedIniDAOWrapper<>(new SharedNotificationCacheDAOIni(ResourcePath.SHARED_NOTIFICATION_CACHE), SharedNotificationCacheDAOIni.class, CHANGED_NOTIFICATION_CACHE.name());
+        var repeatingNotifMemoryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RepeatingNotificationMemoryDAOIni(ResourcePath.REPEATING_NOTIFICATION_MEMORY), RepeatingNotificationMemoryDAO.class, CHANGED_REPEATING_NOTIFICATION_MEMORY.name());
+
+        sharedNotifCacheDAOWrapper.subscribe(propagator);
+        repeatingNotifMemoryDAOWrapper.subscribe(propagator);
+
+        sharedNotificationCacheDAO = sharedNotifCacheDAOWrapper.getDAO();
+        repeatingNotificationMemoryDAO = repeatingNotifMemoryDAOWrapper.getDAO();
+    }
 
     /**
      * Initializes the Manager with the specified target directory.
      * The Manager will clear any of its stored (unsaved) data and attempt to load data from files contained within the directory.
      * The loading proceeds in the following order: <ol>
-     * <li>{@link ResourcePath#METADATA}</li>
+     * <li>{@link ResourcePath#MATCH_DATA}</li>
      * <li>Data stored within other internal files, i.e. in the "meta" directory in order to restore the previous or imported configuration.</li>
      * <li>Data stored within custom lists, i.e. in the "lists" directory - in order to complement the lists with any updates or missing entries.</li>
      * </ol>
@@ -129,7 +142,7 @@ public class DataManager {
 
         // todo change resourcepaths to ini
         var configDAOWrapper = new EventfulCachedIniDAOWrapper<>(new ConfigDAOIni(ResourcePath.CONFIG), ConfigDAO.class, CHANGED_CONFIG.name());
-        var matchDAOWrapper = new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(ResourcePath.METADATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
+        var matchDAOWrapper = new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(ResourcePath.MATCH_DATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
         var playersDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(ResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
         var commentaryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(COMMS_LIST), PlayersDAO.class, CHANGED_COMMENTARY_LIST.name());
         var roundLabelDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RoundLabelDAOIni(ROUND_LIST), RoundLabelDAO.class, CHANGED_ROUND_LABELS.name());
@@ -164,7 +177,7 @@ public class DataManager {
 
     /**
      * Writes the stored data to files.<br/>
-     * Note that the manager will only write to the {@link ResourcePath#METADATA} and output files.
+     * Note that the manager will only write to the {@link ResourcePath#MATCH_DATA} and output files.
      * The manager will NOT write any of the data contained within  or .<br>
      * In case any of the save operations failed, an {@link Alert} will be displayed, listing the filenames.
      * <p>

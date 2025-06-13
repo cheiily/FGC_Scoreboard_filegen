@@ -5,6 +5,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.ToggleButton?>
@@ -19,40 +21,55 @@
    <children>
       <ToolBar layoutX="-181.0" layoutY="181.0" prefHeight="25.0" prefWidth="399.0" rotate="270.0">
         <items>
-            <ToggleButton fx:id="scene_toggle_config" mnemonicParsing="false" onAction="#on_scene_set_config" prefWidth="125.0" text="App Config" />
-            <Button mnemonicParsing="false" onAction="#on_scene_set_players" prefWidth="125.0" text="Players &amp; Comms" />
+            <ToggleButton fx:id="scene_toggle_config" mnemonicParsing="false" onAction="#on_scene_set_config" prefWidth="125.0" text="Settings" />
+            <Button mnemonicParsing="false" onAction="#on_scene_set_players" prefWidth="125.0" text="Lists" />
             <Button mnemonicParsing="false" onAction="#on_scene_set_controller" prefWidth="125.0" text="Controller" />
         </items>
       </ToolBar>
-      <Label layoutX="453.0" layoutY="378.0" text="_cheily 2023     MIT License" />
-      <Pane layoutX="36.0" layoutY="14.0" prefHeight="214.0" prefWidth="559.0">
-         <children>
-            <CheckBox fx:id="chk_out_raw" layoutX="14.0" layoutY="55.0" mnemonicParsing="false" text="Make file-based output" />
-            <PasswordField fx:id="api_key" disable="true" layoutX="14.0" layoutY="24.0" prefHeight="25.0" prefWidth="384.0" />
-            <Label disable="true" layoutX="404.0" layoutY="28.0" text="Challonge API Key" />
-            <CheckBox fx:id="chk_out_html" disable="true" layoutX="14.0" layoutY="75.0" mnemonicParsing="false" text="Make html (browser source) output" />
-            <CheckBox fx:id="chk_ac_on" layoutX="14.0" layoutY="115.0" mnemonicParsing="false" text="Make search suggestions in controller combo boxes" />
-            <CheckBox fx:id="chk_out_flags" layoutX="14.0" layoutY="95.0" mnemonicParsing="false" text="Put flags in output" />
-            <CheckBox fx:id="chk_gf_radio" layoutX="14.0" layoutY="135.0" mnemonicParsing="false" text="Turn on GF radio toggle when round label matches &quot;gran(d)&quot;" />
-            <CheckBox fx:id="chk_comm3_out" layoutX="14.0" layoutY="155.0" mnemonicParsing="false" text="Make output files for a third commentator when not selected" />
-            <Label layoutX="14.0" text="General settings">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-            <Separator layoutX="109.0" layoutY="8.0" prefHeight="3.0" prefWidth="447.0" />
-            <HBox layoutX="14.0" layoutY="181.0" prefHeight="25.0" prefWidth="264.0">
-               <children>
-                  <Button mnemonicParsing="false" onAction="#onApplyConfig" text="✔Apply" />
-                  <Button mnemonicParsing="false" onAction="#onSaveConfig" text="💾Save" />
-                  <Button mnemonicParsing="false" onAction="#onResetConfig" text="❌Reset" />
-                  <Button mnemonicParsing="false" onAction="#onReloadConfig" text="🔃Reload" />
-                  <ImageView fx:id="resultImgView" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true" />
-               </children>
-            </HBox>
-         </children>
-      </Pane>
-      <Pane layoutX="36.0" layoutY="228.0" prefHeight="153.0" prefWidth="559.0">
+      <Label layoutX="453.0" layoutY="378.0" text="_cheily 2023     MIT License" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="14.0" />
+      <TabPane fx:id="tabpane" layoutX="41.0" layoutY="14.0" prefHeight="214.0" prefWidth="559.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab fx:id="tab_general" text="General settings">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="559.0">
+                     <children>
+                        <PasswordField fx:id="api_key" disable="true" layoutY="14.0" prefHeight="25.0" prefWidth="384.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                        <Label disable="true" layoutX="400.0" layoutY="14.0" text="Challonge API Key" AnchorPane.topAnchor="14.0" />
+                        <CheckBox fx:id="chk_ac_on" layoutY="47.0" mnemonicParsing="false" text="Make search suggestions in controller combo boxes" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="40.0" />
+                        <CheckBox fx:id="chk_gf_radio" layoutX="11.0" layoutY="64.0" mnemonicParsing="false" text="Turn on GF radio toggle when round label matches &quot;gran(d)&quot;" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="60.0" />
+                        <CheckBox fx:id="chk_comm3_out" layoutX="9.0" layoutY="84.0" mnemonicParsing="false" text="Make output files for a third commentator when not selected" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="80.0" />
+                        <CheckBox fx:id="chk_notif" layoutX="10.0" layoutY="108.0" mnemonicParsing="false" text="Check for notifications on startup" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="100.0" />
+                        <HBox prefHeight="25.0" prefWidth="264.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#onApplyConfig" text="✔Apply" />
+                              <Button mnemonicParsing="false" onAction="#onSaveConfig" text="💾Save" />
+                              <Button mnemonicParsing="false" onAction="#onResetConfig" text="❌Reset" />
+                              <Button mnemonicParsing="false" onAction="#onReloadConfig" text="🔃Reload" />
+                              <ImageView fx:id="resultImgView" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab fx:id="tab_res" text="Resources">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="table_resources" layoutY="1.0" prefHeight="170.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <columns>
+                            <TableColumn fx:id="col_res_name" prefWidth="288.0" text="Module" />
+                            <TableColumn fx:id="col_res_size" minWidth="0.0" prefWidth="125.0" text="Size" />
+                              <TableColumn fx:id="col_res_action" prefWidth="144.0" text="Action" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+      <Pane layoutX="36.0" layoutY="238.0" prefHeight="142.0" prefWidth="559.0">
          <children>
             <TableView fx:id="table_writers" layoutX="14.0" layoutY="32.0" prefHeight="103.0" prefWidth="545.0">
               <columns>
@@ -71,12 +88,12 @@
                      </graphic></TableColumn>
               </columns>
             </TableView>
-            <Label layoutX="18.0" layoutY="4.0" text="Output settings">
+            <Label layoutX="14.0" layoutY="4.0" text="Output settings">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>
             </Label>
-            <Separator layoutX="113.0" layoutY="12.0" prefHeight="3.0" prefWidth="270.0" />
+            <Separator layoutX="106.0" layoutY="12.0" prefHeight="3.0" prefWidth="277.0" />
             <Button layoutX="388.0" mnemonicParsing="false" onAction="#on_restore_writers" text="Restore default configuration" />
          </children>
       </Pane>

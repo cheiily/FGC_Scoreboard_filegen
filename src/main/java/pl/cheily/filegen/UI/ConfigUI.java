@@ -48,6 +48,7 @@ public class ConfigUI implements Initializable {
     public CheckBox chk_out_flags;
     public CheckBox chk_gf_radio;
     public CheckBox chk_comm3_out;
+    public CheckBox chk_notif;
     public ImageView resultImgView;
     public TableView table_writers;
     public TableColumn col_wrt_enabled;
@@ -57,6 +58,10 @@ public class ConfigUI implements Initializable {
     public TableColumn col_wrt_fmt_name;
     public TableColumn col_wrt_fmt_count;
     public TableColumn col_wrt_action;
+    public TableView table_resources;
+    public TableColumn col_res_name;
+    public TableColumn col_res_size;
+    public TableColumn col_res_action;
 
     private final PropertyChangeListener listener = new PropertyChangeListener() {
         @Override
@@ -65,6 +70,7 @@ public class ConfigUI implements Initializable {
             table_writers.getItems().addAll(dataManager.getWriters());
         }
     };
+
     {
         dataManager.subscribe(DataEventProp.INIT, listener);
         dataManager.subscribe(DataEventProp.CHANGED_OUTPUT_WRITERS, listener);
@@ -175,11 +181,9 @@ public class ConfigUI implements Initializable {
                 }
                 case CHALLONGE_API -> api_key.setText((String) evt.getNewValue());
                 case AUTOCOMPLETE_ON -> chk_ac_on.setSelected((Boolean) evt.getNewValue());
-                case MAKE_RAW_OUTPUT -> chk_out_raw.setSelected((Boolean) evt.getNewValue());
-                case MAKE_HTML_OUTPUT -> chk_out_html.setSelected((Boolean) evt.getNewValue());
                 case GF_RADIO_ON_LABEL_MATCH -> chk_gf_radio.setSelected((Boolean) evt.getNewValue());
-                case PUT_FLAGS -> chk_out_flags.setSelected((Boolean) evt.getNewValue());
                 case WRITE_COMM_3 -> chk_comm3_out.setSelected((Boolean) evt.getNewValue());
+                case CHECK_NOTIFICATIONS -> chk_notif.setSelected((Boolean) evt.getNewValue());
             }
         }
     };
@@ -198,11 +202,9 @@ public class ConfigUI implements Initializable {
         //load initial cfg
         api_key.setText(AppConfig.CHALLONGE_API());
         chk_ac_on.setSelected(AppConfig.AUTOCOMPLETE_ON());
-        chk_out_raw.setSelected(AppConfig.MAKE_RAW_OUTPUT());
-        chk_out_html.setSelected(AppConfig.MAKE_HTML_OUTPUT());
         chk_gf_radio.setSelected(AppConfig.GF_RADIO_ON_LABEL_MATCH());
-        chk_out_flags.setSelected(AppConfig.PUT_FLAGS());
         chk_comm3_out.setSelected(AppConfig.WRITE_COMM_3());
+        chk_notif.setSelected(AppConfig.CHECK_NOTIFICATIONS());
 
         //listen for resets, loads, etc.
         AppConfig.subscribeAll(configListener);
@@ -260,11 +262,9 @@ public class ConfigUI implements Initializable {
     public void onApplyConfig() {
         boolean success = AppConfig.CHALLONGE_API(api_key.getText())
                 && AppConfig.AUTOCOMPLETE_ON(chk_ac_on.isSelected())
-                && AppConfig.MAKE_RAW_OUTPUT(chk_out_raw.isSelected())
-                && AppConfig.MAKE_HTML_OUTPUT(chk_out_html.isSelected())
                 && AppConfig.GF_RADIO_ON_LABEL_MATCH(chk_gf_radio.isSelected())
-                && AppConfig.PUT_FLAGS(chk_out_flags.isSelected())
-                && AppConfig.WRITE_COMM_3(chk_comm3_out.isSelected());
+                && AppConfig.WRITE_COMM_3(chk_comm3_out.isSelected())
+                && AppConfig.CHECK_NOTIFICATIONS(chk_notif.isSelected());
 
         if ( !success ) {
             new Thread(displayNOK).start();
@@ -283,20 +283,19 @@ public class ConfigUI implements Initializable {
      * @see ConfigUI#displayNOK
      */
     public void onSaveConfig() {
+        onApplyConfig();
+
         if ( !dataManager.isInitialized() ) {
             new Thread(displayNOK).start();
-            onApplyConfig();
             new Alert(AlertType.WARNING, "No working directory selected - cannot save config to file! Changes were applied to the running configuration.").show();
             return;
         }
 
         if ( dataManager.configDAO.saveAll() ) {
-            onApplyConfig();
             new Thread(displayOK).start();
         } else {
             new Thread(displayNOK).start();
             new Alert(AlertType.WARNING, "Couldn't store configuration to " + ResourcePath.CONFIG + "! Changes were applied.").show();
-            onApplyConfig();
         }
 
 
@@ -335,10 +334,9 @@ public class ConfigUI implements Initializable {
         AppConfig.reset();
         api_key.setText(AppConfig.CHALLONGE_API());
         chk_ac_on.setSelected(AppConfig.AUTOCOMPLETE_ON());
-        chk_out_raw.setSelected(AppConfig.MAKE_RAW_OUTPUT());
-        chk_out_html.setSelected(AppConfig.MAKE_HTML_OUTPUT());
         chk_gf_radio.setSelected(AppConfig.GF_RADIO_ON_LABEL_MATCH());
-        chk_out_flags.setSelected(AppConfig.PUT_FLAGS());
+        chk_comm3_out.setSelected(AppConfig.WRITE_COMM_3());
+        chk_notif.setSelected(AppConfig.CHECK_NOTIFICATIONS());
 
         new Thread(displayOK).start();
     }

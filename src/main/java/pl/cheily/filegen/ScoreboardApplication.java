@@ -8,14 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.DataWebSocket;
-import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.DefaultOutputFormatter;
-import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.RawOutputWriter;
+import pl.cheily.filegen.Notifications.NotificationAPIChecker;
+import pl.cheily.filegen.Notifications.VersionChecker;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class ScoreboardApplication extends Application {
     public static ScoreboardApplication instance;
@@ -61,6 +58,8 @@ public class ScoreboardApplication extends Application {
         mainStage.show();
 
         VersionChecker.queueUpdateCheck();
+        // todo load persistent config on init & only check for updates if allowed
+        NotificationAPIChecker.queueNotificationChecks();
 //        dataWebSocket.start();
 //
 //        // Destruct the server on app closure.
