@@ -6,7 +6,6 @@ import org.controlsfx.control.Notifications;
 import org.controlsfx.control.action.Action;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONParserConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.cheily.filegen.Launcher;
@@ -26,6 +25,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class VersionChecker {
     private final static Logger logger = LoggerFactory.getLogger(VersionChecker.class);
@@ -36,15 +38,17 @@ public class VersionChecker {
         boolean isNew;
         String count;
         String url;
-        String downloadUrl;
-        Long size;
+        List<String> assetDownloadURLs;
+        List<Long> sizes;
+        Long totalSize;
 
-        public VersionData(boolean isNew, String count, String url, String downloadUrl, Long size) {
+        public VersionData(boolean isNew, String count, String url, List<String> assetDownloadURLs, List<Long> sizes, Long totalSize) {
             this.isNew = isNew;
             this.count = count;
             this.url = url;
-            this.downloadUrl = downloadUrl;
-            this.size = size;
+            this.assetDownloadURLs = assetDownloadURLs;
+            this.sizes = sizes;
+            this.totalSize = totalSize;
         }
 
         @Override
@@ -53,8 +57,8 @@ public class VersionChecker {
                     "isNew=" + isNew +
                     ", count='" + count + '\'' +
                     ", url='" + url + '\'' +
-                    ", downloadUrl='" + downloadUrl + '\'' +
-                    ", size=" + size +
+                    ", assetDownloadURLs=[" + String.join(",", assetDownloadURLs) + ']' +
+                    ", size=" + totalSize +
                     '}';
         }
     }
@@ -79,15 +83,20 @@ public class VersionChecker {
                                     Notifications.create()
                                         .title("Download complete.")
                                         .text(result.second())
+                                        .hideAfter(Duration.seconds(10))
+                                        .hideCloseButton() // for consistency with the API notifications
                                         .showConfirm();
                                 else
                                     Notifications.create()
                                         .title("Download failed.")
-                                        .text("Failed to download new release. " + result.second())
+                                        .text(result.second())
+                                        .hideAfter(Duration.seconds(10))
+                                        .hideCloseButton() // for consistency with the API notifications
                                         .showError();
                             }).run();
                         }))
                     .hideAfter(Duration.seconds(10))
+                    .hideCloseButton() // for consistency with the API notifications
                     .show();
         });
     }
@@ -130,16 +139,26 @@ public class VersionChecker {
         JSONObject release = json.getJSONObject(0);
         String newestVer = release.getString("tag_name");
         String url = release.getString("html_url");
-        String downloadUrl = release.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
-        long size = release.getJSONArray("assets").getJSONObject(0).getLong("size");
+        AtomicLong totalSize = new AtomicLong();
+
+        JSONArray assets = release.getJSONArray("assets");
+        ArrayList<String> assetDownloadURLs = new ArrayList<>(assets.length());
+        ArrayList<Long> sizes = new ArrayList<>(assets.length());
+        assets.forEach(jasset -> {
+            var asset = (JSONObject) jasset;
+            assetDownloadURLs.add(asset.getString("browser_download_url"));
+            long size = asset.getLong("size");
+            sizes.add(size);
+            totalSize.addAndGet(size);
+        });
 
         if (compareSemVer(currentVer, newestVer) < 0) {
-            VersionData versionData = new VersionData(true, newestVer, url, downloadUrl, size);
+            VersionData versionData = new VersionData(true, newestVer, url, assetDownloadURLs, sizes, totalSize.get());
             logger.info("New version available: {}", versionData);
             return versionData;
         } else {
             logger.info("Current version {} is up to date (new: {}).", currentVer, newestVer);
-            return new VersionData(false, newestVer, url, downloadUrl, size);
+            return new VersionData(false, newestVer, url, assetDownloadURLs, sizes, totalSize.get());
         }
     }
 
@@ -158,58 +177,71 @@ public class VersionChecker {
         return vers1.compareTo(vers2);
     }
 
-    private static Path getJarPath() throws URISyntaxException {
-        Path jarPath = Path.of(ScoreboardApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
-        logger.debug("Jar path: {}", jarPath);
-        if (jarPath.toString().startsWith("file:/")) {
-            jarPath = Path.of(jarPath.toString().substring(5));
+    private static Path getJarPath() {
+        try {
+            Path jarPath = Path.of(ScoreboardApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+            if (jarPath.toString().startsWith("file:/")) {
+                jarPath = Path.of(jarPath.toString().substring(5));
+            }
+            return jarPath;
+        } catch (URISyntaxException e) {
+            logger.error("Failed to locate jar path.", e);
+            return null;
         }
-        logger.debug("Jar path: {}", jarPath);
-        return jarPath;
     }
 
     private static Pair<Boolean, String> downloadRelease(VersionData version) {
-        try {
-            logger.info("Downloading version: {}", version);
+        Pair<Boolean, String> totalResult = new Pair<>(true, "");
 
-            URL downloadUrl = new URL(version.downloadUrl);
+        Path directory = getJarPath().resolve("filegen-" + version.count);
+
+        for (int i = 0; i < version.assetDownloadURLs.size(); i++) {
+            var result = downloadFile(version.assetDownloadURLs.get(i), directory, version.sizes.get(i));
+            totalResult = new Pair<>(
+                    totalResult.first() && result.first(),
+                    totalResult.second() + result.second() + '\n'
+            );
+        }
+
+        if (totalResult.first())
+            totalResult = new Pair<>(
+                    true,
+                    "Saved new release to: " + directory + ".\nNew version ready to launch."
+            );
+        return totalResult;
+    }
+
+    private static Pair<Boolean, String> downloadFile(String URL, Path directory, long size) {
+        try {
+            logger.trace("Downloading file: {}", URL);
+
+            URL downloadUrl = new URL(URL);
             HttpsURLConnection connection = (HttpsURLConnection) downloadUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/octet-stream");
 
-            boolean replacedOld = false;
-            Path target = getJarPath().resolve("filegen.jar").toAbsolutePath();
+            Path target = directory.resolve(Path.of(downloadUrl.getPath()).getFileName()).toAbsolutePath();
+
             if (Files.exists(target)) {
-                logger.info("Removing old filegen.jar");
-                try {
-                    Files.delete(target);
-                } catch (Exception e) {
-                    logger.error("Failed to delete old filegen.jar. Creating a second file.", e);
-                }
+                logger.warn("Target path exists, aborting download: {}", target);
+                return new Pair<>(false, "File already exists: " + target);
             }
-            replacedOld = !Files.exists(target);
-            if (!replacedOld) {
-                target = target.getParent().resolve("filegen-" + version.count + ".jar").toAbsolutePath();
-                int i = 1;
-                while (Files.exists(target)) {
-                    target = target.getParent().resolve("filegen-" + version.count + "-" + i + ".jar").toAbsolutePath();
-                    i++;
-                }
-            }
+
+            Files.createDirectories(target.getParent());
             Files.createFile(target);
 
             try (FileChannel out = FileChannel.open(target, java.nio.file.StandardOpenOption.WRITE);
-                ReadableByteChannel in = Channels.newChannel(connection.getInputStream())) {
+                 ReadableByteChannel in = Channels.newChannel(connection.getInputStream())) {
                 long bytesTransferred = 0;
-                while (bytesTransferred < version.size) {
-                    long bytes = out.transferFrom(in, bytesTransferred, version.size - bytesTransferred);
-                    logger.debug("Downloaded {} bytes to {}", bytes, target);
+                while (bytesTransferred < size) {
+                    long bytes = out.transferFrom(in, bytesTransferred, size - bytesTransferred);
+                    logger.trace("Downloaded {} bytes to {}", bytes, target);
                     bytesTransferred += bytes;
                 }
                 logger.info("Download complete. Total {} bytes. File saved to {}", bytesTransferred, target.toAbsolutePath());
             }
 
-            return new Pair<>(true, (replacedOld ? "Replaced old version @ " : "Saved release to: ") + target.toString() + ".\nRestart the application now to apply changes.");
+            return new Pair<>(true, "Saved release to: " + target + ".\nNew version ready to launch.");
 
         } catch (MalformedURLException e) {
             logger.error("Failed to download release: Invalid URL.", e);
