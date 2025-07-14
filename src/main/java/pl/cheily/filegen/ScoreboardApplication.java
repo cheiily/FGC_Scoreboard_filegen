@@ -10,6 +10,7 @@ import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.DataWebSocket;
 import pl.cheily.filegen.Notifications.NotificationAPIChecker;
 import pl.cheily.filegen.Notifications.VersionChecker;
+import pl.cheily.filegen.ResourceModules.ResourceModuleDefinitionFetcher;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -60,6 +61,8 @@ public class ScoreboardApplication extends Application {
         VersionChecker.queueUpdateCheck();
         // todo load persistent config on init & only check for updates if allowed
         NotificationAPIChecker.queueNotificationChecks();
+        var defs = ResourceModuleDefinitionFetcher.fetchResourceModuleDefinitions();
+        System.out.println("here");
 //        dataWebSocket.start();
 //
 //        // Destruct the server on app closure.

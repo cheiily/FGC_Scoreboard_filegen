@@ -12,6 +12,7 @@ module pl.cheily.filegen {
     requires ch.qos.logback.core;
     requires org.controlsfx.controls;
     requires net.harawata.appdirs;
+    requires java.logging;
 
     opens pl.cheily.filegen to javafx.fxml;
     exports pl.cheily.filegen;
