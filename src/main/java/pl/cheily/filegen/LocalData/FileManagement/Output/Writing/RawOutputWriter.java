@@ -6,7 +6,7 @@ import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatter;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class RawOutputWriter extends OutputWriterBase {
                     Files.createFile(filePath);
                 }
 
-                if (entry.getKey() == ResourcePath.P1_FLAG || entry.getKey() == ResourcePath.P2_FLAG || entry.getKey() == ResourcePath.C1_FLAG || entry.getKey() == ResourcePath.C2_FLAG || entry.getKey() == ResourcePath.C3_FLAG) {
+                if (entry.getKey() == LocalResourcePath.P1_FLAG || entry.getKey() == LocalResourcePath.P2_FLAG || entry.getKey() == LocalResourcePath.C1_FLAG || entry.getKey() == LocalResourcePath.C2_FLAG || entry.getKey() == LocalResourcePath.C3_FLAG) {
                     Path sourceFlag = Path.of(dataManager.flagsDir + "/" + entry.getValue());
 
                     if (sourceFlag.toString().equals(AppConfig.FLAG_EXTENSION()) || entry.getValue().isEmpty()) {

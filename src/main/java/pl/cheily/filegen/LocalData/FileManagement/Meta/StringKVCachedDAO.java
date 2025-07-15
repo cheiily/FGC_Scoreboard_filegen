@@ -1,7 +1,7 @@
 package pl.cheily.filegen.LocalData.FileManagement.Meta;
 
 import org.ini4j.Profile;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 public abstract class StringKVCachedDAO extends CachedIniDAOBase implements DAO<String> {
     protected abstract String sectionName();
 
-    protected StringKVCachedDAO(ResourcePath path) {
+    protected StringKVCachedDAO(LocalResourcePath path) {
         super(path);
         if (cache.get(sectionName()) == null)
             cache.add(sectionName());

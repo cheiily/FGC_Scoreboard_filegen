@@ -1,17 +1,10 @@
 package pl.cheily.filegen.LocalData.FileManagement.Meta.Match;
 
-import org.ini4j.Ini;
-import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MarkerFactory;
-import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +13,7 @@ import java.util.function.Predicate;
 public class MatchDAOIni extends CachedIniDAOBase implements MatchDAO {
     private static final String SECTION_NAME = "MATCH DATA";
 
-    public MatchDAOIni(ResourcePath path) {
+    public MatchDAOIni(LocalResourcePath path) {
         super(path);
         if (cache.get(SECTION_NAME) == null)
             cache.add(SECTION_NAME);

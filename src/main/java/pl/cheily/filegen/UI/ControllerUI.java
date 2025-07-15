@@ -4,16 +4,12 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import pl.cheily.filegen.Configuration.AppConfig;
@@ -22,7 +18,7 @@ import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
 import pl.cheily.filegen.LocalData.Player;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.AutocompleteWrapper;
 
@@ -187,8 +183,8 @@ public class ControllerUI implements Initializable {
         try ( Stream<Path> flags = Files.walk(dataManager.flagsDir) ) {
             flags.filter(path -> path.toString().endsWith(".png"))
                     .filter(path ->
-                            !path.getFileName().toString().equals(ResourcePath.P1_FLAG.toString())
-                                    && !path.getFileName().toString().equals(ResourcePath.P2_FLAG.toString()))
+                            !path.getFileName().toString().equals(LocalResourcePath.P1_FLAG.toString())
+                                    && !path.getFileName().toString().equals(LocalResourcePath.P2_FLAG.toString()))
                     .map(path -> path.getFileName().toString().split("\\.")[ 0 ])
                     .forEach(path -> {
                         f1_opts.add(path.toUpperCase());

@@ -9,23 +9,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.util.Callback;
-import javafx.util.StringConverter;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.PropKey;
 import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.DataManager;
-import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatter;
-import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatterType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
-import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
-import pl.cheily.filegen.LocalData.Player;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.beans.PropertyChangeEvent;
@@ -274,7 +267,7 @@ public class ConfigUI implements Initializable {
     }
 
     /**
-     * Attempts to store settings to {@link ResourcePath#CONFIG}.
+     * Attempts to store settings to {@link LocalResourcePath#CONFIG}.
      * Applies them on success, asks where they should be applied on failure.<br>
      * Displays result.
      *
@@ -295,7 +288,7 @@ public class ConfigUI implements Initializable {
             new Thread(displayOK).start();
         } else {
             new Thread(displayNOK).start();
-            new Alert(AlertType.WARNING, "Couldn't store configuration to " + ResourcePath.CONFIG + "! Changes were applied.").show();
+            new Alert(AlertType.WARNING, "Couldn't store configuration to " + LocalResourcePath.CONFIG + "! Changes were applied.").show();
         }
 
 
@@ -318,7 +311,7 @@ public class ConfigUI implements Initializable {
 
         if ( !dataManager.configDAO.loadAll() ) {
             new Thread(displayNOK).start();
-            new Alert(AlertType.WARNING, "Couldn't load configuration from " + ResourcePath.CONFIG + ".").show();
+            new Alert(AlertType.WARNING, "Couldn't load configuration from " + LocalResourcePath.CONFIG + ".").show();
         } else
             new Thread(displayOK).start();
     }

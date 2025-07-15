@@ -38,8 +38,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static pl.cheily.filegen.LocalData.DataEventProp.*;
-import static pl.cheily.filegen.LocalData.ResourcePath.COMMS_LIST;
-import static pl.cheily.filegen.LocalData.ResourcePath.ROUND_LIST;
+import static pl.cheily.filegen.LocalData.LocalResourcePath.COMMS_LIST;
+import static pl.cheily.filegen.LocalData.LocalResourcePath.ROUND_LIST;
 
 public class DataManager {
     private final static Logger logger = LoggerFactory.getLogger(DataManager.class);
@@ -107,8 +107,8 @@ public class DataManager {
      * Constructs a DataWriter.
      */
     public DataManager() {
-        var sharedNotifCacheDAOWrapper = new EventfulCachedIniDAOWrapper<>(new SharedNotificationCacheDAOIni(ResourcePath.SHARED_NOTIFICATION_CACHE), SharedNotificationCacheDAOIni.class, CHANGED_NOTIFICATION_CACHE.name());
-        var repeatingNotifMemoryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RepeatingNotificationMemoryDAOIni(ResourcePath.REPEATING_NOTIFICATION_MEMORY), RepeatingNotificationMemoryDAO.class, CHANGED_REPEATING_NOTIFICATION_MEMORY.name());
+        var sharedNotifCacheDAOWrapper = new EventfulCachedIniDAOWrapper<>(new SharedNotificationCacheDAOIni(LocalResourcePath.SHARED_NOTIFICATION_CACHE), SharedNotificationCacheDAOIni.class, CHANGED_NOTIFICATION_CACHE.name());
+        var repeatingNotifMemoryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RepeatingNotificationMemoryDAOIni(LocalResourcePath.REPEATING_NOTIFICATION_MEMORY), RepeatingNotificationMemoryDAO.class, CHANGED_REPEATING_NOTIFICATION_MEMORY.name());
 
         sharedNotifCacheDAOWrapper.subscribe(propagator);
         repeatingNotifMemoryDAOWrapper.subscribe(propagator);
@@ -121,7 +121,7 @@ public class DataManager {
      * Initializes the Manager with the specified target directory.
      * The Manager will clear any of its stored (unsaved) data and attempt to load data from files contained within the directory.
      * The loading proceeds in the following order: <ol>
-     * <li>{@link ResourcePath#MATCH_DATA}</li>
+     * <li>{@link LocalResourcePath#MATCH_DATA}</li>
      * <li>Data stored within other internal files, i.e. in the "meta" directory in order to restore the previous or imported configuration.</li>
      * <li>Data stored within custom lists, i.e. in the "lists" directory - in order to complement the lists with any updates or missing entries.</li>
      * </ol>
@@ -141,12 +141,12 @@ public class DataManager {
         this.targetDir = targetDir;
 
         // todo change resourcepaths to ini
-        var configDAOWrapper = new EventfulCachedIniDAOWrapper<>(new ConfigDAOIni(ResourcePath.CONFIG), ConfigDAO.class, CHANGED_CONFIG.name());
-        var matchDAOWrapper = new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(ResourcePath.MATCH_DATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
-        var playersDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(ResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
+        var configDAOWrapper = new EventfulCachedIniDAOWrapper<>(new ConfigDAOIni(LocalResourcePath.CONFIG), ConfigDAO.class, CHANGED_CONFIG.name());
+        var matchDAOWrapper = new EventfulCachedIniDAOWrapper<>(new MatchDAOIni(LocalResourcePath.MATCH_DATA), MatchDAO.class, CHANGED_MATCH_DATA.name());
+        var playersDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(LocalResourcePath.PLAYER_LIST), PlayersDAO.class, CHANGED_PLAYER_LIST.name());
         var commentaryDAOWrapper = new EventfulCachedIniDAOWrapper<>(new PlayersDAOIni(COMMS_LIST), PlayersDAO.class, CHANGED_COMMENTARY_LIST.name());
         var roundLabelDAOWrapper = new EventfulCachedIniDAOWrapper<>(new RoundLabelDAOIni(ROUND_LIST), RoundLabelDAO.class, CHANGED_ROUND_LABELS.name());
-        var outputWriterDAOWrapper = new EventfulCachedIniDAOWrapper<>(new OutputWriterDAOIni(ResourcePath.WRITER_CONFIG), OutputWriterDAO.class, CHANGED_OUTPUT_WRITERS.name());
+        var outputWriterDAOWrapper = new EventfulCachedIniDAOWrapper<>(new OutputWriterDAOIni(LocalResourcePath.WRITER_CONFIG), OutputWriterDAO.class, CHANGED_OUTPUT_WRITERS.name());
 
         configDAOWrapper.subscribe(propagator);
         matchDAOWrapper.subscribe(propagator);
@@ -177,7 +177,7 @@ public class DataManager {
 
     /**
      * Writes the stored data to files.<br/>
-     * Note that the manager will only write to the {@link ResourcePath#MATCH_DATA} and output files.
+     * Note that the manager will only write to the {@link LocalResourcePath#MATCH_DATA} and output files.
      * The manager will NOT write any of the data contained within  or .<br>
      * In case any of the save operations failed, an {@link Alert} will be displayed, listing the filenames.
      * <p>

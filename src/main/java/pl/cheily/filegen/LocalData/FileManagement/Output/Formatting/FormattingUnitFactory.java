@@ -2,7 +2,7 @@ package pl.cheily.filegen.LocalData.FileManagement.Output.Formatting;
 
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.Utils.Pair;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class FormattingUnitFactory {
     }
 
     //-------------------Preset formatter method (required for deserialization) & factory methods-------------------
-    public static FormattingUnit oneToOnePass(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput) {
+    public static FormattingUnit oneToOnePass(List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput) {
         return new FormattingUnit(true, inputKeys, destination, sampleOutput, FormattingUnitFactory::oneToOnePassFmt, null, FormattingUnitMethodReference.ONE_TO_ONE_PASS);
     }
     public static String oneToOnePassFmt(String... params) {
@@ -46,7 +46,7 @@ public class FormattingUnitFactory {
     }
 
 
-    public static FormattingUnit findFlagFile(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput) {
+    public static FormattingUnit findFlagFile(List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput) {
         return new FormattingUnit(true, inputKeys, destination, sampleOutput, FormattingUnitFactory::findFlagFileFmt, null, FormattingUnitMethodReference.FIND_FLAG_FILE);
     }
 
@@ -62,7 +62,7 @@ public class FormattingUnitFactory {
     }
 
 
-    public static FormattingUnit customInterpolate(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput, String customInterpolationFormat) {
+    public static FormattingUnit customInterpolate(List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput, String customInterpolationFormat) {
         var fmt = new FormattingUnit(true, inputKeys, destination, sampleOutput, null, customInterpolationFormat, FormattingUnitMethodReference.CUSTOM_INTERPOLATION);
         fmt.format = (String... params) -> FormattingUnitFactory.customInterpolateFmt(inputKeys, customInterpolationFormat, params);
         return fmt;
@@ -193,7 +193,7 @@ public class FormattingUnitFactory {
     }
 
     //-------------------Default formatter methods-------------------
-    public static FormattingUnit default_P1Name(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput) {
+    public static FormattingUnit default_P1Name(List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput) {
         return new FormattingUnit(true, inputKeys, destination, sampleOutput, FormattingUnitFactory::default_formatP1Name, null, FormattingUnitMethodReference.DEFAULT_FORMAT_P1_NAME);
     }
     public static String default_formatP1Name(String... params) {
@@ -206,7 +206,7 @@ public class FormattingUnitFactory {
     };
 
 
-    public static FormattingUnit default_P2Name(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput) {
+    public static FormattingUnit default_P2Name(List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput) {
         return new FormattingUnit(true, inputKeys, destination, sampleOutput, FormattingUnitFactory::default_formatP2Name, null, FormattingUnitMethodReference.DEFAULT_FORMAT_P2_NAME);
     }
     public static String default_formatP2Name(String... params) {
@@ -219,7 +219,7 @@ public class FormattingUnitFactory {
     };
 
 
-    public static FormattingUnit default_commName(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput) {
+    public static FormattingUnit default_commName(List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput) {
         return new FormattingUnit(true, inputKeys, destination, sampleOutput, FormattingUnitFactory::default_formatCommName, null, FormattingUnitMethodReference.DEFAULT_FORMAT_COMM_NAME);
     }
     public static String default_formatCommName(String... params) {
@@ -230,7 +230,7 @@ public class FormattingUnitFactory {
     };
 
 
-    public static FormattingUnit fspr_playerLoserIndicator(List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput) {
+    public static FormattingUnit fspr_playerLoserIndicator(List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput) {
         return new FormattingUnit(true, inputKeys, destination, sampleOutput, FormattingUnitFactory::fspr_formatPlayerLoserIndicator, null, FormattingUnitMethodReference.FSPR_FORMAT_PLAYER_LOSER_INDICATOR);
     }
     public static String fspr_formatPlayerLoserIndicator(String... params) {

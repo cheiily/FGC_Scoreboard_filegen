@@ -1,14 +1,14 @@
 package pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications;
 
 import pl.cheily.filegen.LocalData.FileManagement.Meta.StringKVCachedDAO;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.Notifications.SharedNotificationCache;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class SharedNotificationCacheDAOIni extends StringKVCachedDAO implements SharedNotificationCacheDAO {
-    public SharedNotificationCacheDAOIni(ResourcePath path) {
+    public SharedNotificationCacheDAOIni(LocalResourcePath path) {
         super(path);
     }
 

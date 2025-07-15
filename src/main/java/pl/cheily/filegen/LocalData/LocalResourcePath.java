@@ -8,7 +8,7 @@ import java.nio.file.Path;
 /**
  * Set of predefined resource paths, to be loaded onto the overlay and auto-refreshed.
  */
-public enum ResourcePath {
+public enum LocalResourcePath {
 
     //output
     //todo rename to FILE_*
@@ -74,7 +74,7 @@ public enum ResourcePath {
 
     private final String fileName;
 
-    ResourcePath(String fileName) {
+    LocalResourcePath(String fileName) {
         this.fileName = fileName;
     }
 
@@ -98,8 +98,8 @@ public enum ResourcePath {
     public String toString() {
         return fileName;
     }
-    public static ResourcePath fromString(String path) {
-        for (ResourcePath rPath : ResourcePath.values()) {
+    public static LocalResourcePath fromString(String path) {
+        for (LocalResourcePath rPath : LocalResourcePath.values()) {
             if ( rPath.fileName.equals(path) ) return rPath;
         }
         return null;
@@ -129,9 +129,9 @@ public enum ResourcePath {
      * @param path either full path as contained by the enum, or just its last segment (i.e. filename)
      * @return null if not found, valid enum otherwise
      */
-    public static ResourcePath of(String path) {
+    public static LocalResourcePath of(String path) {
         String[] arr;
-        for (ResourcePath rPath : ResourcePath.values()) {
+        for (LocalResourcePath rPath : LocalResourcePath.values()) {
             if ( rPath.fileName.equals(path) ) return rPath;
             if ( (arr = rPath.fileName.split("/")).length > 1
                     && arr[ arr.length - 1 ].equals(path)

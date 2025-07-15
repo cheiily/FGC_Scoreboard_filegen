@@ -2,13 +2,12 @@ package pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet;
 
 import org.ini4j.Config;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.Utils.Util;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 public class RoundLabelDAOIni extends CachedIniDAOBase implements RoundLabelDAO {
@@ -20,7 +19,7 @@ public class RoundLabelDAOIni extends CachedIniDAOBase implements RoundLabelDAO 
         return config;
     }
 
-    public RoundLabelDAOIni(ResourcePath path) {
+    public RoundLabelDAOIni(LocalResourcePath path) {
         super(path, getConfig());
         if (cache.isEmpty()) {
             setAll(RoundLabelDAO.getDefault());

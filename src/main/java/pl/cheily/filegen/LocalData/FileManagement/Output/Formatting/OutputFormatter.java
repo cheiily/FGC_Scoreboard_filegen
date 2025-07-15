@@ -1,6 +1,6 @@
 package pl.cheily.filegen.LocalData.FileManagement.Output.Formatting;
 
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +22,7 @@ public interface OutputFormatter {
      * @param resource resource to be obtained
      * @return formatted string to be written into the resource
      */
-    String getFormatted(ResourcePath resource);
-    Map<ResourcePath, String> getAllFormatted();
+    String getFormatted(LocalResourcePath resource);
+    Map<LocalResourcePath, String> getAllFormatted();
 
 }

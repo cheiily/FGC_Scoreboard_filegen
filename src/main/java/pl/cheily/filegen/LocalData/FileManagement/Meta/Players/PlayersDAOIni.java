@@ -4,7 +4,7 @@ import org.ini4j.Profile;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.PlayerDeserializer;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 
 public class PlayersDAOIni extends CachedIniDAOBase implements PlayersDAO {
 
-    public PlayersDAOIni(ResourcePath path) {
+    public PlayersDAOIni(LocalResourcePath path) {
         super(path);
     }
 

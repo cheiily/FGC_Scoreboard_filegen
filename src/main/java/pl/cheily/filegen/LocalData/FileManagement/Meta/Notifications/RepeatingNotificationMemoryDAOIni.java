@@ -2,7 +2,7 @@ package pl.cheily.filegen.LocalData.FileManagement.Meta.Notifications;
 
 import org.ini4j.Profile;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.Notifications.RepeatingNotificationMemory;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class RepeatingNotificationMemoryDAOIni extends CachedIniDAOBase implements RepeatingNotificationMemoryDAO {
-    public RepeatingNotificationMemoryDAOIni(ResourcePath path) {
+    public RepeatingNotificationMemoryDAOIni(LocalResourcePath path) {
         super(path);
     }
 

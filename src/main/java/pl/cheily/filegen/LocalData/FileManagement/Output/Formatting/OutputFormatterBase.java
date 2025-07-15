@@ -2,8 +2,7 @@ package pl.cheily.filegen.LocalData.FileManagement.Output.Formatting;
 
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.PropKey;
-import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.beans.PropertyChangeListener;
@@ -44,7 +43,7 @@ public abstract class OutputFormatterBase implements OutputFormatter {
     }
 
     @Override
-    public String getFormatted(ResourcePath resource) {
+    public String getFormatted(LocalResourcePath resource) {
         var retunit = units.stream().filter(unit -> unit.enabled && unit.destination == resource).findFirst();
         if (retunit.isPresent()) {
             var unit = retunit.get();
@@ -59,8 +58,8 @@ public abstract class OutputFormatterBase implements OutputFormatter {
     }
 
     @Override
-    public Map<ResourcePath, String> getAllFormatted() {
-        Map<ResourcePath, String> ret = new HashMap<>();
+    public Map<LocalResourcePath, String> getAllFormatted() {
+        Map<LocalResourcePath, String> ret = new HashMap<>();
         for (var unit : units) {
             if (unit.enabled) {
                 String[] params = new String[unit.inputKeys.size()];

@@ -8,7 +8,7 @@ import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.Configuration.PropKey;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.CachedIniDAOBase;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
@@ -37,7 +37,7 @@ public final class ConfigDAOIni extends CachedIniDAOBase implements ConfigDAO {
         return config;
     }
 
-    public ConfigDAOIni(ResourcePath path) {
+    public ConfigDAOIni(LocalResourcePath path) {
         super(path, getConfig());
         if (cache.get(SECTION_NAME) == null)
             cache.add(SECTION_NAME);

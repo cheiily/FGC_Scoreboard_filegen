@@ -9,7 +9,7 @@ import org.controlsfx.control.ListSelectionView;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitMethodReference;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.net.URL;
@@ -25,7 +25,7 @@ public class FmtEditPopupUI implements Initializable {
     private FormattingUnitBuilder _builder;
 
     public CheckBox chck_enabled;
-    public ChoiceBox<ResourcePath> choice_dest;
+    public ChoiceBox<LocalResourcePath> choice_dest;
     public ChoiceBox<FormattingUnitMethodReference> choice_func;
     public ListSelectionView<MatchDataKey> slct_keys;
     public TextArea text_req;
@@ -36,7 +36,7 @@ public class FmtEditPopupUI implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         slct_keys.getSourceItems().setAll(MatchDataKey.values());
 
-        ResourcePath[] outputPaths = Arrays.stream(ResourcePath.values()).filter(ResourcePath::isOutputFile).toArray(ResourcePath[]::new);
+        LocalResourcePath[] outputPaths = Arrays.stream(LocalResourcePath.values()).filter(LocalResourcePath::isOutputFile).toArray(LocalResourcePath[]::new);
         choice_dest.getItems().setAll(outputPaths);
         choice_func.getItems().setAll(FormattingUnitMethodReference.values());
 

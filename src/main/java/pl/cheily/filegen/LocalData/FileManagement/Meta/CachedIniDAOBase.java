@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,15 +16,15 @@ import java.nio.file.Files;
 
 public abstract class CachedIniDAOBase {
     protected final Logger logger;
-    protected final ResourcePath path;
+    protected final LocalResourcePath path;
     protected final Ini cache;
     protected long cacheChangeTime = -0;
 
-    protected CachedIniDAOBase(ResourcePath path) {
+    protected CachedIniDAOBase(LocalResourcePath path) {
         this(path, new Config());
     }
 
-    protected CachedIniDAOBase(ResourcePath path, Config config) {
+    protected CachedIniDAOBase(LocalResourcePath path, Config config) {
         logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
         this.path = path;
         cache = new Ini();

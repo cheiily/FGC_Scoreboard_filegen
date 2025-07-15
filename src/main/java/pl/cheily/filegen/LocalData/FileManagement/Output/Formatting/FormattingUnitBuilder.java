@@ -4,17 +4,16 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.util.StringConverter;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class FormattingUnitBuilder {
     public BooleanProperty enabled = new SimpleBooleanProperty();
     public SimpleListProperty<MatchDataKey> inputKeys = new SimpleListProperty<>(FXCollections.observableArrayList(new ArrayList<MatchDataKey>()));
-    public ObjectProperty<ResourcePath> destination = new SimpleObjectProperty<>();
+    public ObjectProperty<LocalResourcePath> destination = new SimpleObjectProperty<>();
     public StringProperty sampleOutput = new SimpleStringProperty();
     public ObjectProperty<FormattingUnitMethodReference> formatType = new SimpleObjectProperty<>();
     public StringProperty customInterpolationFormat = new SimpleStringProperty();
@@ -44,15 +43,15 @@ public class FormattingUnitBuilder {
         }
     };
 
-    public static StringConverter<ResourcePath> resourcePathStringConverter = new StringConverter<>() {
+    public static StringConverter<LocalResourcePath> resourcePathStringConverter = new StringConverter<>() {
         @Override
-        public String toString(ResourcePath object) {
+        public String toString(LocalResourcePath object) {
             return object.toString();
         }
 
         @Override
-        public ResourcePath fromString(String string) {
-            return ResourcePath.fromString(string);
+        public LocalResourcePath fromString(String string) {
+            return LocalResourcePath.fromString(string);
         }
     };
 
@@ -84,15 +83,15 @@ public class FormattingUnitBuilder {
         return inputKeys;
     }
 
-    public ResourcePath getDestination() {
+    public LocalResourcePath getDestination() {
         return destination.get();
     }
 
-    public void setDestination(ResourcePath destination) {
+    public void setDestination(LocalResourcePath destination) {
         this.destination.set(destination);
     }
 
-    public ObjectProperty<ResourcePath> destinationProperty() {
+    public ObjectProperty<LocalResourcePath> destinationProperty() {
         return destination;
     }
 

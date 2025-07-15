@@ -1,7 +1,7 @@
 package pl.cheily.filegen.LocalData.FileManagement.Output.Formatting;
 
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.util.List;
 import java.util.function.Function;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 public class FormattingUnit {
     public boolean enabled;
     public List<MatchDataKey> inputKeys;
-    public ResourcePath destination;
+    public LocalResourcePath destination;
     public String sampleOutput;
 
     // input array must be in the same order as the keys
@@ -19,7 +19,7 @@ public class FormattingUnit {
     public FormattingUnitMethodReference formatType;
     public String customInterpolationFormat;
 
-    public static FormattingUnit deserialize(boolean enabled, List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput, String customInterpolationFormat, FormattingUnitMethodReference type) {
+    public static FormattingUnit deserialize(boolean enabled, List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput, String customInterpolationFormat, FormattingUnitMethodReference type) {
         var ret = switch (type) {
             case ONE_TO_ONE_PASS -> FormattingUnitFactory.oneToOnePass(inputKeys, destination, sampleOutput);
             case FIND_FLAG_FILE -> FormattingUnitFactory.findFlagFile(inputKeys, destination, sampleOutput);
@@ -33,7 +33,7 @@ public class FormattingUnit {
         return ret;
     }
 
-    FormattingUnit(boolean enabled, List<MatchDataKey> inputKeys, ResourcePath destination, String sampleOutput, Function<String[], String> format, String customInterpolationFormat, FormattingUnitMethodReference type) {
+    FormattingUnit(boolean enabled, List<MatchDataKey> inputKeys, LocalResourcePath destination, String sampleOutput, Function<String[], String> format, String customInterpolationFormat, FormattingUnitMethodReference type) {
         this.enabled = enabled;
         this.inputKeys = inputKeys;
         this.destination = destination;

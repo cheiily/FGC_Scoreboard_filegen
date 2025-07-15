@@ -9,7 +9,7 @@ import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.*;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterDeserializerParams;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -25,7 +25,7 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
         return config;
     }
 
-    public OutputWriterDAOIni(ResourcePath path) {
+    public OutputWriterDAOIni(LocalResourcePath path) {
         super(path, getConfig());
     }
 
@@ -127,7 +127,7 @@ public class OutputWriterDAOIni extends CachedIniDAOBase implements OutputWriter
             return FormattingUnit.deserialize(
                 fmt_sec.get(ENABLED.toString(), Boolean.class),
                 fmt_sec.getAll(FMT_UNIT_INPUT.toString()).stream().map(MatchDataKey::fromString).toList(),
-                ResourcePath.fromString(fmt_sec.get(FMT_UNIT_DESTINATION.toString())),
+                LocalResourcePath.fromString(fmt_sec.get(FMT_UNIT_DESTINATION.toString())),
                 fmt_sec.get(FMT_UNIT_SAMPLE_OUTPUT.toString()),
                 fmt_sec.get(FMT_UNIT_TEMPLATE.toString()),
                 FormattingUnitMethodReference.valueOf(fmt_sec.get(FMT_UNIT_METHOD.toString()))

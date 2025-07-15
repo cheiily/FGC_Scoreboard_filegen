@@ -14,9 +14,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import org.controlsfx.glyphfont.FontAwesome;
-import org.controlsfx.glyphfont.Glyph;
-import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnit;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitBuilder;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.FormattingUnitMethodReference;
@@ -24,7 +21,7 @@ import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormat
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
-import pl.cheily.filegen.LocalData.ResourcePath;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.net.URL;
@@ -60,7 +57,7 @@ public class WriterEditPopupUI implements Initializable {
     public TableColumn<FormattingUnitBuilder, FormattingUnitMethodReference> col_fmt_func;
     public TableColumn<FormattingUnitBuilder, String> col_fmt_temp;
     public TableColumn<FormattingUnitBuilder, String> col_fmt_sample;
-    public TableColumn<FormattingUnitBuilder, ResourcePath> col_fmt_dest;
+    public TableColumn<FormattingUnitBuilder, LocalResourcePath> col_fmt_dest;
     public TableColumn<FormattingUnitBuilder, Object> col_fmt_edit;
 
     @Override
@@ -139,7 +136,7 @@ public class WriterEditPopupUI implements Initializable {
         col_fmt_sample.setCellFactory(TextFieldTableCell.forTableColumn());
         col_fmt_sample.setCellValueFactory(new PropertyValueFactory<>("sampleOutput"));
 
-        ResourcePath[] outputPaths = Arrays.stream(ResourcePath.values()).filter(ResourcePath::isOutputFile).toArray(ResourcePath[]::new);
+        LocalResourcePath[] outputPaths = Arrays.stream(LocalResourcePath.values()).filter(LocalResourcePath::isOutputFile).toArray(LocalResourcePath[]::new);
         col_fmt_dest.setCellFactory(ComboBoxTableCell.forTableColumn(outputPaths));
         col_fmt_dest.setCellValueFactory(new PropertyValueFactory<>("destination"));
     }

@@ -1,13 +1,10 @@
 package pl.cheily.filegen.ResourceModules;
 
-import net.harawata.appdirs.AppDirsFactory;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
-import pl.cheily.filegen.LocalData.ResourcePath;
-import pl.cheily.filegen.ScoreboardApplication;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +28,7 @@ public class ResourceModuleDefinitionFetcher {
     public static ResourceModuleDefinition fetchResourceModuleDefinition(GitHubFileDetails file) {
         Path path;
         try {
-            path = DownloadUtils.downloadTempFile(file.downloadUrl(), ResourcePath.RESOURCE_MODULE_DEFINITION_TEMPS.toPath());
+            path = DownloadUtils.downloadTempFile(file.downloadUrl(), LocalResourcePath.RESOURCE_MODULE_DEFINITION_TEMPS.toPath());
         } catch (DataManagerNotInitializedException e) { // not happening
             logger.error("Data manager is not initialized, cannot fetch resource module definition.", e);
             return null;
