@@ -32,7 +32,7 @@ public class ResourceModuleDefinitionFetcher {
         Path path;
         try {
             path = DownloadUtils.downloadTempFile(file.downloadUrl(), ResourcePath.RESOURCE_MODULE_DEFINITION_TEMPS.toPath());
-        } catch (DataManagerNotInitializedException e) {
+        } catch (DataManagerNotInitializedException e) { // not happening
             logger.error("Data manager is not initialized, cannot fetch resource module definition.", e);
             return null;
         }

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -14,6 +15,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 public class DownloadUtils {
     public static final Logger logger = LoggerFactory.getLogger(DownloadUtils.class.getName());
@@ -33,7 +35,7 @@ public class DownloadUtils {
             }
 
             try (ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream());
-                 FileChannel fileChannel = FileChannel.open(targetPath)) {
+                 FileChannel fileChannel = FileChannel.open(targetPath, StandardOpenOption.WRITE)) {
                 long bytesTransferred = fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
                 logger.trace("Downloaded {} bytes to {}", bytesTransferred, targetPath);
             } catch (IOException e) {
@@ -56,7 +58,9 @@ public class DownloadUtils {
     public static Path downloadTempFile(String url, Path dir) {
         try {
             Files.createDirectories(dir);
-            return downloadFile(url, Files.createTempFile(dir, "rsc_mdl_def_", ResourceModuleDefinition.EXTENSION));
+            File tempfile = Files.createTempFile(dir, "rsc_mdl_def_", ResourceModuleDefinition.EXTENSION).toFile();
+            tempfile.deleteOnExit();
+            return downloadFile(url, tempfile.toPath());
         } catch (IOException e) {
             logger.error("Failed to download temporary file, URL: {}", url, e);
             return null;
