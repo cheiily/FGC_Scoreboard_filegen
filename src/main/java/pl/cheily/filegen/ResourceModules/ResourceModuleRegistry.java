@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import org.json.JSONObject;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventPipeline;
+import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,9 +16,11 @@ import java.util.Objects;
 public class ResourceModuleRegistry {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleRegistry.class);
 
+    public ResourceModuleEventPipeline eventPipeline;
     public List<ResourceModule> modules;
 
     public ResourceModuleRegistry() {
+        eventPipeline = new ResourceModuleEventPipeline();
         modules = new ArrayList<>();
     }
 
@@ -36,7 +40,7 @@ public class ResourceModuleRegistry {
     public void initialize() {
         loadInstallations();
         loadRemote();
-        autoinstall();
+        doAutoinstall();
     }
 
     public void queueInitialize() {
@@ -62,6 +66,7 @@ public class ResourceModuleRegistry {
                     .toList();
 
             modules.addAll(installedModules);
+            eventPipeline.push(ResourceModuleEventType.LOADED_INSTALLATIONS, null);
         } catch (IOException | DataManagerNotInitializedException e) {
             logger.error("Failed to load installed resource modules.", e);
         }
@@ -80,13 +85,62 @@ public class ResourceModuleRegistry {
                     register(module);
             }
         }
+        eventPipeline.push(ResourceModuleEventType.FETCHED_DEFINITIONS, null);
     }
 
-    public void autoinstall() {
+    public void doAutoinstall() {
         for (ResourceModule module : modules) {
             if (!module.isDownloaded() && module.definition.autoinstall()) {
-                ResourceModuleFetcher.fetchModule(module.definition);
+                ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
+                eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
+                if (module.isInstalled())
+                    eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
             }
         }
+    }
+
+
+    public void downloadModule(ResourceModule module) {
+        if (module.isDownloaded()) {
+            logger.warn("Resource module {} is already downloaded.", module.definition.installName());
+            return;
+        }
+        ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
+        eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
+    }
+
+    public void deleteModule(ResourceModule module) {
+        if (!module.isInstalled()) {
+            logger.warn("Resource module {} is not installed, cannot delete.", module.definition.installName());
+            return;
+        }
+        ResourceModuleInstallationManager.deleteModule(module);
+        eventPipeline.push(ResourceModuleEventType.REMOVED_MODULE, module);
+    }
+
+    public void installModule(ResourceModule module) {
+        logger.info("Installing resource modules is a WIP feature, intended for JAR plugins.");
+        module.setInstalled(true);
+        eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
+    }
+
+    public void uninstallModule(ResourceModule module) {
+        logger.info("Uninstalling resource modules is a WIP feature, intended for JAR plugins.");
+        module.setInstalled(false);
+        eventPipeline.push(ResourceModuleEventType.UNINSTALLED_MODULE, module);
+    }
+
+    public void enableModule(ResourceModule module) {
+        if (!module.isInstalled()) {
+            logger.warn("Resource module {} is not installed, cannot enable.", module.definition.installName());
+            return;
+        }
+        module.setEnabled(true);
+        eventPipeline.push(ResourceModuleEventType.ENABLED_MODULE, module);
+    }
+
+    public void disableModule(ResourceModule module) {
+        module.setEnabled(false);
+        eventPipeline.push(ResourceModuleEventType.DISABLED_MODULE, module);
     }
 }

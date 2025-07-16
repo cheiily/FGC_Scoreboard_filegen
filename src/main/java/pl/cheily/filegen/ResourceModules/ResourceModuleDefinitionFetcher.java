@@ -55,11 +55,11 @@ public class ResourceModuleDefinitionFetcher {
     private static List<GitHubFileDetails> extractFilesRecursively(String path) {
         ArrayList<GitHubFileDetails> allFiles = new ArrayList<>(ResourceModuleRequests.githubContents(path));
         ArrayList<GitHubFileDetails> files = new ArrayList<>(allFiles.stream()
-                .filter(file -> file.type().equals("file"))
+                .filter(file -> file.type().equals(GitHubFileDetails.TYPE_FILE))
                 .filter(file -> file.path().endsWith(ResourceModuleDefinition.EXTENSION))
                 .toList());
         List<GitHubFileDetails> directories = allFiles.stream()
-                .filter(file -> file.type().equals("dir"))
+                .filter(file -> file.type().equals(GitHubFileDetails.TYPE_DIR))
                 .toList();
 
         for (GitHubFileDetails dir : directories) {

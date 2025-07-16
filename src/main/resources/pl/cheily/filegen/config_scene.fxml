@@ -58,9 +58,9 @@
                      <children>
                         <TableView fx:id="table_resources" layoutY="1.0" prefHeight="170.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <columns>
-                            <TableColumn fx:id="col_res_name" prefWidth="288.0" text="Module" />
-                            <TableColumn fx:id="col_res_size" minWidth="0.0" prefWidth="125.0" text="Size" />
-                              <TableColumn fx:id="col_res_action" prefWidth="144.0" text="Action" />
+                            <TableColumn fx:id="col_res_name" editable="false" prefWidth="153.0" text="Module" />
+                            <TableColumn fx:id="col_res_desc" editable="false" minWidth="0.0" prefWidth="260.0" text="Description" />
+                              <TableColumn fx:id="col_res_actions" editable="false" prefWidth="144.0" text="Actions" />
                           </columns>
                         </TableView>
                      </children>

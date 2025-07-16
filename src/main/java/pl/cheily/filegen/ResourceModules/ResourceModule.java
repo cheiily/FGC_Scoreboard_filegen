@@ -8,10 +8,24 @@ import java.nio.file.Files;
 public class ResourceModule {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModule.class);
 
-    ResourceModuleDefinition definition;
+    final ResourceModuleDefinition definition;
+
+    // todo perhaps this could be an enum
+    // Download state, false indicates this object represents a module that's available for download from a remote source.
+    // At the bottom of the state stack.
     private boolean isDownloaded;
+
+    // SPI integration health, only stored in runtime memory. Also always true for static resources.
+    // Hierarchically between downloaded and enabled.
     private boolean isInstalled;
+
+    // Current working state, also persists as a file to auto-enable at scan-time.
+    // Hierarchically at the top of the stack, cannot enable without both downloading and installing.
     private boolean isEnabled;
+
+    public ResourceModuleDefinition getDefinition() {
+        return definition;
+    }
 
     public boolean isDownloaded() {
         return isDownloaded;
@@ -70,6 +84,7 @@ public class ResourceModule {
                 false,
                 false);
     }
+
 
     private void touchEnabled() {
         try {

@@ -1,15 +1,16 @@
 package pl.cheily.filegen.ResourceModules;
 
 import org.slf4j.Logger;
+import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
-import pl.cheily.filegen.LocalData.LocalResourcePath;
 
-import java.nio.file.Path;
+import java.io.IOException;
+import java.nio.file.Files;
 
-public class ResourceModuleFetcher {
-    public static final Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleFetcher.class);
+public class ResourceModuleInstallationManager {
+    public static final Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleInstallationManager.class);
 
-    public static ResourceModule fetchModule(ResourceModuleDefinition definition) {
+    public static ResourceModule downloadAndInstallModule(ResourceModuleDefinition definition) {
         try {
             var type = ResourceModuleType.valueOf(definition.resourceType());
             var filepath = DownloadUtils.downloadFile(
@@ -31,6 +32,8 @@ public class ResourceModuleFetcher {
 
             definition.store(definition.getInstallDirPath().resolve(definition.installName() + ResourceModuleDefinition.EXTENSION));
 
+            logger.trace("Resource module installation is a TODO feature, intended for JAR plugins.");
+
             if (!ResourceModuleDownloadValidator.getFor(type).apply(filepath)) {
                 logger.error("Resource module validation failed, not enabling.");
                 return null;
@@ -46,5 +49,28 @@ public class ResourceModuleFetcher {
             logger.error("Data manager is not initialized, cannot fetch resource module.", e);
             return null;
         }
+    }
+
+    public static boolean deleteModule(ResourceModule module) {
+        try {
+            module.setEnabled(false);
+            module.setInstalled(false);
+
+            var installPath = module.definition.getInstallDirPath();
+            var result = Files.deleteIfExists(installPath);
+            if (result) {
+                logger.info("Resource module deleted: {}", module.definition.name());
+                module.setDownloaded(false);
+            } else {
+                logger.warn("Resource module not found or already deleted: {}", module.definition.name());
+            }
+            return result;
+        } catch (DataManagerNotInitializedException ignored) {
+        } catch (IOException e) {
+            try {
+                logger.error(MarkerFactory.getMarker("ALERT"), "Failed to delete resource module: {}. Please remove it manually from {}.", module.definition.name(), module.definition.getInstallDirPath(), e);
+            } catch (DataManagerNotInitializedException ignored) {}
+        }
+        return false;
     }
 }

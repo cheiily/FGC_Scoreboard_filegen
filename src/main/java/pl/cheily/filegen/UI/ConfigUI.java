@@ -19,6 +19,8 @@ import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
+import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ScoreboardApplication;
 
 import java.beans.PropertyChangeEvent;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import static pl.cheily.filegen.ScoreboardApplication.dataManager;
+import static pl.cheily.filegen.ScoreboardApplication.resourceModuleRegistry;
 
 public class ConfigUI implements Initializable {
     public AnchorPane bg_pane;
@@ -51,22 +54,30 @@ public class ConfigUI implements Initializable {
     public TableColumn col_wrt_fmt_name;
     public TableColumn col_wrt_fmt_count;
     public TableColumn col_wrt_action;
-    public TableView table_resources;
-    public TableColumn col_res_name;
-    public TableColumn col_res_size;
-    public TableColumn col_res_action;
+    public TableView<ResourceModule> table_resources;
+    public TableColumn<ResourceModule, String> col_res_name;
+    public TableColumn<ResourceModule, String> col_res_desc;
+    public TableColumn col_res_actions;
 
-    private final PropertyChangeListener listener = new PropertyChangeListener() {
+    private final PropertyChangeListener dataEvtListener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             table_writers.getItems().clear();
             table_writers.getItems().addAll(dataManager.getWriters());
         }
     };
+    private final PropertyChangeListener resourceEvtListener = new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            table_resources.getItems().setAll(resourceModuleRegistry.modules);
+        }
+    };
 
     {
-        dataManager.subscribe(DataEventProp.INIT, listener);
-        dataManager.subscribe(DataEventProp.CHANGED_OUTPUT_WRITERS, listener);
+        dataManager.subscribe(DataEventProp.INIT, dataEvtListener);
+        dataManager.subscribe(DataEventProp.CHANGED_OUTPUT_WRITERS, dataEvtListener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.LOADED_INSTALLATIONS, resourceEvtListener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.FETCHED_DEFINITIONS, resourceEvtListener);
     }
 
 
@@ -243,6 +254,18 @@ public class ConfigUI implements Initializable {
         });
 //        col_wrt_action.setGraphic(new Button("+"));
         table_writers.getItems().addAll(dataManager.getWriters());
+
+        col_res_name.setCellValueFactory(data -> {
+            ResourceModule module = data.getValue();
+            return new ReadOnlyObjectWrapper<>(module.getDefinition().name());
+        });
+        col_res_desc.setCellValueFactory(data -> {
+            ResourceModule module = data.getValue();
+            return new ReadOnlyObjectWrapper<>(module.getDefinition().description());
+        });
+
+        table_resources.getItems().addAll(resourceModuleRegistry.modules);
+
     }
 
     /**

@@ -32,4 +32,6 @@ module pl.cheily.filegen {
     exports pl.cheily.filegen.Notifications;
     opens pl.cheily.filegen.Notifications to javafx.fxml;
     exports pl.cheily.filegen.ResourceModules;
+    opens pl.cheily.filegen.ResourceModules to javafx.fxml;
+    exports pl.cheily.filegen.ResourceModules.Events;
 }
