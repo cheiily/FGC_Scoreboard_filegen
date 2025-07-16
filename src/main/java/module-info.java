@@ -31,4 +31,5 @@ module pl.cheily.filegen {
     exports pl.cheily.filegen.LocalData.FileManagement.Meta.Match;
     exports pl.cheily.filegen.Notifications;
     opens pl.cheily.filegen.Notifications to javafx.fxml;
+    exports pl.cheily.filegen.ResourceModules;
 }

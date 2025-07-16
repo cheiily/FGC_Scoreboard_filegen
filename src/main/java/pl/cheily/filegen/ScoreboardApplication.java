@@ -11,6 +11,7 @@ import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.DataWebSocket;
 import pl.cheily.filegen.Notifications.NotificationAPIChecker;
 import pl.cheily.filegen.Notifications.VersionChecker;
 import pl.cheily.filegen.ResourceModules.ResourceModuleDefinitionFetcher;
+import pl.cheily.filegen.ResourceModules.ResourceModuleRegistry;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -28,6 +29,7 @@ public class ScoreboardApplication extends Application {
      * Supported by the passed set of OutputFormatters and OutputWriters.
      */
     public static DataManager dataManager;
+    public static ResourceModuleRegistry resourceModuleRegistry;
     private static Stage mainStage;
 
     /**
@@ -50,6 +52,7 @@ public class ScoreboardApplication extends Application {
 
         mainStage = stage;
         dataManager = new DataManager();
+        resourceModuleRegistry = new ResourceModuleRegistry();
         controllerScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("controller_scene.fxml")).load());
         playersScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("players_scene.fxml")).load());
         configScene = new Scene(new FXMLLoader(ScoreboardApplication.class.getResource("config_scene.fxml")).load());
@@ -61,7 +64,7 @@ public class ScoreboardApplication extends Application {
         VersionChecker.queueUpdateCheck();
         // todo load persistent config on init & only check for updates if allowed
         NotificationAPIChecker.queueNotificationChecks();
-        var defs = ResourceModuleDefinitionFetcher.fetchResourceModuleDefinitions();
+        resourceModuleRegistry.queueInitialize();
         System.out.println("here");
 //        dataWebSocket.start();
 //

@@ -69,7 +69,8 @@ public enum LocalResourcePath {
 
     SHARED_NOTIFICATION_CACHE("<persistent>/notification_cache.ini"),
     REPEATING_NOTIFICATION_MEMORY("<persistent>/notification_memory.ini"),
-    RESOURCE_MODULE_DEFINITION_TEMPS("<persistent>/resource_module_definition_temps"),;
+    RESOURCE_MODULE_DEFINITION_TEMPS("<persistent>/modules/definition_temps"),
+    RESOURCE_MODULE_INSTALL("<persistent>/modules");
 
 
     private final String fileName;

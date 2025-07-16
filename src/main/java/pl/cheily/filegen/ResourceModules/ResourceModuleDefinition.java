@@ -1,43 +1,92 @@
 package pl.cheily.filegen.ResourceModules;
 
 import org.json.JSONObject;
+import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
+import pl.cheily.filegen.LocalData.LocalResourcePath;
 
-public class ResourceModuleDefinition {
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+public record ResourceModuleDefinition(
+    String definitionVersion,
+    String name,
+    String installName,
+    String description,
+    String version,
+    String isoDate,
+    String author,
+    String url,
+    boolean externalUrl,
+    String resourceType,
+    String archiveType,
+    boolean autoinstall,
+    boolean autorun,
+    String checksum
+) {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleDefinition.class);
     public static final String EXTENSION = ".sscm";
-
-    public String name;
-    public String description;
-    public String version;
-    public String isoDate;
-    public String author;
-    public String url;
-    public String resourceType;
-    public String externalType;
-    public String checksum;
-
-    public ResourceModuleDefinition(String name, String description, String version, String isoDate, String author, String url, String resourceType, String externalType, String checksum) {
-        this.name = name;
-        this.description = description;
-        this.version = version;
-        this.isoDate = isoDate;
-        this.author = author;
-        this.url = url;
-        this.resourceType = resourceType;
-        this.externalType = externalType;
-        this.checksum = checksum;
-    }
 
     public static ResourceModuleDefinition fromJson(JSONObject json) {
         return new ResourceModuleDefinition(
-                json.getString("name"),
-                json.getString("description"),
-                json.getString("version"),
-                json.getString("isoDate"),
-                json.getString("author"),
-                json.getString("url"),
-                json.getString("resourceType"),
-                json.optString("externalType", null),
-                json.optString("checksum", null)
+            json.getString("definitionVersion"),
+            json.getString("name"),
+            json.getString("installName"),
+            json.getString("description"),
+            json.getString("version"),
+            json.getString("isoDate"),
+            json.getString("author"),
+            json.getString("url"),
+            json.getBoolean("externalUrl"),
+            json.getString("resourceType"),
+            json.optString("archiveType", null),
+            json.optBoolean("autoinstall", false),
+            json.optBoolean("autorun", false),
+            json.optString("checksum", null)
         );
+    }
+
+    public String toJson() {
+        return toJson(true);
+    }
+
+    public String toJson(boolean pretty) {
+        JSONObject json = new JSONObject();
+        json.put("definitionVersion", definitionVersion);
+        json.put("name", name);
+        json.put("installName", installName);
+        json.put("description", description);
+        json.put("version", version);
+        json.put("isoDate", isoDate);
+        json.put("author", author);
+        json.put("url", url);
+        json.put("externalUrl", externalUrl);
+        json.put("resourceType", resourceType);
+        json.putOpt("archiveType", archiveType);
+        json.putOpt("autoinstall", autoinstall);
+        json.putOpt("autorun", autorun);
+        json.putOpt("checksum", checksum);
+
+        return pretty ? json.toString(4) : json.toString();
+    }
+
+    public void store(Path path) {
+        try {
+            Files.writeString(path, toJson(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            logger.error("Failed to store resource module definition to file: {}", path, e);
+        }
+    }
+    
+    public Path getInstallDirPath() throws DataManagerNotInitializedException {
+        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
+                .resolve(installName());
+    }
+    
+    public Path getInstallFilePath() throws DataManagerNotInitializedException {
+        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
+                .resolve(installName())
+                .resolve(installName() + archiveType());
     }
 }
