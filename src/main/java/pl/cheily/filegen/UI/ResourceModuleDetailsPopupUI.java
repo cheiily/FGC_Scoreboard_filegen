@@ -2,10 +2,12 @@ package pl.cheily.filegen.UI;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.BeanPropertyUtils;
+import org.controlsfx.property.editor.PropertyEditor;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 
@@ -64,9 +66,9 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
     public void on_download(ActionEvent actionEvent) {
         if (module == null) return;
         if (module.isDownloaded())
-            resourceModuleRegistry.downloadModuleAsync(module);
-        else
             resourceModuleRegistry.deleteModuleAsync(module);
+        else
+            resourceModuleRegistry.downloadModuleAsync(module);
     }
 
     public void on_install(ActionEvent actionEvent) {
@@ -102,6 +104,11 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
         property_sheet.getItems().setAll(BeanPropertyUtils.getProperties(module.getDefinition()));
     }
 
+    private void setButtonsEnableState() {
+        btn_install.setDisable(!module.isDownloaded());
+        btn_enable.setDisable(!module.isInstalled());
+    }
+
     private void refresh() {
         label_header.setText(String.format(PROP_HEADER, module.getDefinition().name()));
         setLabel(label_download, module.isDownloaded());
@@ -109,5 +116,6 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
         setLabel(label_enable, module.isEnabled());
         loadPropertySheet();
         loadButtonTexts();
+        setButtonsEnableState();
     }
 }

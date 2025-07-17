@@ -9,13 +9,13 @@
 <?import javafx.scene.text.Font?>
 <?import org.controlsfx.control.PropertySheet?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.ResourceModuleDetailsPopupUI">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.cheily.filegen.UI.ResourceModuleDetailsPopupUI">
    <children>
       <PropertySheet fx:id="property_sheet" layoutX="63.0" layoutY="175.0" modeSwitcherVisible="false" prefHeight="360.0" prefWidth="390.0" searchBoxVisible="false" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="175.0" />
       <AnchorPane layoutX="125.0" prefHeight="135.0" prefWidth="390.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="15.0">
          <children>
-            <Label fx:id="label_header" alignment="CENTER" contentDisplay="CENTER" layoutX="137.0" layoutY="14.0" text="Resource Module XYZ" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="10.0" />
-            <GridPane gridLinesVisible="true" layoutX="95.0" layoutY="39.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <Label fx:id="label_header" alignment="CENTER" contentDisplay="CENTER" layoutX="137.0" layoutY="14.0" text="Resource Module XYZ" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <GridPane gridLinesVisible="true" layoutX="95.0" layoutY="39.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
               <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -52,6 +52,6 @@
             </GridPane>
          </children>
       </AnchorPane>
-      <Label layoutX="199.0" layoutY="150.0" text="Definition" />
+      <Label layoutX="199.0" layoutY="152.0" text="Definition" AnchorPane.topAnchor="155.0" />
    </children>
 </AnchorPane>

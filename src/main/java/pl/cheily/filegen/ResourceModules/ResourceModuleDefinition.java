@@ -89,4 +89,20 @@ public record ResourceModuleDefinition(
                 .resolve(installName())
                 .resolve(installName() + archiveType());
     }
+
+    // for bean property generator
+    public String getDefinitionVersion() { return definitionVersion; }
+    public String getName() { return name; }
+    public String getInstallName() { return installName; }
+    public String getDescription() { return description; }
+    public String getVersion() { return version; }
+    public String getIsoDate() { return isoDate; }
+    public String getAuthor() { return author; }
+    public String getUrl() { return url; }
+    public boolean isExternalUrl() { return externalUrl; }
+    public String getResourceType() { return resourceType; }
+    public String getArchiveType() { return archiveType; }
+    public boolean isAutoinstall() { return autoinstall; }
+    public boolean isAutorun() { return autorun; }
+    public String getChecksum() { return checksum; }
 }
