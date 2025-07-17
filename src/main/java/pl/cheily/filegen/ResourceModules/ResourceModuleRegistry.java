@@ -40,7 +40,7 @@ public class ResourceModuleRegistry {
     public void initialize() {
         loadInstallations();
         loadRemote();
-        doAutoinstall();
+        doAutoinstallAsync();
     }
 
     public void queueInitialize() {
@@ -88,7 +88,11 @@ public class ResourceModuleRegistry {
         eventPipeline.push(ResourceModuleEventType.FETCHED_DEFINITIONS, null);
     }
 
-    public void doAutoinstall() {
+    public void doAutoinstallAsync() {
+        new Thread(this::doDoAutoinstallAsync).start();
+    }
+
+    private void doDoAutoinstallAsync() {
         for (ResourceModule module : modules) {
             if (!module.isDownloaded() && module.definition.autoinstall()) {
                 ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
@@ -100,7 +104,11 @@ public class ResourceModuleRegistry {
     }
 
 
-    public void downloadModule(ResourceModule module) {
+    public void downloadModuleAsync(ResourceModule module) {
+        new Thread(() -> doDownloadModuleAsync(module)).start();
+    }
+
+    private void doDownloadModuleAsync(ResourceModule module) {
         if (module.isDownloaded()) {
             logger.warn("Resource module {} is already downloaded.", module.definition.installName());
             return;
@@ -109,7 +117,11 @@ public class ResourceModuleRegistry {
         eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
     }
 
-    public void deleteModule(ResourceModule module) {
+    public void deleteModuleAsync(ResourceModule module) {
+        new Thread(() -> doDeleteModuleAsync(module)).start();
+    }
+
+    private void doDeleteModuleAsync(ResourceModule module) {
         if (!module.isInstalled()) {
             logger.warn("Resource module {} is not installed, cannot delete.", module.definition.installName());
             return;
@@ -118,13 +130,21 @@ public class ResourceModuleRegistry {
         eventPipeline.push(ResourceModuleEventType.REMOVED_MODULE, module);
     }
 
-    public void installModule(ResourceModule module) {
+    public void installModuleAsync(ResourceModule module) {
+        new Thread(() -> doInstallModuleAsync(module)).start();
+    }
+
+    private void doInstallModuleAsync(ResourceModule module) {
         logger.info("Installing resource modules is a WIP feature, intended for JAR plugins.");
         module.setInstalled(true);
         eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
     }
 
-    public void uninstallModule(ResourceModule module) {
+    public void uninstallModuleAsync(ResourceModule module) {
+        new Thread(() -> doUninstallModuleAsync(module)).start();
+    }
+
+    private void doUninstallModuleAsync(ResourceModule module) {
         logger.info("Uninstalling resource modules is a WIP feature, intended for JAR plugins.");
         module.setInstalled(false);
         eventPipeline.push(ResourceModuleEventType.UNINSTALLED_MODULE, module);

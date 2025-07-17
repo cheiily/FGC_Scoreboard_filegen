@@ -22,6 +22,8 @@ import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ScoreboardApplication;
+import pl.cheily.filegen.Utils.ResourceModuleActionBundleFactory;
+import pl.cheily.filegen.Utils.WrappingTextFieldTableCell;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -66,18 +68,32 @@ public class ConfigUI implements Initializable {
             table_writers.getItems().addAll(dataManager.getWriters());
         }
     };
-    private final PropertyChangeListener resourceEvtListener = new PropertyChangeListener() {
+    private final PropertyChangeListener resourceCollectionChangeEvtListener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             table_resources.getItems().setAll(resourceModuleRegistry.modules);
+        }
+    };
+    private final PropertyChangeListener individualResourceChangeEvtListener = new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            table_resources.refresh();
         }
     };
 
     {
         dataManager.subscribe(DataEventProp.INIT, dataEvtListener);
         dataManager.subscribe(DataEventProp.CHANGED_OUTPUT_WRITERS, dataEvtListener);
-        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.LOADED_INSTALLATIONS, resourceEvtListener);
-        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.FETCHED_DEFINITIONS, resourceEvtListener);
+
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.LOADED_INSTALLATIONS, resourceCollectionChangeEvtListener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.FETCHED_DEFINITIONS, resourceCollectionChangeEvtListener);
+
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.DOWNLOADED_MODULE, individualResourceChangeEvtListener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.REMOVED_MODULE, individualResourceChangeEvtListener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.INSTALLED_MODULE, individualResourceChangeEvtListener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.UNINSTALLED_MODULE, individualResourceChangeEvtListener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.ENABLED_MODULE, individualResourceChangeEvtListener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.DISABLED_MODULE, individualResourceChangeEvtListener);
     }
 
 
@@ -252,16 +268,23 @@ public class ConfigUI implements Initializable {
             });
             return new ReadOnlyObjectWrapper<>(btn);
         });
-//        col_wrt_action.setGraphic(new Button("+"));
         table_writers.getItems().addAll(dataManager.getWriters());
+
 
         col_res_name.setCellValueFactory(data -> {
             ResourceModule module = data.getValue();
             return new ReadOnlyObjectWrapper<>(module.getDefinition().name());
         });
+        col_res_name.setCellFactory(WrappingTextFieldTableCell.forTableColumn());
         col_res_desc.setCellValueFactory(data -> {
             ResourceModule module = data.getValue();
             return new ReadOnlyObjectWrapper<>(module.getDefinition().description());
+        });
+        col_res_desc.setCellFactory(WrappingTextFieldTableCell.forTableColumn());
+
+        col_res_actions.setCellValueFactory(cellData -> {
+            ResourceModule module = ((TableColumn.CellDataFeatures<ResourceModule, Object>) cellData).getValue();
+            return new ReadOnlyObjectWrapper<>(ResourceModuleActionBundleFactory.getPane(module));
         });
 
         table_resources.getItems().addAll(resourceModuleRegistry.modules);
