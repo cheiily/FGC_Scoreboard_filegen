@@ -41,6 +41,10 @@ public class ResourceModule {
 
     public void setInstalled(boolean installed) {
         isInstalled = installed;
+        if (installed)
+            touchInstalled();
+        else
+            removeInstalled();
     }
 
     public boolean isEnabled() {
@@ -66,19 +70,21 @@ public class ResourceModule {
         this.isEnabled = isEnabled;
     }
 
-    public static ResourceModule installed(ResourceModuleDefinition definition) {
+    public static ResourceModule scannedLocal(ResourceModuleDefinition definition) {
         boolean enabled = false;
+        boolean installed = false;
         try {
-            enabled = Files.exists(definition.getInstallDirPath().resolve(".enabled"));
+            installed = Files.exists(definition.getInstallContainerDirPath().resolve(".installed"));
+            enabled = Files.exists(definition.getInstallContainerDirPath().resolve(".enabled"));
         } catch (DataManagerNotInitializedException ignored) {}
         return new ResourceModule(
                 definition,
                 true,
-                true,
+                installed,
                 enabled);
     }
 
-    public static ResourceModule remote(ResourceModuleDefinition definition) {
+    public static ResourceModule scannedRemote(ResourceModuleDefinition definition) {
         return new ResourceModule(definition,
                 false,
                 false,
@@ -86,9 +92,25 @@ public class ResourceModule {
     }
 
 
+    private void touchInstalled() {
+        try {
+            Files.createFile(definition.getInstallContainerDirPath().resolve(".installed"));
+        } catch (IOException | DataManagerNotInitializedException e) {
+            logger.error("Failed to create .installed file for resource module: {}", definition.installName(), e);
+        }
+    }
+
+    private void removeInstalled() {
+        try {
+            Files.deleteIfExists(definition.getInstallContainerDirPath().resolve(".installed"));
+        } catch (IOException | DataManagerNotInitializedException e) {
+            logger.error("Failed to remove .installed file for resource module: {}", definition.installName(), e);
+        }
+    }
+
     private void touchEnabled() {
         try {
-            Files.createFile(definition.getInstallDirPath().resolve(".enabled"));
+            Files.createFile(definition.getInstallContainerDirPath().resolve(".enabled"));
         } catch (IOException | DataManagerNotInitializedException e) {
             logger.error("Failed to create .enabled file for resource module: {}", definition.installName(), e);
         }
@@ -96,7 +118,7 @@ public class ResourceModule {
 
     private void removeEnabled() {
         try {
-            Files.deleteIfExists(definition.getInstallDirPath().resolve(".enabled"));
+            Files.deleteIfExists(definition.getInstallContainerDirPath().resolve(".enabled"));
         } catch (IOException | DataManagerNotInitializedException e) {
             logger.error("Failed to remove .enabled file for resource module: {}", definition.installName(), e);
         }

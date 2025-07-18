@@ -83,9 +83,15 @@ public record ResourceModuleDefinition(
             logger.error("Failed to store resource module definition to file: {}", path, e);
         }
     }
-    
+
+    public Path getInstallContainerDirPath() throws DataManagerNotInitializedException {
+        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
+                .resolve(installName());
+    }
+
     public Path getInstallDirPath() throws DataManagerNotInitializedException {
         return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
+                .resolve(installName())
                 .resolve(installName());
     }
     

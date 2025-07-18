@@ -5,18 +5,26 @@ import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class ResourceModuleInstallationManager {
     public static final Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleInstallationManager.class);
 
     public static ResourceModule downloadAndInstallModule(ResourceModuleDefinition definition) {
+        ResourceModule module = new ResourceModule(definition);
         try {
             var type = ResourceModuleType.valueOf(definition.resourceType());
-            var filepath = DownloadUtils.downloadFile(
+            var archivePath = DownloadUtils.downloadFile(
                     definition.url(),
-                    definition.getInstallDirPath()
+                    definition.getInstallFilePath()
             );
+
+            definition.store(definition.getInstallContainerDirPath().resolve(definition.installName() + ResourceModuleDefinition.EXTENSION));
+            module.setDownloaded(true);
 
             if (definition.archiveType() != null) {
                 var unarchiver = Unarchiver.getFor(definition.archiveType());
@@ -24,22 +32,26 @@ public class ResourceModuleInstallationManager {
                     logger.error("Unsupported archive type: {}", definition.archiveType());
                     return null;
                 }
-                filepath = unarchiver.apply(
-                        filepath,
-                        definition.getInstallFilePath()
+                unarchiver.apply(
+                        archivePath,
+                        definition.getInstallDirPath()
                 );
+                try {
+                    Files.deleteIfExists(archivePath);
+                } catch (IOException e) {
+                    logger.error("Failed to cleanup archive file after extraction: {}", archivePath, e);
+                }
             }
 
-            definition.store(definition.getInstallDirPath().resolve(definition.installName() + ResourceModuleDefinition.EXTENSION));
+            if (!ResourceModuleDownloadValidator.getFor(type).apply(module.getDefinition().getInstallDirPath())) {
+                return module;
+            }
 
             logger.trace("Resource module installation is a TODO feature, intended for JAR plugins.");
+            module.setInstalled(true);
 
-            if (!ResourceModuleDownloadValidator.getFor(type).apply(filepath)) {
-                logger.error("Resource module validation failed, not enabling.");
-                return null;
-            }
-
-            return new ResourceModule(definition, true, true, false);
+            module.setEnabled(true);
+            return module;
 
         } catch (IllegalArgumentException e) {
             logger.error("Invalid resource module type: {}", definition.resourceType(), e);
@@ -51,26 +63,41 @@ public class ResourceModuleInstallationManager {
         }
     }
 
-    public static boolean deleteModule(ResourceModule module) {
+    public static void deleteModule(ResourceModule module) {
         try {
             module.setEnabled(false);
             module.setInstalled(false);
 
-            var installPath = module.definition.getInstallDirPath();
-            var result = Files.deleteIfExists(installPath);
-            if (result) {
-                logger.info("Resource module deleted: {}", module.definition.name());
-                module.setDownloaded(false);
-            } else {
-                logger.warn("Resource module not found or already deleted: {}", module.definition.name());
-            }
-            return result;
+            var installPath = module.definition.getInstallContainerDirPath();
+            DeleteNonEmptyDirectory.deleteRecursively(installPath);
+            logger.info("Resource module deleted: {}", module.definition.name());
+            module.setDownloaded(false);
         } catch (DataManagerNotInitializedException ignored) {
         } catch (IOException e) {
             try {
                 logger.error(MarkerFactory.getMarker("ALERT"), "Failed to delete resource module: {}. Please remove it manually from {}.", module.definition.name(), module.definition.getInstallDirPath(), e);
             } catch (DataManagerNotInitializedException ignored) {}
         }
-        return false;
+    }
+
+
+    private static class DeleteNonEmptyDirectory extends SimpleFileVisitor<Path> {
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.deleteIfExists(file);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            Files.deleteIfExists(dir);
+            return FileVisitResult.CONTINUE;
+        }
+
+        public static void deleteRecursively(Path file) throws IOException {
+            DeleteNonEmptyDirectory deleter = new DeleteNonEmptyDirectory();
+            Files.walkFileTree(file, deleter);
+        }
     }
 }

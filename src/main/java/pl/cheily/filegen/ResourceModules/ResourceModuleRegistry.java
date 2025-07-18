@@ -71,7 +71,7 @@ public class ResourceModuleRegistry {
                     JSONObject json = new JSONObject(content);
                     return ResourceModuleDefinition.fromJson(json);
                 }).filter(Objects::nonNull)
-                    .map(ResourceModule::installed)
+                    .map(ResourceModule::scannedLocal)
                     .toList();
 
             modules.addAll(installedModules);
@@ -90,7 +90,7 @@ public class ResourceModuleRegistry {
         for (GitHubFileDetails file : files) {
             ResourceModuleDefinition definition = ResourceModuleDefinitionFetcher.fetchResourceModuleDefinition(file);
             if (definition != null) {
-                var module = ResourceModule.remote(definition);
+                var module = ResourceModule.scannedRemote(definition);
                 var isAlreadyInstalled = modules.stream().anyMatch(
                         installed -> installed.definition.equals(module.definition)
                 );
@@ -118,10 +118,10 @@ public class ResourceModuleRegistry {
 
 
     public void downloadModuleAsync(ResourceModule module) {
-        new Thread(() -> doDownloadModuleAsync(module)).start();
+        new Thread(() -> downloadModule(module)).start();
     }
 
-    private void doDownloadModuleAsync(ResourceModule module) {
+    public void downloadModule(ResourceModule module) {
         if (module.isDownloaded()) {
             logger.warn("Resource module {} is already downloaded.", module.definition.installName());
             return;
@@ -131,33 +131,38 @@ public class ResourceModuleRegistry {
     }
 
     public void deleteModuleAsync(ResourceModule module) {
-        new Thread(() -> doDeleteModuleAsync(module)).start();
+        new Thread(() -> deleteModule(module)).start();
     }
 
-    private void doDeleteModuleAsync(ResourceModule module) {
-        if (!module.isInstalled()) {
-            logger.warn("Resource module {} is not installed, cannot delete.", module.definition.installName());
-            return;
-        }
+    public void deleteModule(ResourceModule module) {
+        if (module.isEnabled())
+            disableModule(module);
+        if (module.isInstalled())
+            uninstallModule(module);
+
         ResourceModuleInstallationManager.deleteModule(module);
         eventPipeline.push(ResourceModuleEventType.REMOVED_MODULE, module);
     }
 
     public void installModuleAsync(ResourceModule module) {
-        new Thread(() -> doInstallModuleAsync(module)).start();
+        new Thread(() -> installModule(module)).start();
     }
 
-    private void doInstallModuleAsync(ResourceModule module) {
+    public void installModule(ResourceModule module) {
+        if (!module.isDownloaded()) {
+            logger.warn("Resource module {} is not downloaded, cannot install.", module.definition.installName());
+            return;
+        }
         logger.info("Installing resource modules is a WIP feature, intended for JAR plugins.");
         module.setInstalled(true);
         eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
     }
 
     public void uninstallModuleAsync(ResourceModule module) {
-        new Thread(() -> doUninstallModuleAsync(module)).start();
+        new Thread(() -> uninstallModule(module)).start();
     }
 
-    private void doUninstallModuleAsync(ResourceModule module) {
+    public void uninstallModule(ResourceModule module) {
         logger.info("Uninstalling resource modules is a WIP feature, intended for JAR plugins.");
         module.setInstalled(false);
         eventPipeline.push(ResourceModuleEventType.UNINSTALLED_MODULE, module);
