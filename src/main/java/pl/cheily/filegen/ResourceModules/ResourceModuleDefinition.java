@@ -3,11 +3,16 @@ package pl.cheily.filegen.ResourceModules;
 import org.json.JSONObject;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.Utils.Pair;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public record ResourceModuleDefinition(
     String definitionVersion,
@@ -88,6 +93,32 @@ public record ResourceModuleDefinition(
         return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
                 .resolve(installName())
                 .resolve(installName() + archiveType());
+    }
+
+    public record Property(
+        String name,
+        Class type,
+        Object value
+    ) {}
+
+    public List<Property> getProperties() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("definitionVersion", String.class, definitionVersion));
+        properties.add(new Property("name", String.class, name));
+        properties.add(new Property("installName", String.class, installName));
+        properties.add(new Property("description", String.class, description));
+        properties.add(new Property("version", String.class, version));
+        properties.add(new Property("isoDate", String.class, isoDate));
+        properties.add(new Property("author", String.class, author));
+        properties.add(new Property("url", String.class, url));
+        properties.add(new Property("externalUrl", Boolean.class, externalUrl));
+        properties.add(new Property("resourceType", String.class, resourceType));
+        properties.add(new Property("archiveType", String.class, archiveType));
+        properties.add(new Property("autoinstall", Boolean.class, autoinstall));
+        properties.add(new Property("autorun", Boolean.class, autorun));
+        properties.add(new Property("checksum", String.class, checksum));
+
+        return properties;
     }
 
     // for bean property generator

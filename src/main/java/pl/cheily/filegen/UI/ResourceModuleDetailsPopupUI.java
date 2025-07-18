@@ -2,14 +2,21 @@ package pl.cheily.filegen.UI;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.PropertySheet;
-import org.controlsfx.property.BeanPropertyUtils;
-import org.controlsfx.property.editor.PropertyEditor;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
+import pl.cheily.filegen.Utils.Pair;
 
 import java.beans.PropertyChangeListener;
 import java.net.URL;
@@ -29,6 +36,7 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
     public ResourceModule module;
 
     public PropertySheet property_sheet;
+    public GridPane prop_grid;
     public Label label_header;
     public Button btn_download;
     public Button btn_install;
@@ -101,7 +109,41 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
     }
 
     private void loadPropertySheet() {
-        property_sheet.getItems().setAll(BeanPropertyUtils.getProperties(module.getDefinition()));
+        Label propLabel = new Label("Property");
+        propLabel.setTextAlignment(TextAlignment.CENTER);
+        propLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+        Label valueLabel = new Label("Value");
+        valueLabel.setTextAlignment(TextAlignment.CENTER);
+        valueLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+
+        prop_grid.addRow(0, propLabel, valueLabel);
+        var rowCount = new Object() {
+            int val = 1;
+        };
+        module.getDefinition().getProperties().forEach( property -> {
+            Label propNameLabel = new Label(property.name());
+            propNameLabel.setMinHeight(30);
+            propNameLabel.setTextAlignment(TextAlignment.LEFT);
+
+            Text valueText = new Text();
+            if (property.type() == String.class)
+                valueText.setText((String) property.value());
+            else if (property.type() == Boolean.class) {
+                valueText.setText((boolean) property.value() ? "YES" : "NO");
+                valueText.setFill(Paint.valueOf((boolean) property.value() ? "green" : "red"));
+                var font = valueText.getFont();
+                valueText.setFont(Font.font(font.getName(), FontWeight.BOLD, font.getSize()));
+            } else
+                valueText.setText("Parsing error - unsupported type: " + property.type().getSimpleName());
+
+            valueText.wrappingWidthProperty().set(prop_grid.getColumnConstraints().get(1).getPrefWidth());
+
+            prop_grid.addRow(rowCount.val, propNameLabel, valueText);
+            rowCount.val += 1;
+        });
+        prop_grid.getColumnConstraints().forEach(constraint -> {
+            constraint.setHalignment(HPos.CENTER);
+        });
     }
 
     private void setButtonsEnableState() {

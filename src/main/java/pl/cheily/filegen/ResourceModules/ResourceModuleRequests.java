@@ -27,9 +27,10 @@ public class ResourceModuleRequests {
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
             connection.setRequestProperty("GitHub-Api-Version", "2022-11-28");
+            connection.setRequestProperty("Authorization", "Bearer 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");
 
             if (connection.getResponseCode() != 200) {
-                logger.error("Failed to fetch GitHub resource module contents: HTTP {}", connection.getResponseCode());
+                logger.error("Failed to fetch GitHub resource module contents: HTTP {}, message \"{}\"", connection.getResponseCode(), connection.getResponseMessage());
                 return List.of();
             }
 
