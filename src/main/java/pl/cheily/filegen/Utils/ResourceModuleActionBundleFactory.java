@@ -2,6 +2,7 @@ package pl.cheily.filegen.Utils;
 
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -29,8 +30,7 @@ public class ResourceModuleActionBundleFactory {
     public static FlowPane getPane(ResourceModule module) {
         FlowPane pane = new FlowPane();
         pane.setPrefHeight(50);
-        pane.setColumnHalignment(HPos.CENTER);
-        pane.setRowValignment(VPos.CENTER);
+        pane.setAlignment(Pos.CENTER);
         pane.getChildren().addAll(getButtons(module));
         return pane;
     }
