@@ -126,7 +126,12 @@ public class ResourceModuleRegistry {
             logger.warn("Resource module {} is already downloaded.", module.definition.installName());
             return;
         }
-        ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
+        var result = ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
+        if (result != null) {
+            module.setDownloaded(true);
+            module.setInstalled(result.isInstalled());
+            module.setEnabled(result.isEnabled());
+        }
         eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
     }
 
