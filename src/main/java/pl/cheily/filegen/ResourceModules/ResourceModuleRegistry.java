@@ -7,6 +7,8 @@ import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventPipeline;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -39,7 +41,14 @@ public class ResourceModuleRegistry {
     public void initializeAsync() {
         loadInstallationsAsync();
         loadRemoteAsync();
-        doAutoInstall();
+        PropertyChangeListener listener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                doAutoinstallAsync();
+                eventPipeline.unsubscribe(ResourceModuleEventType.FETCHED_DEFINITIONS, this);
+            }
+        };
+        eventPipeline.subscribe(ResourceModuleEventType.FETCHED_DEFINITIONS, listener);
     }
 
     public void initialize() {
@@ -108,7 +117,12 @@ public class ResourceModuleRegistry {
     public void doAutoInstall() {
         for (ResourceModule module : modules) {
             if (!module.isDownloaded() && module.definition.autoinstall()) {
-                ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
+                var result = ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
+                if (result != null) {
+                    module.copyFrom(result);
+                } else {
+                    logger.warn("Failed autoinstallation of resource module: {}", module.definition.installName());
+                }
                 eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
                 if (module.isInstalled())
                     eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
