@@ -53,6 +53,7 @@ public class ResourceModuleActionBundleFactory {
                 resourceModuleRegistry.installModuleAsync(module);
             }
         });
+        installButton.setDisable(!module.isDownloaded());
 
         Button enableButton = new Button(module.isEnabled() ? PROP_DISABLE : PROP_ENABLE);
         enableButton.setOnAction(evt -> {
@@ -62,6 +63,7 @@ public class ResourceModuleActionBundleFactory {
                 resourceModuleRegistry.enableModule(module);
             }
         });
+        enableButton.setDisable(!module.isInstalled());
 
         Button moreButton = new Button(PROP_MORE);
         moreButton.setOnAction(evt -> {
