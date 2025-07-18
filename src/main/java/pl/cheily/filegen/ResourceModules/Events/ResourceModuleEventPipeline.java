@@ -1,5 +1,6 @@
 package pl.cheily.filegen.ResourceModules.Events;
 
+import javafx.application.Platform;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 
 import java.beans.PropertyChangeListener;
@@ -13,7 +14,11 @@ public class ResourceModuleEventPipeline {
     }
 
     public void push(ResourceModuleEventType event, ResourceModule module) {
-        pcs.firePropertyChange(event.toString(), null, module);
+        if (Platform.isFxApplicationThread()) {
+            pcs.firePropertyChange(event.toString(), null, module);
+        } else {
+            Platform.runLater(() -> pcs.firePropertyChange(event.toString(), null, module));
+        }
     }
 
     public void subscribe(ResourceModuleEventType eventType, PropertyChangeListener listener) {
