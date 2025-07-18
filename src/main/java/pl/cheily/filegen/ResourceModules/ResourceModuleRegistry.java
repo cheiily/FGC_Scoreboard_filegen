@@ -128,9 +128,7 @@ public class ResourceModuleRegistry {
         }
         var result = ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
         if (result != null) {
-            module.setDownloaded(true);
-            module.setInstalled(result.isInstalled());
-            module.setEnabled(result.isEnabled());
+            module.copyFrom(result);
         }
         eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
     }

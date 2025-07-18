@@ -109,6 +109,8 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
     }
 
     private void loadPropertySheet() {
+        prop_grid.getChildren().clear();
+
         Label propLabel = new Label("Property");
         propLabel.setTextAlignment(TextAlignment.CENTER);
         propLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");

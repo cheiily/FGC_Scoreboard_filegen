@@ -1,12 +1,18 @@
 package pl.cheily.filegen.ResourceModules;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ResourceModule {
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModule.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResourceModule.class);
+
+    private static final String FILE_INSTALLED = ".installed";
+    private static final String FILE_ENABLED = ".enabled";
 
     final ResourceModuleDefinition definition;
 
@@ -91,36 +97,51 @@ public class ResourceModule {
                 false);
     }
 
+    public void copyFrom(ResourceModule other) {
+        this.isDownloaded = other.isDownloaded;
+        this.isInstalled = other.isInstalled;
+        this.isEnabled = other.isEnabled;
+    }
+
 
     private void touchInstalled() {
+        touch(FILE_INSTALLED);
+    }
+
+    private void removeInstalled() {
+        untouch(FILE_INSTALLED);
+    }
+
+    private void touchEnabled() {
+        touch(FILE_ENABLED);
+    }
+
+    private void removeEnabled() {
+        untouch(FILE_ENABLED);
+    }
+
+    private void touch(String filename) {
+        Path path = null;
         try {
-            Files.createFile(definition.getInstallContainerDirPath().resolve(".installed"));
-        } catch (IOException | DataManagerNotInitializedException e) {
+            path = definition.getInstallContainerDirPath().resolve(filename);
+        } catch (DataManagerNotInitializedException ignored) {}
+        if (Files.exists(path)) {
+            logger.info("Resource module {} is already installed, skipping creation of {} file.", definition.installName(), filename);
+            return;
+        }
+
+        try {
+            Files.createFile(path);
+        } catch (IOException e) {
             logger.error("Failed to create .installed file for resource module: {}", definition.installName(), e);
         }
     }
 
-    private void removeInstalled() {
+    private void untouch(String filename) {
         try {
-            Files.deleteIfExists(definition.getInstallContainerDirPath().resolve(".installed"));
+            Files.deleteIfExists(definition.getInstallContainerDirPath().resolve(filename));
         } catch (IOException | DataManagerNotInitializedException e) {
-            logger.error("Failed to remove .installed file for resource module: {}", definition.installName(), e);
-        }
-    }
-
-    private void touchEnabled() {
-        try {
-            Files.createFile(definition.getInstallContainerDirPath().resolve(".enabled"));
-        } catch (IOException | DataManagerNotInitializedException e) {
-            logger.error("Failed to create .enabled file for resource module: {}", definition.installName(), e);
-        }
-    }
-
-    private void removeEnabled() {
-        try {
-            Files.deleteIfExists(definition.getInstallContainerDirPath().resolve(".enabled"));
-        } catch (IOException | DataManagerNotInitializedException e) {
-            logger.error("Failed to remove .enabled file for resource module: {}", definition.installName(), e);
+            logger.error("Failed to remove {} file for resource module: {}", definition.installName(), filename, e);
         }
     }
 }
