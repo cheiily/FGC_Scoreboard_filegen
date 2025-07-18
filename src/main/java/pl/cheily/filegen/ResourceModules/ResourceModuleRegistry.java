@@ -36,15 +36,24 @@ public class ResourceModuleRegistry {
         modules.removeIf(module -> !module.isDownloaded());
     }
 
+    public void initializeAsync() {
+        loadInstallationsAsync();
+        loadRemoteAsync();
+        doAutoInstall();
+    }
 
     public void initialize() {
         loadInstallations();
         loadRemote();
-        doAutoinstallAsync();
+        doAutoInstall();
     }
 
     public void queueInitialize() {
         Platform.runLater(this::initialize);
+    }
+
+    public void loadInstallationsAsync() {
+        new Thread(this::loadInstallations).start();
     }
 
     public void loadInstallations() {
@@ -72,6 +81,10 @@ public class ResourceModuleRegistry {
         }
     }
 
+    public void loadRemoteAsync() {
+        new Thread(this::loadRemote).start();
+    }
+
     public void loadRemote() {
         List<GitHubFileDetails> files = ResourceModuleDefinitionFetcher.fetchRemoteFiles();
         for (GitHubFileDetails file : files) {
@@ -89,10 +102,10 @@ public class ResourceModuleRegistry {
     }
 
     public void doAutoinstallAsync() {
-        new Thread(this::doDoAutoinstallAsync).start();
+        new Thread(this::doAutoInstall).start();
     }
 
-    private void doDoAutoinstallAsync() {
+    public void doAutoInstall() {
         for (ResourceModule module : modules) {
             if (!module.isDownloaded() && module.definition.autoinstall()) {
                 ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);

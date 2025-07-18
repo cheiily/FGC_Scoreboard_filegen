@@ -64,7 +64,7 @@ public class ScoreboardApplication extends Application {
         VersionChecker.queueUpdateCheck();
         // todo load persistent config on init & only check for updates if allowed
         NotificationAPIChecker.queueNotificationChecks();
-        resourceModuleRegistry.queueInitialize();
+        resourceModuleRegistry.initializeAsync();
         System.out.println("here");
 //        dataWebSocket.start();
 //
