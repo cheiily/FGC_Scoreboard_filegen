@@ -1,5 +1,6 @@
 package pl.cheily.filegen.Utils;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.Region;
@@ -15,6 +16,7 @@ public class WrappingTextFieldTableCell {
             text.setTextAlignment(TextAlignment.CENTER);
             text.textProperty().bind(cell.itemProperty());
             text.fillProperty().bind(cell.textFillProperty());
+            cell.setAlignment(Pos.CENTER);
             cell.setGraphic(text);
             cell.setPrefHeight(Region.USE_COMPUTED_SIZE);
             return cell;
