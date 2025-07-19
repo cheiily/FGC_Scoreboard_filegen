@@ -3,6 +3,7 @@ package pl.cheily.filegen.ResourceModules.Plugins;
 import org.slf4j.Logger;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
+import pl.cheily.filegen.ResourceModules.ResourceModuleRegistry;
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -14,9 +15,9 @@ public class PluginRegistry {
     private PluginEventForwarder eventForwarder;
     private PropertyChangeListener listener;
 
-    public PluginRegistry() {
+    public PluginRegistry(ResourceModuleRegistry registry) {
         this.plugins = new java.util.ArrayList<>();
-        this.eventForwarder = new PluginEventForwarder();
+        this.eventForwarder = new PluginEventForwarder(registry);
         this.listener = evt -> {
             switch(ResourceModuleEventType.valueOf(evt.getPropertyName())) {
                 default: break;

@@ -15,9 +15,6 @@ public interface IPluginBase {
         public String resourceModuleCategory() default "";
     }
 
-    public void setEnabled(boolean enabled);
-    public boolean isEnabled();
-
     public PluginData getInfo();
     public PluginHealthData getHealthStatus();
     public void acceptRequiredModuleStatus(List<ResourceModule> modules);

@@ -5,8 +5,10 @@ import pl.cheily.filegen.ResourceModules.Plugins.HealthCheckDecorators.PluginCom
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.PluginData;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.PluginHealthData;
+import pl.cheily.filegen.ResourceModules.ResourceModule;
 
 import java.net.URL;
+import java.util.List;
 
 public class FlagProviderHealthCheckDecorator implements IFlagProvider {
     public IFlagProvider flagProvider;
@@ -40,5 +42,10 @@ public class FlagProviderHealthCheckDecorator implements IFlagProvider {
     @Override
     public PluginHealthData getHealthStatus() {
         return flagProvider.getHealthStatus();
+    }
+
+    @Override
+    public void acceptRequiredModuleStatus(List<ResourceModule> modules) {
+
     }
 }

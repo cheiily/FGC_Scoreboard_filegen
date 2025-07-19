@@ -26,7 +26,7 @@ public class ResourceModuleRegistry {
     public ResourceModuleRegistry() {
         eventPipeline = new ResourceModuleEventPipeline();
         modules = new ArrayList<>();
-        pluginRegistry = new PluginRegistry();
+        pluginRegistry = new PluginRegistry(this);
     }
 
     public void register(ResourceModule module) {

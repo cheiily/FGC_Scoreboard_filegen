@@ -25,19 +25,8 @@ public class DefaultFlagProvider implements IFlagProvider {
     );
     private ResourceModule cachedModule = null;
     private boolean cachedCanReach = false;
-    private boolean enabled = false;
 
     public DefaultFlagProvider() {}
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
 
     @Override
     public PluginData getInfo() {
@@ -75,7 +64,6 @@ public class DefaultFlagProvider implements IFlagProvider {
     @Override
     public void acceptRequiredModuleStatus(List<ResourceModule> modules) {
         cachedModule = modules.get(0);
-        enabled = cachedModule.isInstalled() && cachedModule.isEnabled();
 
         File[] files;
         try {

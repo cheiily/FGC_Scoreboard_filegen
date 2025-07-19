@@ -14,6 +14,7 @@ public class ResourceModuleDownloadValidator {
             case STATIC_FILE -> ResourceModuleDownloadValidator::validateStaticFile;
             case EXECUTABLE_COMMAND -> ResourceModuleDownloadValidator::validateExecutableCommand;
             case PROPERTIES_JSON -> ResourceModuleDownloadValidator::validatePropertiesJson;
+            case PLUGIN_JAR -> ResourceModuleDownloadValidator::validatePluginJar;
         };
     }
 
@@ -52,6 +53,11 @@ public class ResourceModuleDownloadValidator {
 
     private static Boolean validateExecutableCommand(Path path) {
         logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", EXECUTABLE_COMMAND, path);
+        return true;
+    }
+
+    private static boolean validatePluginJar(Path path) {
+        logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", PLUGIN_JAR, path);
         return true;
     }
     
