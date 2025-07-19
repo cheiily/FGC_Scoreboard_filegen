@@ -1,5 +1,6 @@
 package pl.cheily.filegen.ResourceModules;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +39,16 @@ public class ResourceModuleDefinitionFetcher {
             return null;
         }
 
+        String fileContent = "";
         try {
-            var json = new JSONObject(new String(Files.readAllBytes(path)));
+            fileContent = new String(Files.readAllBytes(path));
+            var json = new JSONObject(fileContent);
             return ResourceModuleDefinition.fromJson(json);
         } catch (IOException e) {
             logger.error("Failed to read resource module definition file: {}", path, e);
+            return null;
+        } catch (JSONException e) {
+            logger.error("Failed to parse resource module definition or github file: {}, content?: {}", path, fileContent, e);
             return null;
         }
     }

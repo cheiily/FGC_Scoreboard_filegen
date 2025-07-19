@@ -1,7 +1,9 @@
 package pl.cheily.filegen.ResourceModules;
 
 import javafx.application.Platform;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventPipeline;
@@ -78,6 +80,7 @@ public class ResourceModuleRegistry {
                     try {
                         content = new String(Files.readAllBytes(path));
                     } catch (IOException e) {
+                        logger.error("Failed reading existing resource module definition file: {}", path, e);
                         return null;
                     }
                     JSONObject json = new JSONObject(content);
@@ -90,6 +93,8 @@ public class ResourceModuleRegistry {
             eventPipeline.push(ResourceModuleEventType.LOADED_INSTALLATIONS, null);
         } catch (IOException | DataManagerNotInitializedException e) {
             logger.error("Failed to load installed resource modules.", e);
+        } catch (JSONException e) {
+            logger.error("Failed to parse resource module definition JSON.", e);
         }
     }
 
@@ -124,7 +129,11 @@ public class ResourceModuleRegistry {
                 if (result != null) {
                     module.copyFrom(result);
                 } else {
-                    logger.warn("Failed autoinstallation of resource module: {}", module.definition.installName());
+                    logger.error(
+                            MarkerFactory.getMarker("ALERT"),
+                            String.format("Failed autoinstallation of resource module: \"%s\". See previous logs for details. Full definition in trace message.", module.getDefinition().name())
+                    );
+                    logger.trace("Resource module definition: {}", module.getDefinition().toJson());
                 }
                 eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
                 if (module.isInstalled())
@@ -140,12 +149,19 @@ public class ResourceModuleRegistry {
 
     public void downloadModule(ResourceModule module) {
         if (module.isDownloaded()) {
-            logger.warn("Resource module {} is already downloaded.", module.definition.installName());
+            logger.warn("Resource module {} is already downloaded.", module.definition.installPath());
             return;
         }
         var result = ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
         if (result != null) {
             module.copyFrom(result);
+        } else {
+            logger.error(
+                    MarkerFactory.getMarker("ALERT"),
+                    String.format("Failed downloading resource module: \"%s\". See previous logs for details. Full definition in trace message.", module.getDefinition().name())
+            );
+            logger.trace("Resource module definition: {}", module.getDefinition().toJson());
+            return;
         }
         eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
     }
@@ -170,7 +186,7 @@ public class ResourceModuleRegistry {
 
     public void installModule(ResourceModule module) {
         if (!module.isDownloaded()) {
-            logger.warn("Resource module {} is not downloaded, cannot install.", module.definition.installName());
+            logger.warn("Resource module {} is not downloaded, cannot install.", module.definition.installPath());
             return;
         }
         logger.info("Installing resource modules is a WIP feature, intended for JAR plugins.");
@@ -190,7 +206,7 @@ public class ResourceModuleRegistry {
 
     public void enableModule(ResourceModule module) {
         if (!module.isInstalled()) {
-            logger.warn("Resource module {} is not installed, cannot enable.", module.definition.installName());
+            logger.warn("Resource module {} is not installed, cannot enable.", module.definition.installPath());
             return;
         }
         module.setEnabled(true);

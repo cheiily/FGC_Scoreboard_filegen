@@ -126,14 +126,14 @@ public class ResourceModule {
             path = definition.getInstallContainerDirPath().resolve(filename);
         } catch (DataManagerNotInitializedException ignored) {}
         if (Files.exists(path)) {
-            logger.info("Resource module {} is already installed, skipping creation of {} file.", definition.installName(), filename);
+            logger.info("Resource module {} is already installed, skipping creation of {} file.", definition.installPath(), filename);
             return;
         }
 
         try {
             Files.createFile(path);
         } catch (IOException e) {
-            logger.error("Failed to create .installed file for resource module: {}", definition.installName(), e);
+            logger.error("Failed to create {} file for resource module: {}", filename, definition.installPath(), e);
         }
     }
 
@@ -141,7 +141,7 @@ public class ResourceModule {
         try {
             Files.deleteIfExists(definition.getInstallContainerDirPath().resolve(filename));
         } catch (IOException | DataManagerNotInitializedException e) {
-            logger.error("Failed to remove {} file for resource module: {}", definition.installName(), filename, e);
+            logger.error("Failed to remove {} file for resource module: {}", definition.installPath(), filename, e);
         }
     }
 }

@@ -47,7 +47,7 @@ public class ScoreboardApplication extends Application {
         var rootlog = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         var appender = new AlertingAppender();
         appender.setContext(rootlog.getLoggerContext());
-//        appender.start();//?
+        appender.start();//?
         rootlog.addAppender(appender);
 
         mainStage = stage;

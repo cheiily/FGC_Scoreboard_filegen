@@ -3,44 +3,60 @@ package pl.cheily.filegen.ResourceModules;
 import org.json.JSONObject;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
-import pl.cheily.filegen.Utils.Pair;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public record ResourceModuleDefinition(
-    String definitionVersion,
-    String name,
-    String installName,
-    String description,
-    String version,
-    String isoDate,
-    String author,
-    String url,
-    boolean externalUrl,
-    String resourceType,
-    String archiveType,
-    boolean autoinstall,
-    boolean autorun,
-    String checksum
+        String definitionVersion,
+        String name,
+        String category,
+        String installPath,
+        String description,
+        String version,
+        String isoDate,
+        String author,
+        String url,
+        boolean externalUrl,
+        String resourceType,
+        String archiveType,
+        boolean autoinstall,
+        boolean autorun,
+        String checksum
 ) {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleDefinition.class);
     public static final String EXTENSION = ".sscm";
+
+    public static final String KEY_DEFINITION_VERSION = "definitionVersion";
+    public static final String KEY_NAME = "name";
+    public static final String KEY_CATEGORY = "category";
+    public static final String KEY_INSTALL_PATH = "installPath";
+    public static final String KEY_DESCRIPTION = "description";
+    public static final String KEY_VERSION = "version";
+    public static final String KEY_ISO_DATE = "isoDate";
+    public static final String KEY_AUTHOR = "author";
+    public static final String KEY_URL = "url";
+    public static final String KEY_EXTERNAL_URL = "externalUrl";
+    public static final String KEY_RESOURCE_TYPE = "resourceType";
+    public static final String KEY_ARCHIVE_TYPE = "archiveType";
+    public static final String KEY_AUTOINSTALL = "autoinstall";
+    public static final String KEY_AUTORUN = "autorun";
+    public static final String KEY_CHECKSUM = "checksum";
+
 
     public static ResourceModuleDefinition fromJson(JSONObject json) {
         return new ResourceModuleDefinition(
             json.getString("definitionVersion"),
             json.getString("name"),
-            json.getString("installName"),
+            json.optString("category"),
+            json.getString("installPath"),
             json.getString("description"),
             json.getString("version"),
-            json.getString("isoDate"),
+            json.optString("isoDate"),
             json.getString("author"),
             json.getString("url"),
             json.getBoolean("externalUrl"),
@@ -48,8 +64,7 @@ public record ResourceModuleDefinition(
             json.optString("archiveType", null),
             json.optBoolean("autoinstall", false),
             json.optBoolean("autorun", false),
-            json.optString("checksum", null)
-        );
+            json.optString("checksum", null));
     }
 
     public String toJson() {
@@ -60,7 +75,8 @@ public record ResourceModuleDefinition(
         JSONObject json = new JSONObject();
         json.put("definitionVersion", definitionVersion);
         json.put("name", name);
-        json.put("installName", installName);
+        json.put("category", category);
+        json.put("installPath", installPath);
         json.put("description", description);
         json.put("version", version);
         json.put("isoDate", isoDate);
@@ -86,19 +102,19 @@ public record ResourceModuleDefinition(
 
     public Path getInstallContainerDirPath() throws DataManagerNotInitializedException {
         return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
-                .resolve(installName());
+                .resolve(installPath());
     }
 
     public Path getInstallDirPath() throws DataManagerNotInitializedException {
         return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
-                .resolve(installName())
-                .resolve(installName());
+                .resolve(installPath())
+                .resolve(installPath());
     }
     
     public Path getInstallFilePath() throws DataManagerNotInitializedException {
         return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
-                .resolve(installName())
-                .resolve(installName() + archiveType());
+                .resolve(installPath())
+                .resolve(installPath() + archiveType());
     }
 
     public record Property(
@@ -111,7 +127,8 @@ public record ResourceModuleDefinition(
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("definitionVersion", String.class, definitionVersion));
         properties.add(new Property("name", String.class, name));
-        properties.add(new Property("installName", String.class, installName));
+        properties.add(new Property("category", String.class, category));
+        properties.add(new Property("installPath", String.class, installPath));
         properties.add(new Property("description", String.class, description));
         properties.add(new Property("version", String.class, version));
         properties.add(new Property("isoDate", String.class, isoDate));
@@ -126,20 +143,4 @@ public record ResourceModuleDefinition(
 
         return properties;
     }
-
-    // for bean property generator
-    public String getDefinitionVersion() { return definitionVersion; }
-    public String getName() { return name; }
-    public String getInstallName() { return installName; }
-    public String getDescription() { return description; }
-    public String getVersion() { return version; }
-    public String getIsoDate() { return isoDate; }
-    public String getAuthor() { return author; }
-    public String getUrl() { return url; }
-    public boolean isExternalUrl() { return externalUrl; }
-    public String getResourceType() { return resourceType; }
-    public String getArchiveType() { return archiveType; }
-    public boolean isAutoinstall() { return autoinstall; }
-    public boolean isAutorun() { return autorun; }
-    public String getChecksum() { return checksum; }
 }

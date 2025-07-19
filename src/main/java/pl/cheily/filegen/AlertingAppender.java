@@ -1,6 +1,7 @@
 package pl.cheily.filegen;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
@@ -36,6 +37,12 @@ public class AlertingAppender extends ch.qos.logback.core.AppenderBase<ILoggingE
         }
     }
 
+    public AlertingAppender() {
+        super();
+        setName("AlertingAppender");
+        start();
+    }
+
     //0 - "ALERT"
     //1 - AlertType
     //2+ - ButtonType
@@ -45,7 +52,7 @@ public class AlertingAppender extends ch.qos.logback.core.AppenderBase<ILoggingE
         if (markers.isEmpty()) return;
         if (!markers.get(0).equals(MarkerFactory.getMarker("ALERT"))) return;
         if (markers.size() == 1) {
-            new Alert(Alert.AlertType.ERROR, iLoggingEvent.getMessage()).show();
+            showAlert(Alert.AlertType.ERROR, iLoggingEvent.getMessage());
             return;
         }
 
@@ -55,6 +62,19 @@ public class AlertingAppender extends ch.qos.logback.core.AppenderBase<ILoggingE
             if (button == null) continue;
             buttons.add(button);
         }
-        new Alert(Alert.AlertType.valueOf(markers.get(1).getName()), iLoggingEvent.getMessage(), buttons.toArray(new ButtonType[0])).show();
+        showAlert(Alert.AlertType.valueOf(markers.get(1).getName()), iLoggingEvent.getMessage(), buttons.toArray(new ButtonType[0]));
+    }
+
+    private void showAlert(Alert.AlertType type, String message, ButtonType... buttons) {
+        if (Platform.isFxApplicationThread()) {
+            doShowAlert(type, message, buttons);
+        } else {
+            Platform.runLater(() -> doShowAlert(type, message, buttons));
+        }
+    }
+
+    private void doShowAlert(Alert.AlertType type, String message, ButtonType... buttons) {
+        Alert alert = new Alert(type, message, buttons);
+        alert.showAndWait();
     }
 }

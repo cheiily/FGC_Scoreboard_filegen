@@ -23,7 +23,7 @@ public class ResourceModuleInstallationManager {
                     definition.getInstallFilePath()
             );
 
-            definition.store(definition.getInstallContainerDirPath().resolve(definition.installName() + ResourceModuleDefinition.EXTENSION));
+            definition.store(definition.getInstallContainerDirPath().resolve(definition.installPath() + ResourceModuleDefinition.EXTENSION));
             module.setDownloaded(true);
 
             if (definition.archiveType() != null) {
@@ -75,7 +75,10 @@ public class ResourceModuleInstallationManager {
         } catch (DataManagerNotInitializedException ignored) {
         } catch (IOException e) {
             try {
-                logger.error(MarkerFactory.getMarker("ALERT"), "Failed to delete resource module: {}. Please remove it manually from {}.", module.definition.name(), module.definition.getInstallDirPath(), e);
+                logger.error(
+                        MarkerFactory.getMarker("ALERT"),
+                        String.format("Failed to delete resource module: \"%s\". Please remove it manually from \"%s\" and restart the app.", module.definition.name(), module.definition.getInstallContainerDirPath()),
+                        e);
             } catch (DataManagerNotInitializedException ignored) {}
         }
     }
