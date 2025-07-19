@@ -6,6 +6,7 @@ import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventPipeline;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
+import pl.cheily.filegen.ResourceModules.Plugins.PluginRegistry;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -20,10 +21,12 @@ public class ResourceModuleRegistry {
 
     public ResourceModuleEventPipeline eventPipeline;
     public List<ResourceModule> modules;
+    public PluginRegistry pluginRegistry;
 
     public ResourceModuleRegistry() {
         eventPipeline = new ResourceModuleEventPipeline();
         modules = new ArrayList<>();
+        pluginRegistry = new PluginRegistry();
     }
 
     public void register(ResourceModule module) {
