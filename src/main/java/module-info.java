@@ -37,4 +37,6 @@ module pl.cheily.filegen {
     exports pl.cheily.filegen.ResourceModules.Plugins.SPI;
     opens pl.cheily.filegen.ResourceModules.Plugins.SPI;
     exports pl.cheily.filegen.ResourceModules.Plugins;
+    exports pl.cheily.filegen.ResourceModules.Validation;
+    opens pl.cheily.filegen.ResourceModules.Validation to javafx.fxml;
 }

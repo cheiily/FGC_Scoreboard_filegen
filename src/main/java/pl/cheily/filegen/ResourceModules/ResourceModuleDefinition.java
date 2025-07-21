@@ -100,19 +100,19 @@ public record ResourceModuleDefinition(
         }
     }
 
-    public Path getInstallContainerDirPath() throws DataManagerNotInitializedException {
-        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
+    public Path getInstallContainerDirPath() {
+        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toStaticPath()
                 .resolve(installPath());
     }
 
-    public Path getInstallDirPath() throws DataManagerNotInitializedException {
-        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
+    public Path getInstallDirPath() {
+        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toStaticPath()
                 .resolve(installPath())
                 .resolve(installPath());
     }
     
-    public Path getInstallFilePath() throws DataManagerNotInitializedException {
-        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toPath()
+    public Path getInstallFilePath() {
+        return LocalResourcePath.RESOURCE_MODULE_INSTALL.toStaticPath()
                 .resolve(installPath())
                 .resolve(installPath() + archiveType());
     }

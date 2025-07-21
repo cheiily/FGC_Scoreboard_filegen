@@ -124,6 +124,14 @@ public enum LocalResourcePath {
         return Path.of(ScoreboardApplication.dataManager.targetDir + "/" + this.fileName);
     }
 
+    public Path toStaticPath() {
+        if ( this.isPersistentDataPath() )
+            return this.persistentPath();
+        else throw new IllegalArgumentException(
+                "Cannot convert non-persistent path to static path: " + this.fileName
+        );
+    }
+
     /**
      * Finds the enum with the desired value.
      *

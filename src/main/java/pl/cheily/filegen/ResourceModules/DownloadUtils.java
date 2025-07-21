@@ -3,6 +3,7 @@ package pl.cheily.filegen.ResourceModules;
 import net.harawata.appdirs.AppDirsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDownloadException;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
@@ -20,7 +21,7 @@ import java.nio.file.StandardOpenOption;
 public class DownloadUtils {
     public static final Logger logger = LoggerFactory.getLogger(DownloadUtils.class.getName());
 
-    public static Path downloadFile(String url, Path targetPath) {
+    public static Path downloadFile(String url, Path targetPath) throws ResourceModuleDownloadException {
         try {
             logger.trace("Downloading file URL: {}", url);
 
@@ -40,7 +41,7 @@ public class DownloadUtils {
                 logger.trace("Downloaded {} bytes to {}", bytesTransferred, targetPath);
             } catch (IOException e) {
                 logger.error("Failed to download file URL: {}", url, e);
-                throw e;
+                throw ResourceModuleDownloadException.fromURL(url, targetPath.toAbsolutePath().toString(), e);
             }
 
             logger.info("File downloaded successfully: {}", targetPath);
@@ -48,14 +49,15 @@ public class DownloadUtils {
 
         } catch (MalformedURLException e) {
             logger.error("Failed to download file, invalid URL: {}", url, e);
+            throw ResourceModuleDownloadException.fromURL(url, targetPath.toAbsolutePath().toString(), "Invalid URL.", e);
         } catch (IOException e) {
             logger.error("Failed to download file: {}", url, e);
+            throw ResourceModuleDownloadException.fromURL(url, targetPath.toAbsolutePath().toString(), e);
+            // todo try cleanup on catch
         }
-
-        return null;
     }
 
-    public static Path downloadTempFile(String url, Path dir) {
+    public static Path downloadTempFile(String url, Path dir) throws ResourceModuleDownloadException {
         try {
             Files.createDirectories(dir);
             File tempfile = Files.createTempFile(dir, "rsc_mdl_def_", ResourceModuleDefinition.EXTENSION).toFile();
@@ -63,7 +65,7 @@ public class DownloadUtils {
             return downloadFile(url, tempfile.toPath());
         } catch (IOException e) {
             logger.error("Failed to download temporary file, URL: {}", url, e);
-            return null;
+            throw ResourceModuleDownloadException.fromURL(url, dir.toAbsolutePath().toString(), e);
         }
     }
 }

@@ -3,6 +3,8 @@ package pl.cheily.filegen.ResourceModules;
 import org.slf4j.Logger;
 import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleInstallationManagementException;
+import pl.cheily.filegen.ResourceModules.Validation.ResourceModuleDownloadValidatorFactory;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -14,7 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class ResourceModuleInstallationManager {
     public static final Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleInstallationManager.class);
 
-    public static ResourceModule downloadAndInstallModule(ResourceModuleDefinition definition) {
+    public static ResourceModule downloadAndInstallModule(ResourceModuleDefinition definition) throws ResourceModuleInstallationManagementException {
         ResourceModule module = new ResourceModule(definition);
         try {
             var type = ResourceModuleType.valueOf(definition.resourceType());
@@ -27,7 +29,7 @@ public class ResourceModuleInstallationManager {
             module.setDownloaded(true);
 
             if (definition.archiveType() != null) {
-                var unarchiver = Unarchiver.getFor(definition.archiveType());
+                var unarchiver = UnarchiverFactory.getFor(definition.archiveType());
                 if (unarchiver == null) {
                     logger.error("Unsupported archive type: {}", definition.archiveType());
                     return null;
@@ -43,7 +45,7 @@ public class ResourceModuleInstallationManager {
                 }
             }
 
-            if (!ResourceModuleDownloadValidator.getFor(type).apply(module.getDefinition().getInstallDirPath())) {
+            if (!ResourceModuleDownloadValidatorFactory.getFor(type).apply(module.getDefinition().getInstallDirPath())) {
                 return module;
             }
 
@@ -56,10 +58,36 @@ public class ResourceModuleInstallationManager {
         } catch (IllegalArgumentException e) {
             logger.error("Invalid resource module type: {}", definition.resourceType(), e);
             return null;
-        } catch (DataManagerNotInitializedException e) {
-            // not happening
-            logger.error("Data manager is not initialized, cannot fetch resource module.", e);
-            return null;
+        }
+    }
+
+    public static ResourceModule downloadModule(ResourceModuleDefinition definition) throws ResourceModuleInstallationManagementException {
+        ResourceModule module = new ResourceModule(definition);
+        var type = ResourceModuleType.valueOf(definition.resourceType());
+
+        var archivePath = DownloadUtils.downloadFile(
+                definition.url(),
+                definition.getInstallFilePath()
+        );
+
+        definition.store(definition.getInstallContainerDirPath().resolve(definition.installPath() + ResourceModuleDefinition.EXTENSION));
+        module.setDownloaded(true);
+
+        if (definition.archiveType() != null) {
+            var unarchiver = UnarchiverFactory.getFor(definition.archiveType());
+            unarchiver.apply(
+                    archivePath,
+                    definition.getInstallDirPath()
+            );
+            try {
+                Files.deleteIfExists(archivePath);
+            } catch (IOException e) {
+                logger.error("Failed to cleanup archive file after extraction: {}", archivePath, e);
+            }
+        }
+
+        if (!ResourceModuleDownloadValidatorFactory.getFor(type).apply(module.getDefinition().getInstallDirPath())) {
+            return module;
         }
     }
 

@@ -16,6 +16,7 @@ import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.PropertySheet;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
+import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.Pair;
 
 import java.beans.PropertyChangeListener;
@@ -140,6 +141,12 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
 
             valueText.wrappingWidthProperty().set(prop_grid.getColumnConstraints().get(1).getPrefWidth());
 
+            if (property.name().equals("url")) {
+                valueText.setOnMouseClicked(event -> {
+                    ScoreboardApplication.instance.getHostServices().showDocument((String)property.value());
+                });
+                valueText.setStyle("-fx-cursor: hand; -fx-text-decoration: solid underline; -fx-fill: blue;");
+            }
             prop_grid.addRow(rowCount.val, propNameLabel, valueText);
             rowCount.val += 1;
         });

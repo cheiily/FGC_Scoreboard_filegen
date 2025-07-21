@@ -1,26 +1,29 @@
 package pl.cheily.filegen.ResourceModules;
 
-import org.slf4j.MarkerFactory;
+import pl.cheily.filegen.ResourceModules.Exceptions.ArchiveFormatNotSupportedException;
+import pl.cheily.filegen.ResourceModules.Exceptions.UnarchivingException;
 
 import java.io.IOException;
-import java.nio.file.DirectoryNotEmptyException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.BiFunction;
 import java.util.zip.ZipInputStream;
 
-public class Unarchiver {
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Unarchiver.class);
+public class UnarchiverFactory {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UnarchiverFactory.class);
 
-    public static BiFunction<Path, Path, Path> getFor(String format) {
+    @FunctionalInterface
+    public interface Unarchiver {
+        Path apply(Path archive, Path destination) throws UnarchivingException;
+    }
+
+    public static Unarchiver getFor(String format) throws ArchiveFormatNotSupportedException {
         return switch (format.toLowerCase()) {
-            case ".zip" -> Unarchiver::extractZip;
-            default -> null;
+            case ".zip" -> UnarchiverFactory::extractZip;
+            default -> throw ArchiveFormatNotSupportedException.fromFormat(format);
         };
     }
 
-    public static Path extractZip(Path zipFile, Path destination) {
+    public static Path extractZip(Path zipFile, Path destination) throws UnarchivingException {
         try (ZipInputStream zipIn = new ZipInputStream(Files.newInputStream(zipFile))) {
             java.util.zip.ZipEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
@@ -35,11 +38,14 @@ public class Unarchiver {
             }
 
             logger.info("Extracted ZIP file: {} to {}", zipFile, destination);
-
             return destination;
         } catch (IOException e) {
             logger.error("Failed to extract ZIP file: {}", zipFile, e);
+            throw UnarchivingException.fromArchiveAndDestination(
+                    zipFile.toAbsolutePath().toString(),
+                    destination.toAbsolutePath().toString(),
+                    e
+            );
         }
-        return null;
     }
 }
