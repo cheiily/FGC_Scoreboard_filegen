@@ -1,8 +1,8 @@
 package pl.cheily.filegen.ResourceModules.Exceptions;
 
 public class ResourceModuleDownloadException extends ResourceModuleInstallationManagementException {
-    private static final String MESSAGE = "Failed downloading resource module. URL: %s; Download path: %s";
-    private static final String MESSAGE_WITH_DETAILS = "Failed downloading resource module. URL: %s; Download path: %s. Details: %s";
+    private static final String MESSAGE = "Failed downloading resource module.\nURL: %s\nDownload path: %s";
+    private static final String MESSAGE_WITH_DETAILS = "Failed downloading resource module.\nURL: %s\nDownload path: %s\nDetails: %s";
 
     private ResourceModuleDownloadException(String message) {
         super(message);

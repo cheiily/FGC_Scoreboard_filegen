@@ -1,6 +1,6 @@
-package pl.cheily.filegen.ResourceModules.Exceptions.Validation;
+package pl.cheily.filegen.ResourceModules.Validation.Errors;
 
-public sealed interface ValidationErrorCode permits ResourceModuleDownloadValidationErrorCode {
+public sealed interface ValidationErrorCode permits GeneralValidationErrorCode, ResourceModuleDownloadValidationErrorCode {
     String getMessage();
 
     default ValidationError asError() {

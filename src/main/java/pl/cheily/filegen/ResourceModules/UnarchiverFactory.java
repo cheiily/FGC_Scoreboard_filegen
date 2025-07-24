@@ -40,7 +40,7 @@ public class UnarchiverFactory {
             logger.info("Extracted ZIP file: {} to {}", zipFile, destination);
             return destination;
         } catch (IOException e) {
-            logger.error("Failed to extract ZIP file: {}", zipFile, e);
+            logger.error("Failed extracting ZIP file: {}", zipFile, e);
             throw UnarchivingException.fromArchiveAndDestination(
                     zipFile.toAbsolutePath().toString(),
                     destination.toAbsolutePath().toString(),

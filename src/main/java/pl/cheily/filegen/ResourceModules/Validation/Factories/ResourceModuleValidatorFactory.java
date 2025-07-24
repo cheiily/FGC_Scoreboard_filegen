@@ -1,6 +1,8 @@
-package pl.cheily.filegen.ResourceModules.Validation;
+package pl.cheily.filegen.ResourceModules.Validation.Factories;
 
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
+import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
+import pl.cheily.filegen.ResourceModules.Validation.Verifier;
 
 import java.util.List;
 

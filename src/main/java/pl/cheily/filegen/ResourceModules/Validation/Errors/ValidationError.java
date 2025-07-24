@@ -1,4 +1,4 @@
-package pl.cheily.filegen.ResourceModules.Exceptions.Validation;
+package pl.cheily.filegen.ResourceModules.Validation.Errors;
 
 public final class ValidationError {
     private final String message;

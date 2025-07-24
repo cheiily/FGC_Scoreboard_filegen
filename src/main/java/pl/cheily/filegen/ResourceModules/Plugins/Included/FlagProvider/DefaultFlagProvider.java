@@ -65,12 +65,7 @@ public class DefaultFlagProvider implements IFlagProvider {
     public void acceptRequiredModuleStatus(List<ResourceModule> modules) {
         cachedModule = modules.get(0);
 
-        File[] files;
-        try {
-            files = cachedModule.getDefinition().getInstallDirPath().toFile().listFiles();
-        } catch (DataManagerNotInitializedException e) {
-            files = null;
-        }
+        File[] files = cachedModule.getDefinition().getInstallDirPath().toFile().listFiles();
         cachedCanReach = files != null && files.length > 0;
         for (File file : files) {
             cachedCanReach &= Files.isReadable(file.toPath());

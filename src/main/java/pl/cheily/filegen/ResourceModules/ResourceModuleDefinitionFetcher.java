@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDownloadException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,11 +28,11 @@ public class ResourceModuleDefinitionFetcher {
     }
 
     public static ResourceModuleDefinition fetchResourceModuleDefinition(GitHubFileDetails file) {
-        Path path;
+        Path path = null;
         try {
-            path = DownloadUtils.downloadTempFile(file.downloadUrl(), LocalResourcePath.RESOURCE_MODULE_DEFINITION_TEMPS.toPath());
-        } catch (DataManagerNotInitializedException e) { // not happening
-            logger.error("Data manager is not initialized, cannot fetch resource module definition.", e);
+            path = DownloadUtils.downloadTempFile(file.downloadUrl(), LocalResourcePath.RESOURCE_MODULE_DEFINITION_TEMPS.toStaticPath());
+        } catch (ResourceModuleDownloadException e) {
+            logger.error(e.getMessage(), e);
             return null;
         }
 

@@ -1,6 +1,6 @@
 package pl.cheily.filegen.ResourceModules.Validation;
 
-import pl.cheily.filegen.ResourceModules.Exceptions.Validation.ValidationError;
+import pl.cheily.filegen.ResourceModules.Validation.Errors.ValidationError;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 
 import java.util.List;

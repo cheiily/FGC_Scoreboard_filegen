@@ -2,7 +2,6 @@ package pl.cheily.filegen.ResourceModules;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -77,24 +76,23 @@ public class ResourceModule {
     }
 
     public static ResourceModule scannedLocal(ResourceModuleDefinition definition) {
-        boolean enabled = false;
-        boolean installed = false;
-        try {
-            installed = Files.exists(definition.getInstallContainerDirPath().resolve(".installed"));
-            enabled = Files.exists(definition.getInstallContainerDirPath().resolve(".enabled"));
-        } catch (DataManagerNotInitializedException ignored) {}
+        boolean enabled = Files.exists(definition.getInstallContainerDirPath().resolve(".enabled"));
+        boolean installed = Files.exists(definition.getInstallContainerDirPath().resolve(".installed"));
+
         return new ResourceModule(
                 definition,
                 true,
                 installed,
-                enabled);
+                enabled
+        );
     }
 
     public static ResourceModule scannedRemote(ResourceModuleDefinition definition) {
         return new ResourceModule(definition,
                 false,
                 false,
-                false);
+                false
+        );
     }
 
     public void copyFrom(ResourceModule other) {
@@ -121,10 +119,8 @@ public class ResourceModule {
     }
 
     private void touch(String filename) {
-        Path path = null;
-        try {
-            path = definition.getInstallContainerDirPath().resolve(filename);
-        } catch (DataManagerNotInitializedException ignored) {}
+        Path path = definition.getInstallContainerDirPath().resolve(filename);
+
         if (Files.exists(path)) {
             logger.info("Resource module {} is already installed, skipping creation of {} file.", definition.installPath(), filename);
             return;
@@ -140,7 +136,7 @@ public class ResourceModule {
     private void untouch(String filename) {
         try {
             Files.deleteIfExists(definition.getInstallContainerDirPath().resolve(filename));
-        } catch (IOException | DataManagerNotInitializedException e) {
+        } catch (IOException e) {
             logger.error("Failed to remove {} file for resource module: {}", definition.installPath(), filename, e);
         }
     }

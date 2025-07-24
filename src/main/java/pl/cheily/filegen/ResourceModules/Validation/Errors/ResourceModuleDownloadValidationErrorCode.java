@@ -1,4 +1,4 @@
-package pl.cheily.filegen.ResourceModules.Exceptions.Validation;
+package pl.cheily.filegen.ResourceModules.Validation.Errors;
 
 public enum ResourceModuleDownloadValidationErrorCode implements ValidationErrorCode {
     NOT_A_DIRECTORY("The extracted path is not a directory."),

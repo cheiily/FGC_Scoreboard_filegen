@@ -9,6 +9,7 @@ import pl.cheily.filegen.LocalData.LocalResourcePath;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventPipeline;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 import pl.cheily.filegen.ResourceModules.Plugins.PluginRegistry;
+import pl.cheily.filegen.ResourceModules.Validation.ResourceModuleValidator;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -21,11 +22,13 @@ import java.util.Objects;
 public class ResourceModuleRegistry {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleRegistry.class);
 
+    public ResourceModuleValidator validator;
     public ResourceModuleEventPipeline eventPipeline;
     public List<ResourceModule> modules;
     public PluginRegistry pluginRegistry;
 
     public ResourceModuleRegistry() {
+        validator = new ResourceModuleValidator();
         eventPipeline = new ResourceModuleEventPipeline();
         modules = new ArrayList<>();
         pluginRegistry = new PluginRegistry(this);
@@ -189,9 +192,11 @@ public class ResourceModuleRegistry {
             logger.warn("Resource module {} is not downloaded, cannot install.", module.definition.installPath());
             return;
         }
-        logger.info("Installing resource modules is a WIP feature, intended for JAR plugins.");
-        module.setInstalled(true);
-        eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
+
+        ResourceModuleInstallationManager.installModule(module);
+
+        if (module.isInstalled())
+            eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
     }
 
     public void uninstallModuleAsync(ResourceModule module) {

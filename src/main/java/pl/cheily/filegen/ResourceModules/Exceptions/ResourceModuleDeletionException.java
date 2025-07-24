@@ -1,7 +1,7 @@
 package pl.cheily.filegen.ResourceModules.Exceptions;
 
 public class ResourceModuleDeletionException extends ResourceModuleInstallationManagementException {
-    private final static String MESSAGE = "Failed to delete resource module \"%s\" at path \"%s\".";
+    private final static String MESSAGE = "Failed to delete resource module \"%s\" at path \"%s\".\nPlease delete it manually and restart the app.";
 
     ResourceModuleDeletionException(String message) {
         super(message);

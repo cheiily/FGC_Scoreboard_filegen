@@ -1,22 +1,22 @@
-package pl.cheily.filegen.ResourceModules.Validation;
+package pl.cheily.filegen.ResourceModules.Validation.Factories;
 
-import pl.cheily.filegen.ResourceModules.Exceptions.Validation.ResourceModuleDownloadValidationErrorCode;
-import pl.cheily.filegen.ResourceModules.Exceptions.Validation.ValidationError;
-import pl.cheily.filegen.ResourceModules.Exceptions.Validation.ValidationErrorCode;
+import pl.cheily.filegen.ResourceModules.Validation.Errors.ResourceModuleDownloadValidationErrorCode;
+import pl.cheily.filegen.ResourceModules.Validation.Errors.ValidationError;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
+import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
+import pl.cheily.filegen.ResourceModules.Validation.Verifier;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Function;
 
 import static pl.cheily.filegen.ResourceModules.ResourceModuleType.*;
 
-public class ResourceModuleDownloadValidatorFactory implements ResourceModuleValidatorFactory {
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleDownloadValidatorFactory.class);
+public class StaticsCollectionDownloadValidatorFactory implements ResourceModuleValidatorFactory {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StaticsCollectionDownloadValidatorFactory.class);
 
-    public ResourceModuleDownloadValidatorFactory() {}
+    public StaticsCollectionDownloadValidatorFactory() {}
 
     public ValidationEvent validates() {
         return ValidationEvent.DOWNLOAD;
@@ -33,6 +33,7 @@ public class ResourceModuleDownloadValidatorFactory implements ResourceModuleVal
             case PROPERTIES_JSON -> List.of(this::validatePropertiesJson);
             case EXECUTABLE_COMMAND -> List.of(this::validateExecutableCommand);
             case PLUGIN_JAR -> List.of(this::validatePluginJar);
+            default -> List.of();
         };
     }
 

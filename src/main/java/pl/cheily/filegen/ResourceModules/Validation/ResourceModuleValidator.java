@@ -1,8 +1,12 @@
 package pl.cheily.filegen.ResourceModules.Validation;
 
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleValidationException;
-import pl.cheily.filegen.ResourceModules.Exceptions.Validation.ValidationError;
+import pl.cheily.filegen.ResourceModules.Validation.Errors.GeneralValidationErrorCode;
+import pl.cheily.filegen.ResourceModules.Validation.Errors.ValidationError;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
+import pl.cheily.filegen.ResourceModules.ResourceModuleType;
+import pl.cheily.filegen.ResourceModules.Validation.Factories.ResourceModuleValidatorFactory;
+import pl.cheily.filegen.ResourceModules.Validation.Factories.StaticsCollectionDownloadValidatorFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +17,7 @@ public class ResourceModuleValidator {
     private HashMap<ValidationEvent, ResourceModuleValidatorFactory> factoryPerAction;
     {
         factoryPerAction = new HashMap<>();
-        factoryPerAction.put(ValidationEvent.DOWNLOAD, new ResourceModuleDownloadValidatorFactory());
+        factoryPerAction.put(ValidationEvent.DOWNLOAD, new StaticsCollectionDownloadValidatorFactory());
     }
 
     public ResourceModuleValidator() {}
@@ -25,7 +29,15 @@ public class ResourceModuleValidator {
             return List.of();
         }
 
-        List<Verifier> verifiers = factory.getAll();
+        ResourceModuleType type;
+        try {
+            type = ResourceModuleType.valueOf(module.getDefinition().resourceType());
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid module, couldn't parse type! : {}", module, e);
+            return List.of(GeneralValidationErrorCode.INVALID_MODULE_TYPE.asError(" Type: " + module.getDefinition().resourceType()));
+        }
+
+        List<Verifier> verifiers = factory.getFor(type);
         return verifiers.stream()
                 .map(verifier -> verifier.validate(module))
                 .flatMap(List::stream)
@@ -33,19 +45,11 @@ public class ResourceModuleValidator {
     }
 
     public void validateThrowing(ResourceModule module, ValidationEvent event) throws ResourceModuleValidationException {
-        ResourceModuleValidatorFactory factory = factoryPerAction.get(event);
-        if (factory == null) {
-            logger.warn("No validator factory found for event: {}", event);
-            return;
-        }
+        List<ValidationError> errors = validate(module, event);
 
-        List<Verifier> verifiers = factory.getAll();
-        List<ValidationError> errors = verifiers.stream()
-                .map(verifier -> verifier.validate(module))
-                .flatMap(List::stream)
-                .toList();
         if (!errors.isEmpty()) {
             throw ResourceModuleValidationException.fromErrors(
+                event,
                 errors,
                 module.getDefinition().name(),
                 module.getDefinition().getInstallDirPath().toString()
