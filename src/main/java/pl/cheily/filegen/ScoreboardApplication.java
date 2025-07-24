@@ -10,7 +10,6 @@ import pl.cheily.filegen.LocalData.DataManager;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.DataWebSocket;
 import pl.cheily.filegen.Notifications.NotificationAPIChecker;
 import pl.cheily.filegen.Notifications.VersionChecker;
-import pl.cheily.filegen.ResourceModules.ResourceModuleDefinitionFetcher;
 import pl.cheily.filegen.ResourceModules.ResourceModuleRegistry;
 
 import java.io.IOException;

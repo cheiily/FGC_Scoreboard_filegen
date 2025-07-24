@@ -1,16 +1,10 @@
-package pl.cheily.filegen.ResourceModules;
+package pl.cheily.filegen.ResourceModules.Installation;
 
 import org.json.JSONArray;
-import pl.cheily.filegen.Utils.Pair;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 

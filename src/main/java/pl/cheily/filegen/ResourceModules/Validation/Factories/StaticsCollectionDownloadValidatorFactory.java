@@ -1,7 +1,7 @@
 package pl.cheily.filegen.ResourceModules.Validation.Factories;
 
-import pl.cheily.filegen.ResourceModules.Validation.Errors.ResourceModuleDownloadValidationErrorCode;
-import pl.cheily.filegen.ResourceModules.Validation.Errors.ValidationError;
+import pl.cheily.filegen.ResourceModules.Exceptions.Errors.ResourceModuleDownloadValidationErrorCode;
+import pl.cheily.filegen.ResourceModules.Exceptions.Errors.Error;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
 import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
@@ -49,7 +49,7 @@ public class StaticsCollectionDownloadValidatorFactory implements ResourceModule
         );
     }
 
-    private List<ValidationError> statics_isDirectory(ResourceModule module) {
+    private List<Error> statics_isDirectory(ResourceModule module) {
         Path extractedPath = module.getDefinition().getInstallDirPath();
         if (!extractedPath.toFile().isDirectory()) {
             return List.of(
@@ -62,7 +62,7 @@ public class StaticsCollectionDownloadValidatorFactory implements ResourceModule
         return List.of();
     }
 
-    private List<ValidationError> statics_hasFiles(ResourceModule module) {
+    private List<Error> statics_hasFiles(ResourceModule module) {
         Path extractedPath = module.getDefinition().getInstallDirPath();
         var files = extractedPath.toFile().listFiles();
         if (files == null || files.length == 0) {
@@ -76,7 +76,7 @@ public class StaticsCollectionDownloadValidatorFactory implements ResourceModule
         return List.of();
     }
 
-    private List<ValidationError> statics_filesAreReadable(ResourceModule module) {
+    private List<Error> statics_filesAreReadable(ResourceModule module) {
         Path extractedPath = module.getDefinition().getInstallDirPath();
         var files = extractedPath.toFile().listFiles();
         if (files == null) files = new File[0];
@@ -95,22 +95,22 @@ public class StaticsCollectionDownloadValidatorFactory implements ResourceModule
 
 
 
-    private List<ValidationError> validateStaticFile(ResourceModule module) {
+    private List<Error> validateStaticFile(ResourceModule module) {
         logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", STATIC_FILE, module.getDefinition().getInstallFilePath());
         return List.of();
     }
 
-    private List<ValidationError> validatePropertiesJson(ResourceModule module) {
+    private List<Error> validatePropertiesJson(ResourceModule module) {
         logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", PROPERTIES_JSON, module.getDefinition().getInstallFilePath());
         return List.of();
     }
 
-    private List<ValidationError> validateExecutableCommand(ResourceModule module) {
+    private List<Error> validateExecutableCommand(ResourceModule module) {
         logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", EXECUTABLE_COMMAND, module.getDefinition().getInstallFilePath());
         return List.of();
     }
 
-    private List<ValidationError> validatePluginJar(ResourceModule module) {
+    private List<Error> validatePluginJar(ResourceModule module) {
         logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", PLUGIN_JAR, module.getDefinition().getInstallFilePath());
         return List.of();
     }

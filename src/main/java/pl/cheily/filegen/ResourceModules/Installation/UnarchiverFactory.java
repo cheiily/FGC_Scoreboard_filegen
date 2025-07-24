@@ -1,4 +1,4 @@
-package pl.cheily.filegen.ResourceModules;
+package pl.cheily.filegen.ResourceModules.Installation;
 
 import pl.cheily.filegen.ResourceModules.Exceptions.ArchiveFormatNotSupportedException;
 import pl.cheily.filegen.ResourceModules.Exceptions.UnarchivingException;

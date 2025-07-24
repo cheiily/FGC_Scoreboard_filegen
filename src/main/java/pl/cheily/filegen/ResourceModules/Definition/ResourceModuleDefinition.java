@@ -1,8 +1,8 @@
-package pl.cheily.filegen.ResourceModules;
+package pl.cheily.filegen.ResourceModules.Definition;
 
 import org.json.JSONObject;
-import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSerializationException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +31,8 @@ public record ResourceModuleDefinition(
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleDefinition.class);
     public static final String EXTENSION = ".sscm";
 
+    public static final String V1 = "1";
+
     public static final String KEY_DEFINITION_VERSION = "definitionVersion";
     public static final String KEY_NAME = "name";
     public static final String KEY_CATEGORY = "category";
@@ -47,56 +49,19 @@ public record ResourceModuleDefinition(
     public static final String KEY_AUTORUN = "autorun";
     public static final String KEY_CHECKSUM = "checksum";
 
-
-    public static ResourceModuleDefinition fromJson(JSONObject json) {
-        return new ResourceModuleDefinition(
-            json.getString("definitionVersion"),
-            json.getString("name"),
-            json.optString("category"),
-            json.getString("installPath"),
-            json.getString("description"),
-            json.getString("version"),
-            json.optString("isoDate"),
-            json.getString("author"),
-            json.getString("url"),
-            json.getBoolean("externalUrl"),
-            json.getString("resourceType"),
-            json.optString("archiveType", null),
-            json.optBoolean("autoinstall", false),
-            json.optBoolean("autorun", false),
-            json.optString("checksum", null));
-    }
-
-    public String toJson() {
-        return toJson(true);
-    }
-
-    public String toJson(boolean pretty) {
-        JSONObject json = new JSONObject();
-        json.put("definitionVersion", definitionVersion);
-        json.put("name", name);
-        json.put("category", category);
-        json.put("installPath", installPath);
-        json.put("description", description);
-        json.put("version", version);
-        json.put("isoDate", isoDate);
-        json.put("author", author);
-        json.put("url", url);
-        json.put("externalUrl", externalUrl);
-        json.put("resourceType", resourceType);
-        json.putOpt("archiveType", archiveType);
-        json.putOpt("autoinstall", autoinstall);
-        json.putOpt("autorun", autorun);
-        json.putOpt("checksum", checksum);
-
-        return pretty ? json.toString(4) : json.toString();
-    }
-
-    public void store(Path path) {
+    public static void store(ResourceModuleDefinition definition, Path path, ResourceModuleDefinitionSerializer serializer) {
         try {
-            Files.writeString(path, toJson(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(path, serializer.serialize(definition), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
-            logger.error("Failed to store resource module definition to file: {}", path, e);
+            var ex = ResourceModuleDefinitionSerializationException.from(
+                    definition.name,
+                    path.toAbsolutePath().toString(),
+                    e.getMessage(),
+                    e
+            );
+            logger.error(ex.getMessage(), ex);
+        } catch (ResourceModuleDefinitionSerializationException e) {
+            logger.error(e.getMessage(), e);
         }
     }
 

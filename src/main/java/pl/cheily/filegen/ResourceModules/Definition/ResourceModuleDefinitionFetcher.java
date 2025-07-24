@@ -1,12 +1,15 @@
-package pl.cheily.filegen.ResourceModules;
+package pl.cheily.filegen.ResourceModules.Definition;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionParseException;
+import pl.cheily.filegen.ResourceModules.Installation.DownloadUtils;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDownloadException;
+import pl.cheily.filegen.ResourceModules.Installation.GitHubFileDetails;
+import pl.cheily.filegen.ResourceModules.Installation.ResourceModuleRequests;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,13 +46,12 @@ public class ResourceModuleDefinitionFetcher {
         String fileContent = "";
         try {
             fileContent = new String(Files.readAllBytes(path));
-            var json = new JSONObject(fileContent);
-            return ResourceModuleDefinition.fromJson(json);
+            return ResourceModuleDefinitionHandlerFactory.parse(fileContent);
         } catch (IOException e) {
             logger.error("Failed to read resource module definition file: {}", path, e);
             return null;
-        } catch (JSONException e) {
-            logger.error("Failed to parse resource module definition or github file: {}, content?: {}", path, fileContent, e);
+        } catch (ResourceModuleDefinitionParseException e) {
+            logger.error(e.getMessage(), e);
             return null;
         }
     }

@@ -1,6 +1,6 @@
 package pl.cheily.filegen.ResourceModules.Exceptions;
 
-import pl.cheily.filegen.ResourceModules.Validation.Errors.ValidationError;
+import pl.cheily.filegen.ResourceModules.Exceptions.Errors.Error;
 import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
 
 import java.util.List;
@@ -16,9 +16,9 @@ public class ResourceModuleValidationException extends ResourceModuleInstallatio
         super(message, cause);
     }
 
-    public static ResourceModuleValidationException fromErrors(ValidationEvent event, List<ValidationError> errors, String moduleName, String path) {
+    public static ResourceModuleValidationException fromErrors(ValidationEvent event, List<Error> errors, String moduleName, String path) {
         String errorMessages = errors.stream()
-                .map(ValidationError::getMessage)
+                .map(Error::getMessage)
                 .reduce((a, b) -> a + "; " + b)
                 .orElse("No validation errors provided");
         return new ResourceModuleValidationException(String.format(MESSAGE, event.name(), errorMessages, moduleName, path));

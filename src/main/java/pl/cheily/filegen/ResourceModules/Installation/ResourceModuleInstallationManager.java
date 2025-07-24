@@ -1,10 +1,12 @@
-package pl.cheily.filegen.ResourceModules;
+package pl.cheily.filegen.ResourceModules.Installation;
 
 import org.slf4j.Logger;
 import org.slf4j.MarkerFactory;
-import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
+import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinition;
+import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinitionHandlerFactory;
 import pl.cheily.filegen.ResourceModules.Exceptions.*;
-import pl.cheily.filegen.ResourceModules.UnarchiverFactory.Unarchiver;
+import pl.cheily.filegen.ResourceModules.Installation.UnarchiverFactory.Unarchiver;
+import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
 
 import java.io.IOException;
@@ -33,7 +35,11 @@ public class ResourceModuleInstallationManager {
             return null;
         }
 
-        definition.store(definition.getInstallContainerDirPath().resolve(definition.installPath() + ResourceModuleDefinition.EXTENSION));
+        ResourceModuleDefinition.store(
+                definition,
+                definition.getInstallContainerDirPath().resolve(definition.installPath() + ResourceModuleDefinition.EXTENSION),
+                ResourceModuleDefinitionHandlerFactory.getSerializer(definition.definitionVersion())
+        );
         module.setDownloaded(true);
 
         if (definition.archiveType() != null) {
@@ -96,16 +102,16 @@ public class ResourceModuleInstallationManager {
     public static void deleteModule(ResourceModule module) {
         module.setEnabled(false);
         module.setInstalled(false);
-        var installPath = module.definition.getInstallContainerDirPath();
+        var installPath = module.getDefinition().getInstallContainerDirPath();
 
         try {
             DeleteNonEmptyDirectory.deleteRecursively(installPath);
-            logger.info("Resource module deleted: {}", module.definition.name());
+            logger.info("Resource module deleted: {}", module.getDefinition().name());
             module.setDownloaded(false);
         } catch (IOException e) {
             var ex = ResourceModuleDeletionException.fromPath(
-                    module.definition.name(),
-                    module.definition.getInstallContainerDirPath().toAbsolutePath().toString(),
+                    module.getDefinition().name(),
+                    module.getDefinition().getInstallContainerDirPath().toAbsolutePath().toString(),
                     e
             );
             logger.error(MarkerFactory.getMarker("ALERT"),

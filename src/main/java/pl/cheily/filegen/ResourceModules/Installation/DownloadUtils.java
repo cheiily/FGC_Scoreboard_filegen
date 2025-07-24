@@ -1,15 +1,14 @@
-package pl.cheily.filegen.ResourceModules;
+package pl.cheily.filegen.ResourceModules.Installation;
 
-import net.harawata.appdirs.AppDirsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinition;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDownloadException;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;

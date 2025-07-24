@@ -6,8 +6,15 @@ import org.json.JSONObject;
 import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinition;
+import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinitionFetcher;
+import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinitionHandlerFactory;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventPipeline;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionParseException;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSerializationException;
+import pl.cheily.filegen.ResourceModules.Installation.GitHubFileDetails;
+import pl.cheily.filegen.ResourceModules.Installation.ResourceModuleInstallationManager;
 import pl.cheily.filegen.ResourceModules.Plugins.PluginRegistry;
 import pl.cheily.filegen.ResourceModules.Validation.ResourceModuleValidator;
 
@@ -83,11 +90,15 @@ public class ResourceModuleRegistry {
                     try {
                         content = new String(Files.readAllBytes(path));
                     } catch (IOException e) {
-                        logger.error("Failed reading existing resource module definition file: {}", path, e);
+                        logger.error("Failed reading pre-existing resource module definition file: {}", path, e);
                         return null;
                     }
-                    JSONObject json = new JSONObject(content);
-                    return ResourceModuleDefinition.fromJson(json);
+                    try {
+                        return ResourceModuleDefinitionHandlerFactory.parse(content);
+                    } catch (ResourceModuleDefinitionParseException e) {
+                        logger.error("Failed parsing pre-existing resource module definition from file: {}", path, e);
+                        return null;
+                    }
                 }).filter(Objects::nonNull)
                     .map(ResourceModule::scannedLocal)
                     .toList();
@@ -128,17 +139,8 @@ public class ResourceModuleRegistry {
     public void doAutoInstall() {
         for (ResourceModule module : modules) {
             if (!module.isDownloaded() && module.definition.autoinstall()) {
-                var result = ResourceModuleInstallationManager.downloadAndInstallModule(module.definition);
-                if (result != null) {
-                    module.copyFrom(result);
-                } else {
-                    logger.error(
-                            MarkerFactory.getMarker("ALERT"),
-                            String.format("Failed autoinstallation of resource module: \"%s\". See previous logs for details. Full definition in trace message.", module.getDefinition().name())
-                    );
-                    logger.trace("Resource module definition: {}", module.getDefinition().toJson());
-                }
-                eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
+                logger.trace("Starting auto-installation procedure for resource module: {}", module.definition.name());
+                downloadModule(module);
                 if (module.isInstalled())
                     eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
             }
@@ -163,8 +165,11 @@ public class ResourceModuleRegistry {
                     MarkerFactory.getMarker("ALERT"),
                     String.format("Failed downloading resource module: \"%s\". See previous logs for details. Full definition in trace message.", module.getDefinition().name())
             );
-            logger.trace("Resource module definition: {}", module.getDefinition().toJson());
-            return;
+            try {
+                logger.trace("Resource module definition: {}", ResourceModuleDefinitionHandlerFactory.serialize(module.getDefinition()));
+            } catch (ResourceModuleDefinitionSerializationException e) {
+                logger.error("Failed serializing resource module definition for trace log.\n{}", e.getMessage(), e);
+            }
         }
         eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
     }

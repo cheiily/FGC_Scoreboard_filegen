@@ -1,8 +1,8 @@
 package pl.cheily.filegen.ResourceModules.Validation;
 
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleValidationException;
-import pl.cheily.filegen.ResourceModules.Validation.Errors.GeneralValidationErrorCode;
-import pl.cheily.filegen.ResourceModules.Validation.Errors.ValidationError;
+import pl.cheily.filegen.ResourceModules.Exceptions.Errors.GeneralResourceModuleErrorCode;
+import pl.cheily.filegen.ResourceModules.Exceptions.Errors.Error;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
 import pl.cheily.filegen.ResourceModules.Validation.Factories.ResourceModuleValidatorFactory;
@@ -22,7 +22,7 @@ public class ResourceModuleValidator {
 
     public ResourceModuleValidator() {}
 
-    public List<ValidationError> validate(ResourceModule module, ValidationEvent event) {
+    public List<Error> validate(ResourceModule module, ValidationEvent event) {
         ResourceModuleValidatorFactory factory = factoryPerAction.get(event);
         if (factory == null) {
             logger.warn("No validator factory found for event: {}", event);
@@ -34,7 +34,7 @@ public class ResourceModuleValidator {
             type = ResourceModuleType.valueOf(module.getDefinition().resourceType());
         } catch (IllegalArgumentException e) {
             logger.error("Invalid module, couldn't parse type! : {}", module, e);
-            return List.of(GeneralValidationErrorCode.INVALID_MODULE_TYPE.asError(" Type: " + module.getDefinition().resourceType()));
+            return List.of(GeneralResourceModuleErrorCode.INVALID_MODULE_TYPE.asError(" Type: " + module.getDefinition().resourceType()));
         }
 
         List<Verifier> verifiers = factory.getFor(type);
@@ -45,7 +45,7 @@ public class ResourceModuleValidator {
     }
 
     public void validateThrowing(ResourceModule module, ValidationEvent event) throws ResourceModuleValidationException {
-        List<ValidationError> errors = validate(module, event);
+        List<Error> errors = validate(module, event);
 
         if (!errors.isEmpty()) {
             throw ResourceModuleValidationException.fromErrors(
