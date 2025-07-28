@@ -1,9 +1,11 @@
-package pl.cheily.filegen.ResourceModules.Plugins.SPI;
+package pl.cheily.filegen.ResourceModules.Plugins.SPI.Status;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PluginHealthData {
+public record PluginHealthData(
+    List<HealthRecord> healthRecords,
+    String message
+) {
     public enum HealthStatus {
         READY,
         NOT_READY
@@ -14,7 +16,4 @@ public class PluginHealthData {
         HealthStatus status,
         String message
     ) {}
-
-    public List<HealthRecord> healthRecords = new ArrayList<>();
-    public String message = "";
 }

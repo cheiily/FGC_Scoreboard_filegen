@@ -1,7 +1,7 @@
 package pl.cheily.filegen.ResourceModules.Exceptions;
 
 public class ResourceModuleDefinitionSerializationException extends ResourceModuleException {
-    private static final String MESSAGE_TEMPLATE = "Failed seralizing resource module definition. Module: %s, Content: %s, Errors: \"%s\"";
+    private static final String MESSAGE_TEMPLATE = "Failed serializing resource module definition. Module: %s, Content: %s, Errors: \"%s\"";
 
 
     public ResourceModuleDefinitionSerializationException(String message, Throwable cause) {

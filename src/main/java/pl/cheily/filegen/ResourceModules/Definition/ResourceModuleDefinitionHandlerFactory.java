@@ -4,7 +4,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import pl.cheily.filegen.ResourceModules.Exceptions.Errors.GeneralResourceModuleErrorCode;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionParseException;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIMappingException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSerializationException;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
 
 import java.util.List;
 import java.util.Objects;
@@ -54,6 +56,9 @@ public class ResourceModuleDefinitionHandlerFactory {
         return getSerializer(definition.definitionVersion()).serialize(definition);
     }
 
+    public static ResourceModuleDefinitionData spiMapping(ResourceModuleDefinition definition) throws ResourceModuleDefinitionSPIMappingException {
+        return getSPIMapper(definition.definitionVersion()).map(definition);
+    }
 
 
     public static ResourceModuleDefinitionParser getParser(String definitionVersion) throws IllegalArgumentException {
@@ -68,6 +73,15 @@ public class ResourceModuleDefinitionHandlerFactory {
     public static ResourceModuleDefinitionSerializer getSerializer(String definitionVersion) throws IllegalArgumentException {
         return switch (definitionVersion) {
             case ResourceModuleDefinition.V1 -> ResourceModuleDefinitionHandlerFactory::serializeV1;
+            default -> throw new IllegalArgumentException(
+                    GeneralResourceModuleErrorCode.INVALID_DEFINITION_VERSION.asError("Value: " + definitionVersion).getMessage()
+            );
+        };
+    }
+
+    public static ResourceModuleDefinitionSPIMapper getSPIMapper(String definitionVersion) throws IllegalArgumentException {
+        return switch (definitionVersion) {
+            case ResourceModuleDefinition.V1 -> ResourceModuleDefinitionHandlerFactory::spiMappingV1;
             default -> throw new IllegalArgumentException(
                     GeneralResourceModuleErrorCode.INVALID_DEFINITION_VERSION.asError("Value: " + definitionVersion).getMessage()
             );
@@ -175,6 +189,36 @@ public class ResourceModuleDefinitionHandlerFactory {
             return null;
         } catch (JSONException e) {
             return key;
+        }
+    }
+
+
+    private static ResourceModuleDefinitionData spiMappingV1(ResourceModuleDefinition resourceModuleDefinition) throws ResourceModuleDefinitionSPIMappingException {
+        try {
+            return new ResourceModuleDefinitionData(
+                    resourceModuleDefinition.definitionVersion(),
+                    resourceModuleDefinition.name(),
+                    resourceModuleDefinition.category(),
+                    resourceModuleDefinition.installPath(),
+                    resourceModuleDefinition.description(),
+                    resourceModuleDefinition.version(),
+                    resourceModuleDefinition.isoDate(),
+                    resourceModuleDefinition.author(),
+                    resourceModuleDefinition.url(),
+                    resourceModuleDefinition.externalUrl(),
+                    resourceModuleDefinition.resourceType(),
+                    resourceModuleDefinition.archiveType(),
+                    resourceModuleDefinition.autoinstall(),
+                    resourceModuleDefinition.autorun(),
+                    resourceModuleDefinition.checksum()
+            );
+        } catch (Exception e) {
+            throw ResourceModuleDefinitionSPIMappingException.from(
+                    resourceModuleDefinition.name(),
+                    resourceModuleDefinition.toString(),
+                    e.getMessage(),
+                    e
+            );
         }
     }
 }

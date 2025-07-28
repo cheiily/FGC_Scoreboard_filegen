@@ -14,6 +14,11 @@ import pl.cheily.filegen.ResourceModules.ResourceModuleRegistry;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 public class ScoreboardApplication extends Application {
     public static ScoreboardApplication instance;

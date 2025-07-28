@@ -10,7 +10,7 @@ public class PluginCommandHealthCheckDecoratorFactory {
         }
 
         if (plugin instanceof IFlagProvider) {
-            return (PluginCommandHealthCheckDecorator) plugin;
+            return new PluginCommandHealthCheckDecorator(plugin);
         }
         return null;
     }

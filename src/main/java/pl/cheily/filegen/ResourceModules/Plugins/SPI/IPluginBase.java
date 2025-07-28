@@ -1,6 +1,9 @@
 package pl.cheily.filegen.ResourceModules.Plugins.SPI;
 
-import pl.cheily.filegen.ResourceModules.ResourceModule;
+import org.jetbrains.annotations.NotNull;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.PluginData;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.PluginHealthData;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,11 +14,12 @@ public interface IPluginBase {
     public static @interface Requires {
         public String resourceModule() default "";
     }
+    @Retention(RetentionPolicy.RUNTIME)
     public static @interface RequiresCategory {
         public String resourceModuleCategory() default "";
     }
 
-    public PluginData getInfo();
-    public PluginHealthData getHealthStatus();
-    public void acceptRequiredModuleStatus(List<ResourceModule> modules);
+    public @NotNull PluginData getInfo();
+    public @NotNull PluginHealthData getHealthStatus();
+    public void acceptRequiredModuleStatus(@NotNull List<ResourceModuleStatus> modules);
 }

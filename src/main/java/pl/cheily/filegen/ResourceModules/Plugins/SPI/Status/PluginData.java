@@ -1,4 +1,4 @@
-package pl.cheily.filegen.ResourceModules.Plugins.SPI;
+package pl.cheily.filegen.ResourceModules.Plugins.SPI.Status;
 
 public record PluginData (
     String name,
