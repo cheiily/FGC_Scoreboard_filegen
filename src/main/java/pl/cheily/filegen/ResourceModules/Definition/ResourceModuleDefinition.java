@@ -16,6 +16,7 @@ public record ResourceModuleDefinition(
         String name,
         String category,
         String installPath,
+        String shortDescription,
         String description,
         String version,
         String isoDate,
@@ -37,6 +38,7 @@ public record ResourceModuleDefinition(
     public static final String KEY_NAME = "name";
     public static final String KEY_CATEGORY = "category";
     public static final String KEY_INSTALL_PATH = "installPath";
+    public static final String KEY_SHORT_DESCRIPTION = "shortDescription";
     public static final String KEY_DESCRIPTION = "description";
     public static final String KEY_VERSION = "version";
     public static final String KEY_ISO_DATE = "isoDate";
@@ -94,6 +96,7 @@ public record ResourceModuleDefinition(
         properties.add(new Property("name", String.class, name));
         properties.add(new Property("category", String.class, category));
         properties.add(new Property("installPath", String.class, installPath));
+        properties.add(new Property("shortDescription", String.class, shortDescription));
         properties.add(new Property("description", String.class, description));
         properties.add(new Property("version", String.class, version));
         properties.add(new Property("isoDate", String.class, isoDate));

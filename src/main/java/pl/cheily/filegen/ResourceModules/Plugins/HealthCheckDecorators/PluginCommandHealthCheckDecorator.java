@@ -17,7 +17,7 @@ public class PluginCommandHealthCheckDecorator {
             return block.get();
         } catch (Exception e) {
             logger.error("Error during plugin command execution: {}", e.getMessage(), e);
-            logger.info("Plugin health status: {}", plugin.getHealthStatus().healthRecords);
+            logger.info("Plugin health status: {}", plugin.getHealthStatus().healthRecords());
         }
         return null;
     }

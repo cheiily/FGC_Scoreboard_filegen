@@ -5,6 +5,7 @@ public record ResourceModuleDefinitionData(
         String name,
         String category,
         String installPath,
+        String shortDescription,
         String description,
         String version,
         String isoDate,

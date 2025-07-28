@@ -278,7 +278,7 @@ public class ConfigUI implements Initializable {
         col_res_name.setCellFactory(WrappingTextFieldTableCell.forTableColumn());
         col_res_desc.setCellValueFactory(data -> {
             ResourceModule module = data.getValue();
-            return new ReadOnlyObjectWrapper<>(module.getDefinition().description());
+            return new ReadOnlyObjectWrapper<>(module.getDefinition().shortDescription());
         });
         col_res_desc.setCellFactory(WrappingTextFieldTableCell.forTableColumn());
 
