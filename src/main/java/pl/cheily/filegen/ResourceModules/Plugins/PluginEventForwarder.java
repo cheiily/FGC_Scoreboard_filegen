@@ -27,6 +27,7 @@ public class PluginEventForwarder {
         registry.eventPipeline.subscribe(ResourceModuleEventType.UNINSTALLED_MODULE, listener);
         registry.eventPipeline.subscribe(ResourceModuleEventType.ENABLED_MODULE, listener);
         registry.eventPipeline.subscribe(ResourceModuleEventType.DISABLED_MODULE, listener);
+        registry.eventPipeline.subscribe(ResourceModuleEventType.LOADED_INSTALLATIONS, listener);
         this.pluginRegistry = pluginRegistry;
     }
 

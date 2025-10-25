@@ -12,16 +12,18 @@ public class PluginInstantiationException extends PluginException {
     }
 
     public static PluginInstantiationException forModule(ResourceModuleDefinition moduleDefinition) {
-        return new PluginInstantiationException("Failed to instantiate plugin for resource module: " + moduleDefinition.qualifiedName());
+        return new PluginInstantiationException("Failed to instantiate plugin for resource module {" + moduleDefinition.qualifiedName() + "}.");
     }
 
     public static PluginInstantiationException forModule(ResourceModuleDefinition moduleDefinition, Throwable cause) {
-        return new PluginInstantiationException("Failed to instantiate plugin for resource module: " + moduleDefinition.qualifiedName(), cause);
+        return new PluginInstantiationException(
+                "Failed to instantiate plugin for resource module {" + moduleDefinition.qualifiedName() + "}. Cause: " + cause.getMessage(),
+                cause);
     }
 
     public static PluginInstantiationException forModule(ResourceModuleDefinition moduleDefinition, String withReason) {
         return new PluginInstantiationException(
-                "Failed to instantiate plugin for resource module: " + moduleDefinition.qualifiedName() + ". Reason: " + withReason
+                "Failed to instantiate plugin for resource module {" + moduleDefinition.qualifiedName() + "}. Reason: " + withReason
         );
     }
 }

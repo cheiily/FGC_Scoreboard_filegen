@@ -52,8 +52,7 @@ public class ResourceModuleValidator {
             throw ResourceModuleValidationException.fromErrors(
                 event,
                 errors,
-                module.getDefinition().name(),
-                module.getDefinition().getExtractDirPath().toString()
+                module
             );
         }
     }

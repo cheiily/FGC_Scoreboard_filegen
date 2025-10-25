@@ -94,9 +94,7 @@ public class ResourceModuleInstallationManager {
             resourceModuleRegistry.pluginRegistry.register(module);
         } catch (PluginInstantiationException e) {
             logger.error(MarkerFactory.getMarker("ALERT"),
-                    "Failed loading plugins from resource module: {}. Error: {}",
-                    module.getDefinition().name(),
-                    e.getMessage(),
+                    String.format("Failed loading plugins from resource module {%s}. Error: %s", module.getDefinition().qualifiedName(), e.getMessage()),
                     e
             );
             return;
@@ -105,8 +103,7 @@ public class ResourceModuleInstallationManager {
         try {
             resourceModuleRegistry.validator.validateThrowing(module, ValidationEvent.INSTALLATION);
         } catch (ResourceModuleValidationException e) {
-            logger.error(MarkerFactory.getMarker("ALERT"),
-                    "{}\n\nModule is possibly corrupted or invalid. It is recommended to remove it.", e.getMessage(), e);
+            logger.error(MarkerFactory.getMarker("ALERT"), e.getMessage(), e);
 
             return;
         }
@@ -127,6 +124,7 @@ public class ResourceModuleInstallationManager {
             var ex = ResourceModuleDeletionException.fromPath(
                     module.getDefinition().name(),
                     module.getDefinition().getInstallDirPath().toAbsolutePath().toString(),
+                    e.getMessage(),
                     e
             );
             logger.error(MarkerFactory.getMarker("ALERT"),

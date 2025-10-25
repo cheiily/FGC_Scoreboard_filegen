@@ -60,7 +60,8 @@ public class PluginRegistry {
 
             return plugin;
         } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException |
-                 NoSuchMethodException e) {
+                 NoSuchMethodException | UnsupportedClassVersionError e) {
+            pluginLoader.unload(module.getDefinition()); // cleanup on failure
             throw PluginInstantiationException.forModule(definition, e);
         }
     }

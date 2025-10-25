@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PluginMultiClassLoader extends ClassLoader {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PluginMultiClassLoader.class);
+
     private final HashMap<ResourceModuleDefinition, ClassLoader> classLoaders = new HashMap<>();
 
     public PluginMultiClassLoader() {
@@ -31,6 +33,16 @@ public class PluginMultiClassLoader extends ClassLoader {
     }
 
     public void unload(ResourceModuleDefinition definition) {
+        var loader = classLoaders.get(definition);
+        if (loader instanceof URLClassLoader urlClassLoader) {
+            try {
+                urlClassLoader.close();
+            } catch (Exception e) {
+                logger.error("Failed graceful unload of classloader for module {{}}!", definition.qualifiedName(), e);
+            }
+        } else {
+            logger.warn("Unexpected classloader type for module {{}} (not URLClassLoader). Cannot do graceful unload!", definition.qualifiedName());
+        }
         classLoaders.remove(definition);
     }
 
