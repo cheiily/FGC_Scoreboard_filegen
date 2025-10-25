@@ -38,6 +38,9 @@ public class PluginEventForwarder {
             return;
         }
 
+        // todo verify the first filter is necessary
+        // todo we need two "update modes" -> update all plugins requiring module X with its status &&& poll status from all modules plugin X requires.
+
         resourceModuleRegistry.pluginRegistry.plugins.stream().filter((plugin) -> {
             var def = resourceModuleRegistry.modules.stream().filter(mdl -> mdl.getDefinition().name().equals(module.getDefinition().name())).findAny();
             return def.filter(resourceModule -> ResourceModuleType.valueOf(resourceModule.getDefinition().resourceType()) == ResourceModuleType.PLUGIN_JAR).isPresent();

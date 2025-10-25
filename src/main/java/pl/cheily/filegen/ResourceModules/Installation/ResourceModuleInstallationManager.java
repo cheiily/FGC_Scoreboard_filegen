@@ -83,13 +83,13 @@ public class ResourceModuleInstallationManager {
             return null;
         }
 
-        installModule(module);
+        if (installModule(module))
+            module.setEnabled(true);
 
-        module.setEnabled(true);
         return module;
     }
 
-    public static void installModule(ResourceModule module) {
+    public static boolean installModule(ResourceModule module) {
         try {
             resourceModuleRegistry.pluginRegistry.register(module);
         } catch (PluginInstantiationException e) {
@@ -97,7 +97,7 @@ public class ResourceModuleInstallationManager {
                     String.format("Failed loading plugins from resource module {%s}. Error: %s", module.getDefinition().qualifiedName(), e.getMessage()),
                     e
             );
-            return;
+            return false;
         }
 
         try {
@@ -105,10 +105,11 @@ public class ResourceModuleInstallationManager {
         } catch (ResourceModuleValidationException e) {
             logger.error(MarkerFactory.getMarker("ALERT"), e.getMessage(), e);
 
-            return;
+            return false;
         }
 
         module.setInstalled(true);
+        return true;
     }
 
     public static void deleteModule(ResourceModule module) {
