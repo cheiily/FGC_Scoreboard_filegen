@@ -11,6 +11,7 @@ import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinitionFetc
 import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinitionHandlerFactory;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventPipeline;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
+import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginUninstantiationException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionParseException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSerializationException;
 import pl.cheily.filegen.ResourceModules.Installation.GitHubFileDetails;
@@ -211,6 +212,16 @@ public class ResourceModuleRegistry {
     public void uninstallModule(ResourceModule module) {
         logger.info("Uninstalling resource modules is a WIP feature, intended for JAR plugins.");
         module.setInstalled(false);
+        try {
+            pluginRegistry.unregister(module);
+        } catch (PluginUninstantiationException e) {
+            logger.error(MarkerFactory.getMarker("ALERT"),
+                    "Failed uninstalling plugin: {}. Error: {}",
+                    module.getDefinition().qualifiedName(),
+                    e.getMessage(),
+                    e
+            );
+        }
         eventPipeline.push(ResourceModuleEventType.UNINSTALLED_MODULE, module);
     }
 

@@ -77,8 +77,8 @@ public class ResourceModule {
     }
 
     public static ResourceModule scannedLocal(ResourceModuleDefinition definition) {
-        boolean enabled = Files.exists(definition.getInstallContainerDirPath().resolve(".enabled"));
-        boolean installed = Files.exists(definition.getInstallContainerDirPath().resolve(".installed"));
+        boolean enabled = Files.exists(definition.getInstallDirPath().resolve(".enabled"));
+        boolean installed = Files.exists(definition.getInstallDirPath().resolve(".installed"));
 
         return new ResourceModule(
                 definition,
@@ -120,7 +120,7 @@ public class ResourceModule {
     }
 
     private void touch(String filename) {
-        Path path = definition.getInstallContainerDirPath().resolve(filename);
+        Path path = definition.getInstallDirPath().resolve(filename);
 
         if (Files.exists(path)) {
             logger.info("Resource module {} is already installed, skipping creation of {} file.", definition.installPath(), filename);
@@ -136,7 +136,7 @@ public class ResourceModule {
 
     private void untouch(String filename) {
         try {
-            Files.deleteIfExists(definition.getInstallContainerDirPath().resolve(filename));
+            Files.deleteIfExists(definition.getInstallDirPath().resolve(filename));
         } catch (IOException e) {
             logger.error("Failed to remove {} file for resource module: {}", definition.installPath(), filename, e);
         }

@@ -32,7 +32,6 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
     private static final String PROP_UNINSTALL = "Uninstall";
     private static final String PROP_ENABLE = "Enable";
     private static final String PROP_DISABLE = "Disable";
-    private final static String PROP_HEADER = "Resource Module \"%s\"";
 
     public ResourceModule module;
 
@@ -161,7 +160,7 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
     }
 
     private void refresh() {
-        label_header.setText(String.format(PROP_HEADER, module.getDefinition().name()));
+        label_header.setText(String.format(module.getDefinition().qualifiedName(), module.getDefinition().name()));
         setLabel(label_download, module.isDownloaded());
         setLabel(label_install, module.isInstalled());
         setLabel(label_enable, module.isEnabled());

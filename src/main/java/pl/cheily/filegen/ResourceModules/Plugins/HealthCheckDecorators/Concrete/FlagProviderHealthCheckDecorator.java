@@ -3,8 +3,8 @@ package pl.cheily.filegen.ResourceModules.Plugins.HealthCheckDecorators.Concrete
 import org.jetbrains.annotations.NotNull;
 import pl.cheily.filegen.ResourceModules.Plugins.HealthCheckDecorators.PluginCommandHealthCheckDecorator;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus;
-import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.PluginData;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.PluginHealthData;
 
 import java.awt.image.BufferedImage;
@@ -39,7 +39,7 @@ public class FlagProviderHealthCheckDecorator implements IFlagProvider {
 
     @NotNull
     @Override
-    public PluginData getInfo() {
+    public ResourceModuleDefinitionData getInfo() {
         return flagProvider.getInfo();
     }
 

@@ -1,7 +1,8 @@
 package pl.cheily.filegen.ResourceModules.Exceptions;
 
 public class ResourceModuleDefinitionSPIMappingException extends ResourceModuleException {
-        private static final String MESSAGE_TEMPLATE = "Failed serializing resource module definition to appropriate SPI data-mapping. Module: %s, Content: %s, Errors: \"%s\"";
+    private static final String MESSAGE_TEMPLATE =
+            "Failed serializing resource module definition to appropriate SPI data-mapping. Module: %s, Content: %s, Errors: \"%s\"";
 
 
     public ResourceModuleDefinitionSPIMappingException(String message, Throwable cause) {

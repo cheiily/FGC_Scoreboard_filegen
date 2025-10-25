@@ -1,6 +1,6 @@
 package pl.cheily.filegen.ResourceModules.Exceptions.Errors;
 
-public sealed interface ErrorCode permits GeneralResourceModuleErrorCode, ResourceModuleDownloadValidationErrorCode {
+public sealed interface ErrorCode permits GeneralResourceModuleErrorCode, PluginInstallationErrorCode, ResourceModuleDownloadErrorCode {
     String getMessage();
 
     default Error asError() {

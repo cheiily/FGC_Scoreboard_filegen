@@ -5,6 +5,7 @@ public record ResourceModuleDefinitionData(
         String name,
         String category,
         String installPath,
+        String installFileName,
         String shortDescription,
         String description,
         String version,
@@ -13,8 +14,12 @@ public record ResourceModuleDefinitionData(
         String url,
         boolean externalUrl,
         String resourceType,
-        String archiveType,
+        String serviceInterface,
         boolean autoinstall,
         boolean autorun,
         String checksum
-) {}
+) {
+    public String qualifiedName() {
+        return "[" + category() + "] " + name() + " - " + version();
+    }
+}

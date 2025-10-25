@@ -1,7 +1,6 @@
 package pl.cheily.filegen.ResourceModules.Validation.Factories;
 
-import pl.cheily.filegen.ResourceModules.Exceptions.Errors.ResourceModuleDownloadValidationErrorCode;
-import pl.cheily.filegen.ResourceModules.Exceptions.Errors.Error;
+import pl.cheily.filegen.ResourceModules.Exceptions.Errors.ResourceModuleDownloadErrorCode;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
 import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
@@ -13,10 +12,10 @@ import java.util.List;
 
 import static pl.cheily.filegen.ResourceModules.ResourceModuleType.*;
 
-public class StaticsCollectionDownloadValidatorFactory implements ResourceModuleValidatorFactory {
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StaticsCollectionDownloadValidatorFactory.class);
+public class DownloadVerifierFactory implements ResourceModuleVerifierFactory {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DownloadVerifierFactory.class);
 
-    public StaticsCollectionDownloadValidatorFactory() {}
+    public DownloadVerifierFactory() {}
 
     public ValidationEvent validates() {
         return ValidationEvent.DOWNLOAD;
@@ -50,10 +49,10 @@ public class StaticsCollectionDownloadValidatorFactory implements ResourceModule
     }
 
     private List<Error> statics_isDirectory(ResourceModule module) {
-        Path extractedPath = module.getDefinition().getInstallDirPath();
+        Path extractedPath = module.getDefinition().getExtractDirPath();
         if (!extractedPath.toFile().isDirectory()) {
             return List.of(
-                    ResourceModuleDownloadValidationErrorCode.NOT_A_DIRECTORY.asError(String.format(
+                    ResourceModuleDownloadErrorCode.NOT_A_DIRECTORY.asError(String.format(
                             " Module: %s, Path: %s",
                             module, extractedPath
                     ))
@@ -63,11 +62,11 @@ public class StaticsCollectionDownloadValidatorFactory implements ResourceModule
     }
 
     private List<Error> statics_hasFiles(ResourceModule module) {
-        Path extractedPath = module.getDefinition().getInstallDirPath();
+        Path extractedPath = module.getDefinition().getExtractDirPath();
         var files = extractedPath.toFile().listFiles();
         if (files == null || files.length == 0) {
             return List.of(
-                    ResourceModuleDownloadValidationErrorCode.NO_FILES_FOUND.asError(String.format(
+                    ResourceModuleDownloadErrorCode.NO_FILES_FOUND.asError(String.format(
                             " Module: %s, Path: %s",
                             module, extractedPath
                     ))
@@ -77,13 +76,13 @@ public class StaticsCollectionDownloadValidatorFactory implements ResourceModule
     }
 
     private List<Error> statics_filesAreReadable(ResourceModule module) {
-        Path extractedPath = module.getDefinition().getInstallDirPath();
+        Path extractedPath = module.getDefinition().getExtractDirPath();
         var files = extractedPath.toFile().listFiles();
         if (files == null) files = new File[0];
         for (var file : files) {
             if (!file.canRead()) {
                 return List.of(
-                        ResourceModuleDownloadValidationErrorCode.CANNOT_READ_FILE.asError(String.format(
+                        ResourceModuleDownloadErrorCode.CANNOT_READ_FILE.asError(String.format(
                                 " Module: %s, Path: %s",
                                 module, file.getPath()
                         ))

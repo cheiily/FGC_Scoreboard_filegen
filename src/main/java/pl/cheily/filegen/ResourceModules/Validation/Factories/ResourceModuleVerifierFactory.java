@@ -6,7 +6,7 @@ import pl.cheily.filegen.ResourceModules.Validation.Verifier;
 
 import java.util.List;
 
-public interface ResourceModuleValidatorFactory {
+public interface ResourceModuleVerifierFactory {
     public ValidationEvent validates();
     public List<Verifier> getFor(ResourceModuleType type);
     public List<Verifier> getAll();

@@ -2,11 +2,11 @@ package pl.cheily.filegen.ResourceModules.Validation;
 
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleValidationException;
 import pl.cheily.filegen.ResourceModules.Exceptions.Errors.GeneralResourceModuleErrorCode;
-import pl.cheily.filegen.ResourceModules.Exceptions.Errors.Error;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
-import pl.cheily.filegen.ResourceModules.Validation.Factories.ResourceModuleValidatorFactory;
-import pl.cheily.filegen.ResourceModules.Validation.Factories.StaticsCollectionDownloadValidatorFactory;
+import pl.cheily.filegen.ResourceModules.Validation.Factories.InstallationVerifierFactory;
+import pl.cheily.filegen.ResourceModules.Validation.Factories.ResourceModuleVerifierFactory;
+import pl.cheily.filegen.ResourceModules.Validation.Factories.DownloadVerifierFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,16 +14,17 @@ import java.util.List;
 public class ResourceModuleValidator {
     private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleValidator.class);
 
-    private HashMap<ValidationEvent, ResourceModuleValidatorFactory> factoryPerAction;
+    private HashMap<ValidationEvent, ResourceModuleVerifierFactory> factoryPerAction;
     {
         factoryPerAction = new HashMap<>();
-        factoryPerAction.put(ValidationEvent.DOWNLOAD, new StaticsCollectionDownloadValidatorFactory());
+        factoryPerAction.put(ValidationEvent.DOWNLOAD, new DownloadVerifierFactory());
+        factoryPerAction.put(ValidationEvent.INSTALLATION, new InstallationVerifierFactory());
     }
 
     public ResourceModuleValidator() {}
 
     public List<Error> validate(ResourceModule module, ValidationEvent event) {
-        ResourceModuleValidatorFactory factory = factoryPerAction.get(event);
+        ResourceModuleVerifierFactory factory = factoryPerAction.get(event);
         if (factory == null) {
             logger.warn("No validator factory found for event: {}", event);
             return List.of();
@@ -52,7 +53,7 @@ public class ResourceModuleValidator {
                 event,
                 errors,
                 module.getDefinition().name(),
-                module.getDefinition().getInstallDirPath().toString()
+                module.getDefinition().getExtractDirPath().toString()
             );
         }
     }

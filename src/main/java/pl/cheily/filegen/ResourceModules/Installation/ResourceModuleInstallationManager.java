@@ -5,8 +5,10 @@ import org.slf4j.MarkerFactory;
 import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinition;
 import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinitionHandlerFactory;
 import pl.cheily.filegen.ResourceModules.Exceptions.*;
+import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginInstantiationException;
 import pl.cheily.filegen.ResourceModules.Installation.UnarchiverFactory.Unarchiver;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
+import pl.cheily.filegen.ResourceModules.ResourceModuleType;
 import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
 
 import java.io.IOException;
@@ -37,15 +39,17 @@ public class ResourceModuleInstallationManager {
 
         ResourceModuleDefinition.store(
                 definition,
-                definition.getInstallContainerDirPath().resolve(definition.installPath() + ResourceModuleDefinition.EXTENSION),
+                definition.getInstallDirPath().resolve(definition.installPath() + ResourceModuleDefinition.EXTENSION),
                 ResourceModuleDefinitionHandlerFactory.getSerializer(definition.definitionVersion())
         );
         module.setDownloaded(true);
 
-        if (definition.archiveType() != null) {
+        if (definition.resourceType().equals(ResourceModuleType.STATICS_COLLECTION.name())) {
             Unarchiver unarchiver;
             try {
-                unarchiver = UnarchiverFactory.getFor(definition.archiveType());
+                String[] ifnWords = definition.installFileName().split("\\.");
+                String extension = ifnWords.length > 0 ? "." + ifnWords[ifnWords.length - 1] : "";
+                unarchiver = UnarchiverFactory.getFor(extension);
             } catch (ArchiveFormatNotSupportedException e) {
                 logger.error(MarkerFactory.getMarker("ALERT"),
                         "Failed unarchiving resource module: {}. Error: {}", definition.name(), e.getMessage());
@@ -54,7 +58,7 @@ public class ResourceModuleInstallationManager {
             try {
                 unarchiver.apply(
                         archivePath,
-                        definition.getInstallDirPath()
+                        definition.getExtractDirPath()
                 );
             } catch (UnarchivingException e) {
                 logger.error(MarkerFactory.getMarker("ALERT"), e.getMessage(), e);
@@ -87,6 +91,18 @@ public class ResourceModuleInstallationManager {
 
     public static void installModule(ResourceModule module) {
         try {
+            resourceModuleRegistry.pluginRegistry.register(module);
+        } catch (PluginInstantiationException e) {
+            logger.error(MarkerFactory.getMarker("ALERT"),
+                    "Failed loading plugins from resource module: {}. Error: {}",
+                    module.getDefinition().name(),
+                    e.getMessage(),
+                    e
+            );
+            return;
+        }
+
+        try {
             resourceModuleRegistry.validator.validateThrowing(module, ValidationEvent.INSTALLATION);
         } catch (ResourceModuleValidationException e) {
             logger.error(MarkerFactory.getMarker("ALERT"),
@@ -95,14 +111,13 @@ public class ResourceModuleInstallationManager {
             return;
         }
 
-        logger.trace("Resource module installation is a TODO feature, intended for JAR plugins.");
         module.setInstalled(true);
     }
 
     public static void deleteModule(ResourceModule module) {
         module.setEnabled(false);
         module.setInstalled(false);
-        var installPath = module.getDefinition().getInstallContainerDirPath();
+        var installPath = module.getDefinition().getInstallDirPath();
 
         try {
             DeleteNonEmptyDirectory.deleteRecursively(installPath);
@@ -111,7 +126,7 @@ public class ResourceModuleInstallationManager {
         } catch (IOException e) {
             var ex = ResourceModuleDeletionException.fromPath(
                     module.getDefinition().name(),
-                    module.getDefinition().getInstallContainerDirPath().toAbsolutePath().toString(),
+                    module.getDefinition().getInstallDirPath().toAbsolutePath().toString(),
                     e
             );
             logger.error(MarkerFactory.getMarker("ALERT"),

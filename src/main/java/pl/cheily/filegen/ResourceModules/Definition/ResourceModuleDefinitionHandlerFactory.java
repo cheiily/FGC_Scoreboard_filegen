@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import pl.cheily.filegen.ResourceModules.Exceptions.Errors.GeneralResourceModuleErrorCode;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionParseException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIMappingException;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIUnmappingException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSerializationException;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
 
@@ -60,6 +61,10 @@ public class ResourceModuleDefinitionHandlerFactory {
         return getSPIMapper(definition.definitionVersion()).map(definition);
     }
 
+    public static ResourceModuleDefinition fromSpiMapping(ResourceModuleDefinitionData data) throws ResourceModuleDefinitionSPIUnmappingException {
+        return getSPIUnmapper(data.definitionVersion()).unmap(data);
+    }
+
 
     public static ResourceModuleDefinitionParser getParser(String definitionVersion) throws IllegalArgumentException {
         return switch (definitionVersion) {
@@ -88,12 +93,22 @@ public class ResourceModuleDefinitionHandlerFactory {
         };
     }
 
+    public static ResourceModuleDefinitionSPIUnmapper getSPIUnmapper(String definitionVersion) throws IllegalArgumentException {
+        return switch (definitionVersion) {
+            case ResourceModuleDefinition.V1 -> ResourceModuleDefinitionHandlerFactory::spiUnmappingV1;
+            default -> throw new IllegalArgumentException(
+                    GeneralResourceModuleErrorCode.INVALID_DEFINITION_VERSION.asError("Value: " + definitionVersion).getMessage()
+            );
+        };
+    }
+
     public static List<String> getRequiredKeys(String definitionVersion) {
         return switch (definitionVersion) {
             case ResourceModuleDefinition.V1 -> List.of(
                 ResourceModuleDefinition.KEY_DEFINITION_VERSION,
                 ResourceModuleDefinition.KEY_NAME,
                 ResourceModuleDefinition.KEY_INSTALL_PATH,
+                ResourceModuleDefinition.KEY_INSTALL_FILE_NAME,
                 ResourceModuleDefinition.KEY_DESCRIPTION,
                 ResourceModuleDefinition.KEY_VERSION,
                 ResourceModuleDefinition.KEY_AUTHOR,
@@ -137,6 +152,7 @@ public class ResourceModuleDefinitionHandlerFactory {
             json.getString(ResourceModuleDefinition.KEY_NAME),
             json.optString(ResourceModuleDefinition.KEY_CATEGORY, null),
             json.getString(ResourceModuleDefinition.KEY_INSTALL_PATH),
+            json.getString(ResourceModuleDefinition.KEY_INSTALL_FILE_NAME),
             json.getString(ResourceModuleDefinition.KEY_SHORT_DESCRIPTION),
             json.optString(ResourceModuleDefinition.KEY_DESCRIPTION, null),
             json.getString(ResourceModuleDefinition.KEY_VERSION),
@@ -145,7 +161,7 @@ public class ResourceModuleDefinitionHandlerFactory {
             json.getString(ResourceModuleDefinition.KEY_URL),
             json.getBoolean(ResourceModuleDefinition.KEY_EXTERNAL_URL),
             json.getString(ResourceModuleDefinition.KEY_RESOURCE_TYPE),
-            json.optString(ResourceModuleDefinition.KEY_ARCHIVE_TYPE, null),
+            json.optString(ResourceModuleDefinition.KEY_SERVICE_INTERFACE, null),
             json.optBoolean(ResourceModuleDefinition.KEY_AUTOINSTALL, false),
             json.optBoolean(ResourceModuleDefinition.KEY_AUTORUN, false),
             json.optString(ResourceModuleDefinition.KEY_CHECKSUM, null)
@@ -160,6 +176,7 @@ public class ResourceModuleDefinitionHandlerFactory {
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_NAME, definition.name()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_CATEGORY, definition.category()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_INSTALL_PATH, definition.installPath()),
+                serializeFieldV1(json, ResourceModuleDefinition.KEY_INSTALL_FILE_NAME, definition.installFileName()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_SHORT_DESCRIPTION, definition.shortDescription()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_DESCRIPTION, definition.description()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_VERSION, definition.version()),
@@ -168,7 +185,7 @@ public class ResourceModuleDefinitionHandlerFactory {
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_URL, definition.url()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_EXTERNAL_URL, definition.externalUrl()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_RESOURCE_TYPE, definition.resourceType()),
-                serializeFieldV1(json, ResourceModuleDefinition.KEY_ARCHIVE_TYPE, definition.archiveType()),
+                serializeFieldV1(json, ResourceModuleDefinition.KEY_SERVICE_INTERFACE, definition.serviceInterface()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_AUTOINSTALL, definition.autoinstall()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_AUTORUN, definition.autorun()),
                 serializeFieldV1(json, ResourceModuleDefinition.KEY_CHECKSUM, definition.checksum())
@@ -202,6 +219,7 @@ public class ResourceModuleDefinitionHandlerFactory {
                     resourceModuleDefinition.name(),
                     resourceModuleDefinition.category(),
                     resourceModuleDefinition.installPath(),
+                    resourceModuleDefinition.installFileName(),
                     resourceModuleDefinition.shortDescription(),
                     resourceModuleDefinition.description(),
                     resourceModuleDefinition.version(),
@@ -210,7 +228,7 @@ public class ResourceModuleDefinitionHandlerFactory {
                     resourceModuleDefinition.url(),
                     resourceModuleDefinition.externalUrl(),
                     resourceModuleDefinition.resourceType(),
-                    resourceModuleDefinition.archiveType(),
+                    resourceModuleDefinition.serviceInterface(),
                     resourceModuleDefinition.autoinstall(),
                     resourceModuleDefinition.autorun(),
                     resourceModuleDefinition.checksum()
@@ -219,6 +237,37 @@ public class ResourceModuleDefinitionHandlerFactory {
             throw ResourceModuleDefinitionSPIMappingException.from(
                     resourceModuleDefinition.name(),
                     resourceModuleDefinition.toString(),
+                    e.getMessage(),
+                    e
+            );
+        }
+    }
+
+    private static ResourceModuleDefinition spiUnmappingV1(ResourceModuleDefinitionData resourceModuleDefinitionData) throws ResourceModuleDefinitionSPIUnmappingException {
+        try {
+            return new ResourceModuleDefinition(
+                    resourceModuleDefinitionData.definitionVersion(),
+                    resourceModuleDefinitionData.name(),
+                    resourceModuleDefinitionData.category(),
+                    resourceModuleDefinitionData.installPath(),
+                    resourceModuleDefinitionData.installFileName(),
+                    resourceModuleDefinitionData.shortDescription(),
+                    resourceModuleDefinitionData.description(),
+                    resourceModuleDefinitionData.version(),
+                    resourceModuleDefinitionData.isoDate(),
+                    resourceModuleDefinitionData.author(),
+                    resourceModuleDefinitionData.url(),
+                    resourceModuleDefinitionData.externalUrl(),
+                    resourceModuleDefinitionData.resourceType(),
+                    resourceModuleDefinitionData.serviceInterface(),
+                    resourceModuleDefinitionData.autoinstall(),
+                    resourceModuleDefinitionData.autorun(),
+                    resourceModuleDefinitionData.checksum()
+            );
+        } catch (Exception e) {
+            throw ResourceModuleDefinitionSPIUnmappingException.from(
+                    resourceModuleDefinitionData.name(),
+                    resourceModuleDefinitionData.toString(),
                     e.getMessage(),
                     e
             );
