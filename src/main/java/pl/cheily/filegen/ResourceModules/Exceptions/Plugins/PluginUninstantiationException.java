@@ -7,7 +7,7 @@ public class PluginUninstantiationException extends PluginException {
         super(message);
     }
 
-    public PluginUninstantiationException(String message, Throwable cause) {
+    private PluginUninstantiationException(String message, Throwable cause) {
         super(message, cause);
     }
 

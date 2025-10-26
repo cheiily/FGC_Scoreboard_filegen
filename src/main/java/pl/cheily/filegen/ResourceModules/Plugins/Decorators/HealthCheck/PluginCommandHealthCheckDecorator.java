@@ -1,4 +1,4 @@
-package pl.cheily.filegen.ResourceModules.Plugins.HealthCheckDecorators;
+package pl.cheily.filegen.ResourceModules.Plugins.Decorators.HealthCheck;
 
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
 
@@ -16,9 +16,8 @@ public class PluginCommandHealthCheckDecorator {
         try {
             return block.get();
         } catch (Exception e) {
-            logger.error("Error during plugin command execution: {}", e.getMessage(), e);
-            logger.info("Plugin health status: {}", plugin.getHealthStatus().healthRecords());
+            logger.info("Plugin health status on exception thrown ({}): {}", e.getClass().getSimpleName(), plugin.getHealthStatus().healthRecords());
+            throw e;
         }
-        return null;
     }
 }

@@ -1,7 +1,7 @@
-package pl.cheily.filegen.ResourceModules.Plugins.HealthCheckDecorators.Concrete;
+package pl.cheily.filegen.ResourceModules.Plugins.Decorators.HealthCheck.Concrete;
 
 import org.jetbrains.annotations.NotNull;
-import pl.cheily.filegen.ResourceModules.Plugins.HealthCheckDecorators.PluginCommandHealthCheckDecorator;
+import pl.cheily.filegen.ResourceModules.Plugins.Decorators.HealthCheck.PluginCommandHealthCheckDecorator;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus;

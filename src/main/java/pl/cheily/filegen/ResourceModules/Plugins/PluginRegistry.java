@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinitionHandlerFactory;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginClassLoaderUnloadingException;
+import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginClassResolutionException;
 import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginInstantiationException;
 import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginUninstantiationException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIMappingException;
@@ -54,12 +55,12 @@ public class PluginRegistry {
             var instance = clazz.getDeclaredConstructor().newInstance();
             if (instance instanceof IPluginBase plugin) {
                 register(plugin);
-                logger.info("Plugin {} registered successfully from module {}", plugin.getInfo().name(), definition.qualifiedName());
+                logger.info("Plugin {} registered successfully.", plugin.getInfo().qualifiedName());
             } else
                 throw PluginInstantiationException.forModule(definition, "Class does not implement IPluginBase");
 
             return plugin;
-        } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException |
+        } catch (PluginClassResolutionException | InvocationTargetException | InstantiationException | IllegalAccessException |
                  NoSuchMethodException | UnsupportedClassVersionError e) {
             pluginLoader.unload(module.getDefinition()); // cleanup on failure
             throw PluginInstantiationException.forModule(definition, e);

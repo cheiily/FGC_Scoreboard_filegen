@@ -10,6 +10,7 @@ import pl.cheily.filegen.ResourceModules.Installation.UnarchiverFactory.Unarchiv
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
 import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
+import pl.cheily.filegen.Utils.SafeInvocationUtil;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -90,6 +91,12 @@ public class ResourceModuleInstallationManager {
     }
 
     public static boolean installModule(ResourceModule module) {
+        if (SafeInvocationUtil.getOrNull(() -> ResourceModuleType.valueOf(module.getDefinition().resourceType()))
+                != ResourceModuleType.PLUGIN_JAR) {
+            module.setInstalled(true);
+            return true;
+        }
+
         try {
             resourceModuleRegistry.pluginRegistry.register(module);
         } catch (PluginInstantiationException e) {

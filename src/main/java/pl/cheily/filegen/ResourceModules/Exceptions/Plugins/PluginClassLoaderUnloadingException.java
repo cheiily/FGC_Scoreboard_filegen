@@ -7,7 +7,7 @@ public class PluginClassLoaderUnloadingException extends PluginException {
         super(message);
     }
 
-    public PluginClassLoaderUnloadingException(String message, Throwable cause) {
+    private PluginClassLoaderUnloadingException(String message, Throwable cause) {
         super(message, cause);
     }
 

@@ -7,7 +7,7 @@ public class PluginInstantiationException extends PluginException {
         super(message);
     }
 
-    public PluginInstantiationException(String message, Throwable cause) {
+    private PluginInstantiationException(String message, Throwable cause) {
         super(message, cause);
     }
 
