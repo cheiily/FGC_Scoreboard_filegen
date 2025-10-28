@@ -9,8 +9,8 @@ import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginInstantiationE
 import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginUninstantiationException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIMappingException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIUnmappingException;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Requires;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
-import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleRegistry;
@@ -111,20 +111,46 @@ public class PluginRegistry {
         logger.info("Plugins of module type \"{}\" unregistered successfully", module.getDefinition().qualifiedName());
     }
 
-    public ResourceModuleStatus mapToSPIStatus(ResourceModule module) {
+    public void updateWithDependencies(ResourceModule module) {
+        IPluginBase plugin = null;
         try {
-            return new ResourceModuleStatus(
-                    module.isDownloaded(),
-                    module.isInstalled(),
-                    module.isEnabled(),
-                    ResourceModuleDefinitionHandlerFactory.spiMapping(module.getDefinition()),
-                    module.getDefinition().getExtractDirPath(),
-                    module.getDefinition().getInstallFilePath(),
-                    module.getDefinition().getInstallDirPath()
-            );
+            plugin = getExisting(module);
         } catch (ResourceModuleDefinitionSPIMappingException e) {
-            logger.error(e.getMessage(), e);
-            return null;
+            logger.error("Cannot update plugin dependencies for module {{}}. Cause: {}", module.getDefinition().qualifiedName(), e.getMessage(), e);
         }
+        if (plugin == null)
+            return;
+
+        Requires req = plugin.getClass().getAnnotation(Requires.class);
+        if (req == null)
+            return;
+
+        List<String> requiredModules = List.of(req.resourceModules());
+        List<String> requiredCategories = List.of(req.resourceModuleCategories());
+
+        var dependencyStatuses = registry.modules
+                .stream().filter(mdl ->
+                    requiredModules.contains(mdl.getDefinition().name())
+                    || requiredCategories.contains(mdl.getDefinition().category())
+                ).map(ResourceModuleDefinitionHandlerFactory::spiStatus)
+                .toList();
+
+        plugin.acceptRequiredModuleStatus(dependencyStatuses);
+    }
+
+    public void updateDependents(ResourceModule module) {
+        var status = List.of(ResourceModuleDefinitionHandlerFactory.spiStatus(module));
+
+        plugins.stream().filter(plugin -> {
+            Requires req = plugin.getClass().getAnnotation(Requires.class);
+            if (req == null)
+                return false;
+
+            List<String> requiredModules = List.of(req.resourceModules());
+            List<String> requiredCategories = List.of(req.resourceModuleCategories());
+
+            return requiredModules.contains(plugin.getInfo().name())
+                    || requiredCategories.contains(plugin.getInfo().category());
+        }).forEach(dependentPlugin -> dependentPlugin.acceptRequiredModuleStatus(status));
     }
 }

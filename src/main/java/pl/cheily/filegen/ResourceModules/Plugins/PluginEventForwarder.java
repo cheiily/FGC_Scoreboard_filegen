@@ -1,15 +1,13 @@
 package pl.cheily.filegen.ResourceModules.Plugins;
 
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
-import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
-import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleRegistry;
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
 
 import java.beans.PropertyChangeListener;
-import java.util.List;
 
+import static pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType.LOADED_INSTALLATIONS;
 import static pl.cheily.filegen.ScoreboardApplication.resourceModuleRegistry;
 
 public class PluginEventForwarder {
@@ -17,7 +15,8 @@ public class PluginEventForwarder {
     private PropertyChangeListener listener = (event) -> {
         if (event.getNewValue() instanceof ResourceModule module) {
             if (module.getDefinition().resourceType().equals(ResourceModuleType.PLUGIN_JAR.name())) {
-                updatePlugins(module);
+                pluginRegistry.updateDependents(module);
+                pluginRegistry.updateWithDependencies(module);
             }
         }
     };
@@ -27,34 +26,6 @@ public class PluginEventForwarder {
         registry.eventPipeline.subscribe(ResourceModuleEventType.UNINSTALLED_MODULE, listener);
         registry.eventPipeline.subscribe(ResourceModuleEventType.ENABLED_MODULE, listener);
         registry.eventPipeline.subscribe(ResourceModuleEventType.DISABLED_MODULE, listener);
-        registry.eventPipeline.subscribe(ResourceModuleEventType.LOADED_INSTALLATIONS, listener);
         this.pluginRegistry = pluginRegistry;
-    }
-
-    public void updatePlugins(ResourceModule module) {
-        ResourceModuleStatus status = pluginRegistry.mapToSPIStatus(module);
-        if (status == null) {
-            // logged on mapping level
-            return;
-        }
-
-        // todo verify the first filter is necessary
-        // todo we need two "update modes" -> update all plugins requiring module X with its status &&& poll status from all modules plugin X requires.
-
-        resourceModuleRegistry.pluginRegistry.plugins.stream().filter((plugin) -> {
-            var def = resourceModuleRegistry.modules.stream().filter(mdl -> mdl.getDefinition().name().equals(module.getDefinition().name())).findAny();
-            return def.filter(resourceModule -> ResourceModuleType.valueOf(resourceModule.getDefinition().resourceType()) == ResourceModuleType.PLUGIN_JAR).isPresent();
-        }).filter(plugin -> {
-            IPluginBase.Requires req = plugin.getClass().getAnnotation(IPluginBase.Requires.class);
-            IPluginBase.RequiresCategory reqCat = plugin.getClass().getAnnotation(IPluginBase.RequiresCategory.class);
-            if (req == null && reqCat == null)
-                return false;
-
-            return req != null
-                ? req.resourceModule().equals(module.getDefinition().name())
-                : reqCat.resourceModuleCategory().equals(module.getDefinition().category());
-        }).forEach(plugin ->
-                plugin.acceptRequiredModuleStatus(List.of(status))
-        );
     }
 }

@@ -8,6 +8,8 @@ import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIM
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIUnmappingException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSerializationException;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus;
+import pl.cheily.filegen.ResourceModules.ResourceModule;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ResourceModuleDefinitionHandlerFactory {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceModuleDefinitionHandlerFactory.class);
     private static ResourceModuleDefinitionHandlerFactoryConfig config;
     public static void loadConfig(ResourceModuleDefinitionHandlerFactoryConfig config) {
         ResourceModuleDefinitionHandlerFactory.config = config;
@@ -63,6 +66,23 @@ public class ResourceModuleDefinitionHandlerFactory {
 
     public static ResourceModuleDefinition fromSpiMapping(ResourceModuleDefinitionData data) throws ResourceModuleDefinitionSPIUnmappingException {
         return getSPIUnmapper(data.definitionVersion()).unmap(data);
+    }
+
+    public static ResourceModuleStatus spiStatus(ResourceModule module) {
+        try {
+            return new ResourceModuleStatus(
+                    module.isDownloaded(),
+                    module.isInstalled(),
+                    module.isEnabled(),
+                    ResourceModuleDefinitionHandlerFactory.spiMapping(module.getDefinition()),
+                    module.getDefinition().getExtractDirPath(),
+                    module.getDefinition().getInstallFilePath(),
+                    module.getDefinition().getInstallDirPath()
+            );
+        } catch (ResourceModuleDefinitionSPIMappingException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
     }
 
 

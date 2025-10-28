@@ -105,6 +105,12 @@ public class ResourceModuleRegistry {
                     .toList();
 
             modules.addAll(installedModules);
+            installedModules.forEach(module -> {
+                if (module.isInstalled())
+                    installModule(module);
+                if (module.isEnabled())
+                    enableModule(module);
+            });
             eventPipeline.push(ResourceModuleEventType.LOADED_INSTALLATIONS, null);
         } catch (IOException | DataManagerNotInitializedException e) {
             logger.error("Failed to load installed resource modules.", e);
@@ -210,7 +216,6 @@ public class ResourceModuleRegistry {
     }
 
     public void uninstallModule(ResourceModule module) {
-        logger.info("Uninstalling resource modules is a WIP feature, intended for JAR plugins.");
         module.setInstalled(false);
         try {
             pluginRegistry.unregister(module);
