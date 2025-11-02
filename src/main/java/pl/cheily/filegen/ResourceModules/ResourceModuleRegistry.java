@@ -216,18 +216,15 @@ public class ResourceModuleRegistry {
     }
 
     public void uninstallModule(ResourceModule module) {
-        module.setInstalled(false);
-        try {
-            pluginRegistry.unregister(module);
-        } catch (PluginUninstantiationException e) {
-            logger.error(MarkerFactory.getMarker("ALERT"),
-                    "Failed uninstalling plugin: {}. Error: {}",
-                    module.getDefinition().qualifiedName(),
-                    e.getMessage(),
-                    e
-            );
+        if (!module.isInstalled()) {
+            logger.warn("Resource module {} is not installed, cannot uninstall.", module.definition.installPath());
+            return;
         }
-        eventPipeline.push(ResourceModuleEventType.UNINSTALLED_MODULE, module);
+
+        ResourceModuleInstallationManager.uninstallModule(module);
+
+        if (!module.isInstalled())
+            eventPipeline.push(ResourceModuleEventType.UNINSTALLED_MODULE, module);
     }
 
     public void enableModule(ResourceModule module) {

@@ -243,7 +243,7 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
     private void initWithModule() {
         loadPropertySheet();
         loadRequirementsList();
-        var isPlugin = SafeInvocationUtil.getOrNull(() -> module.getModuleType()) == ResourceModuleType.PLUGIN_JAR;
+        var isPlugin = SafeInvocationUtil.getOrNull(module::getModuleType) == ResourceModuleType.PLUGIN_JAR;
         anchor_def.setPrefHeight(
                 isPlugin
                         ? anchorDefSizes.first()

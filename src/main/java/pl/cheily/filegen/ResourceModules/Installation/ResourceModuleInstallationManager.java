@@ -6,6 +6,7 @@ import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinition;
 import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinitionHandlerFactory;
 import pl.cheily.filegen.ResourceModules.Exceptions.*;
 import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginInstantiationException;
+import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginUninstantiationException;
 import pl.cheily.filegen.ResourceModules.Installation.UnarchiverFactory.Unarchiver;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleType;
@@ -91,8 +92,7 @@ public class ResourceModuleInstallationManager {
     }
 
     public static boolean installModule(ResourceModule module) {
-        if (SafeInvocationUtil.getOrNull(() -> ResourceModuleType.valueOf(module.getDefinition().resourceType()))
-                != ResourceModuleType.PLUGIN_JAR) {
+        if (SafeInvocationUtil.getOrNull(module::getModuleType) != ResourceModuleType.PLUGIN_JAR) {
             module.setInstalled(true);
             return true;
         }
@@ -119,9 +119,32 @@ public class ResourceModuleInstallationManager {
         return true;
     }
 
-    public static void deleteModule(ResourceModule module) {
+    public static void uninstallModule(ResourceModule module) {
         module.setEnabled(false);
+
+        if (SafeInvocationUtil.getOrNull(module::getModuleType) != ResourceModuleType.PLUGIN_JAR) {
+            module.setInstalled(false);
+            return;
+        }
+
+        try {
+            resourceModuleRegistry.pluginRegistry.unregister(module);
+        } catch (PluginUninstantiationException e) {
+            logger.error(MarkerFactory.getMarker("ALERT"),
+                    "Failed uninstalling plugin: {}. Error: {}",
+                    module.getDefinition().qualifiedName(),
+                    e.getMessage(),
+                    e
+            );
+        }
+
         module.setInstalled(false);
+    }
+
+    public static void deleteModule(ResourceModule module) {
+        if (module.isInstalled())
+            uninstallModule(module);
+
         var installPath = module.getDefinition().getInstallDirPath();
 
         try {
