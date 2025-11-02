@@ -9,4 +9,5 @@ public enum ResourceModuleEventType {
     UNINSTALLED_MODULE,
     ENABLED_MODULE,
     DISABLED_MODULE,
+    UPDATED_PLUGIN_HEALTH_STATUS
 }

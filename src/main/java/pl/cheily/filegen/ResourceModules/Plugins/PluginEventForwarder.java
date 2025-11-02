@@ -14,10 +14,8 @@ public class PluginEventForwarder {
     private PluginRegistry pluginRegistry;
     private PropertyChangeListener listener = (event) -> {
         if (event.getNewValue() instanceof ResourceModule module) {
-            if (module.getDefinition().resourceType().equals(ResourceModuleType.PLUGIN_JAR.name())) {
-                pluginRegistry.updateDependents(module);
-                pluginRegistry.updateWithDependencies(module);
-            }
+            pluginRegistry.updateDependents(module);
+            pluginRegistry.updateWithDependencies(module);
         }
     };
 

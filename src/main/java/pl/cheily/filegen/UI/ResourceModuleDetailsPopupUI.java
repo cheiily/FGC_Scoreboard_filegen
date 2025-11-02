@@ -79,6 +79,7 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
         resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.UNINSTALLED_MODULE, listener);
         resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.ENABLED_MODULE, listener);
         resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.DISABLED_MODULE, listener);
+        resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.UPDATED_PLUGIN_HEALTH_STATUS, listener);
 
         col_method.setCellValueFactory(record -> new SimpleStringProperty(record.getValue().methodName()));
         col_status.setCellValueFactory(record -> new SimpleObjectProperty<>(record.getValue().status()));

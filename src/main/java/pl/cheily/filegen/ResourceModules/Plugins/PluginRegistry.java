@@ -14,10 +14,12 @@ import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefini
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.ResourceModules.ResourceModuleRegistry;
+import pl.cheily.filegen.Utils.SafeInvocationUtil;
 
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Optional;
 
 public class PluginRegistry {
     private final static Logger logger = org.slf4j.LoggerFactory.getLogger(PluginRegistry.class);
@@ -149,8 +151,26 @@ public class PluginRegistry {
             List<String> requiredModules = List.of(req.resourceModules());
             List<String> requiredCategories = List.of(req.resourceModuleCategories());
 
-            return requiredModules.contains(plugin.getInfo().name())
-                    || requiredCategories.contains(plugin.getInfo().category());
-        }).forEach(dependentPlugin -> dependentPlugin.acceptRequiredModuleStatus(status));
+            return requiredModules.contains(module.getDefinition().name())
+                    || requiredCategories.contains(module.getDefinition().category());
+        }).forEach(dependentPlugin -> {
+            dependentPlugin.acceptRequiredModuleStatus(status);
+            var pluginModule = findModule(dependentPlugin);
+            if (pluginModule.isEmpty())
+                return;
+            registry.eventPipeline.push(
+                    ResourceModuleEventType.UPDATED_PLUGIN_HEALTH_STATUS,
+                    pluginModule.get()
+            );
+        });
+    }
+
+    private Optional<ResourceModule> findModule(IPluginBase plugin) {
+        var pluginDef = SafeInvocationUtil.getOrNull(() -> ResourceModuleDefinitionHandlerFactory.fromSpiMapping(plugin.getInfo()));
+        if (pluginDef == null)
+            return Optional.empty();
+        return registry.modules.stream()
+                .filter(mdl -> mdl.getDefinition().equals(pluginDef))
+                .findFirst();
     }
 }
