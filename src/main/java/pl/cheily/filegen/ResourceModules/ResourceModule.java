@@ -3,6 +3,7 @@ package pl.cheily.filegen.ResourceModules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.cheily.filegen.ResourceModules.Definition.ResourceModuleDefinition;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionParseException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,6 +64,19 @@ public class ResourceModule {
             touchEnabled();
         else
             removeEnabled();
+    }
+
+    public ResourceModuleType getModuleType() throws ResourceModuleDefinitionParseException {
+        try {
+            return ResourceModuleType.valueOf(definition.resourceType());
+        } catch (IllegalArgumentException e) {
+            throw ResourceModuleDefinitionParseException.from(
+                    definition.name(),
+                    definition.resourceType(),
+                    "Invalid resource type: " + definition.resourceType(),
+                    e
+            );
+        }
     }
 
     public ResourceModule(ResourceModuleDefinition definition) {

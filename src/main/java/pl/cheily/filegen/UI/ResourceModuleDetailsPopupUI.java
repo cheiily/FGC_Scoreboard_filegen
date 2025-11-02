@@ -1,23 +1,29 @@
 package pl.cheily.filegen.UI;
 
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
 import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Requires;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.PluginHealthData;
 import pl.cheily.filegen.ResourceModules.ResourceModule;
+import pl.cheily.filegen.ResourceModules.ResourceModuleType;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.Pair;
+import pl.cheily.filegen.Utils.SafeInvocationUtil;
 
 import java.beans.PropertyChangeListener;
 import java.net.URL;
@@ -45,6 +51,15 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
     public Label label_install;
     public Label label_enable;
 
+    public ListView<String> list_req;
+    public TableView<PluginHealthData.HealthRecord> table_health;
+    public TableColumn<PluginHealthData.HealthRecord, String> col_method;
+    public TableColumn<PluginHealthData.HealthRecord, PluginHealthData.HealthStatus> col_status;
+    public TableColumn<PluginHealthData.HealthRecord, String> col_reason;
+    public AnchorPane anchor_req;
+    public AnchorPane anchor_health;
+    public AnchorPane anchor_def;
+    private final Pair<Integer, Integer> anchorDefSizes = new Pair<>(300, 523);
 
     private final PropertyChangeListener listener = evt -> {
         if (module == null) return;
@@ -64,10 +79,36 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
         resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.UNINSTALLED_MODULE, listener);
         resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.ENABLED_MODULE, listener);
         resourceModuleRegistry.eventPipeline.subscribe(ResourceModuleEventType.DISABLED_MODULE, listener);
+
+        col_method.setCellValueFactory(record -> new SimpleStringProperty(record.getValue().methodName()));
+        col_status.setCellValueFactory(record -> new SimpleObjectProperty<>(record.getValue().status()));
+        col_status.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(PluginHealthData.HealthStatus status, boolean empty) {
+                super.updateItem(status, empty);
+                if (empty || status == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(status.name());
+                    if (status == PluginHealthData.HealthStatus.READY) {
+                        setStyle("-fx-text-fill: green; -fx-font-weight: bold; -fx-alignment: CENTER;");
+                    } else {
+                        setStyle("-fx-text-fill: red; -fx-font-weight: bold; -fx-alignment: CENTER;");
+                    }
+                }
+            }
+        });
+        col_reason.setCellValueFactory(record -> new SimpleStringProperty(record.getValue().message()));
+        col_method.setStyle("-fx-alignment: CENTER;");
+        col_status.setStyle("-fx-alignment: CENTER;");
+        col_reason.setStyle("-fx-alignment: CENTER;");
+        list_req.setStyle("-fx-alignment: CENTER;");
     }
 
     public void open(ResourceModule module) {
         this.module = module;
+        initWithModule();
         refresh();
     }
 
@@ -159,13 +200,58 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
         btn_enable.setDisable(!module.isInstalled());
     }
 
+    private void loadHealthGrid() {
+        table_health.getItems().clear();
+        if (module == null || !module.isInstalled()) return;
+
+        var plugin = SafeInvocationUtil.getOrNull(() -> resourceModuleRegistry.pluginRegistry.getExisting(module));
+        if (plugin == null) return;
+
+        PluginHealthData healthData = plugin.getHealthStatus();
+        table_health.getItems().addAll(healthData.healthRecords());
+    }
+
+    private void loadRequirementsList() {
+        list_req.getItems().clear();
+        if (module == null) return;
+
+        var plugin = SafeInvocationUtil.getOrNull(() -> resourceModuleRegistry.pluginRegistry.getExisting(module));
+        if (plugin == null) return;
+
+        Requires req = plugin.getClass().getAnnotation(Requires.class);
+        if (req == null) return;
+
+        for (String mod : req.resourceModules()) {
+            list_req.getItems().add("Module: " + mod);
+        }
+
+        for (String cat : req.resourceModuleCategories()) {
+            list_req.getItems().add("Category: " + cat);
+        }
+    }
+
     private void refresh() {
         label_header.setText(String.format(module.getDefinition().qualifiedName(), module.getDefinition().name()));
         setLabel(label_download, module.isDownloaded());
         setLabel(label_install, module.isInstalled());
         setLabel(label_enable, module.isEnabled());
-        loadPropertySheet();
         loadButtonTexts();
         setButtonsEnableState();
+        loadHealthGrid();
+    }
+
+    private void initWithModule() {
+        loadPropertySheet();
+        loadRequirementsList();
+        var isPlugin = SafeInvocationUtil.getOrNull(() -> module.getModuleType()) == ResourceModuleType.PLUGIN_JAR;
+        anchor_def.setPrefHeight(
+                isPlugin
+                        ? anchorDefSizes.first()
+                        : anchorDefSizes.second()
+        );
+        anchor_health.setDisable(!isPlugin);
+        anchor_health.setVisible(isPlugin);
+        anchor_req.setDisable(!isPlugin);
+        anchor_req.setVisible(isPlugin);
     }
 }
