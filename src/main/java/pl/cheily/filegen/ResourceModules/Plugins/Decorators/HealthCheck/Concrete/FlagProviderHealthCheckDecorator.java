@@ -2,7 +2,9 @@ package pl.cheily.filegen.ResourceModules.Plugins.Decorators.HealthCheck.Concret
 
 import org.jetbrains.annotations.NotNull;
 import pl.cheily.filegen.ResourceModules.Plugins.Decorators.HealthCheck.PluginCommandHealthCheckDecorator;
+import pl.cheily.filegen.ResourceModules.Plugins.Decorators.IPluginDecorator;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.PluginHealthData;
@@ -11,7 +13,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 
-public class FlagProviderHealthCheckDecorator implements IFlagProvider {
+public class FlagProviderHealthCheckDecorator implements IFlagProvider, IPluginDecorator {
     public IFlagProvider flagProvider;
     private PluginCommandHealthCheckDecorator commandHealthCheckDecorator;
 
@@ -51,6 +53,11 @@ public class FlagProviderHealthCheckDecorator implements IFlagProvider {
 
     @Override
     public void acceptRequiredModuleStatus(@NotNull List<ResourceModuleStatus> modules) {
+        flagProvider.acceptRequiredModuleStatus(modules);
+    }
 
+    @Override
+    public IPluginBase getUnderlying() {
+        return flagProvider;
     }
 }

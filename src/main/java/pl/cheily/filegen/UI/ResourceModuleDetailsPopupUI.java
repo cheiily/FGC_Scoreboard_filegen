@@ -216,7 +216,7 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
         list_req.getItems().clear();
         if (module == null) return;
 
-        var plugin = SafeInvocationUtil.getOrNull(() -> resourceModuleRegistry.pluginRegistry.getExisting(module));
+        var plugin = SafeInvocationUtil.getOrNull(() -> resourceModuleRegistry.pluginRegistry.getRaw(module));
         if (plugin == null) return;
 
         Requires req = plugin.getClass().getAnnotation(Requires.class);

@@ -17,7 +17,7 @@ public class PluginCommandSafeInvocationDecorator {
         try {
             return block.get();
         } catch (Throwable e) {
-            logger.error("Plugin safe invocation environment caught an error: {}", e.getMessage(), e);
+            logger.info("Plugin safe invocation environment caught an error: {}", e.getMessage(), e);
             throw PluginCommandInvocationRuntimeException.forCommand(commandName, e);
         }
     }

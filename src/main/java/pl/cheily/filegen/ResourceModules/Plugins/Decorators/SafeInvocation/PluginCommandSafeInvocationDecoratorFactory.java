@@ -17,7 +17,7 @@ public class PluginCommandSafeInvocationDecoratorFactory {
         if (plugin instanceof IFlagProvider) {
             return (T) new FlagProviderSafeInvocationDecorator((IFlagProvider) plugin);
         }
-        logger.error("No safe invocation decorator found for plugin of type: {}", plugin.getClass().getName());
+        logger.info("No safe invocation decorator found for plugin of type: {}", plugin.getClass().getName());
         return plugin;
     }
 }

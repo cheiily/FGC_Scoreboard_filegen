@@ -179,6 +179,10 @@ public class ResourceModuleRegistry {
             }
         }
         eventPipeline.push(ResourceModuleEventType.DOWNLOADED_MODULE, module);
+        if (module.isInstalled())
+            eventPipeline.push(ResourceModuleEventType.INSTALLED_MODULE, module);
+        if (module.isEnabled())
+            eventPipeline.push(ResourceModuleEventType.ENABLED_MODULE, module);
     }
 
     public void deleteModuleAsync(ResourceModule module) {

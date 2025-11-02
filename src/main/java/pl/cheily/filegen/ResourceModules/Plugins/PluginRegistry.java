@@ -9,6 +9,7 @@ import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginInstantiationE
 import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginUninstantiationException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIMappingException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSPIUnmappingException;
+import pl.cheily.filegen.ResourceModules.Plugins.Decorators.PluginDecorators;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Requires;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
@@ -36,8 +37,9 @@ public class PluginRegistry {
         this.plugins = new java.util.ArrayList<>();
         this.eventForwarder = new PluginEventForwarder(registry, this);
         this.listener = evt -> {
-            switch(ResourceModuleEventType.valueOf(evt.getPropertyName())) {
-                default: break;
+            switch (ResourceModuleEventType.valueOf(evt.getPropertyName())) {
+                default:
+                    break;
             }
             logger.info("TODO plugin loader.");
         };
@@ -50,19 +52,19 @@ public class PluginRegistry {
         plugins.add(plugin);
     }
 
-    public IPluginBase register(ResourceModule module) throws PluginInstantiationException {
+    public void register(ResourceModule module) throws PluginInstantiationException {
         var definition = module.getDefinition();
         try {
             var clazz = pluginLoader.findClass(definition);
             var instance = clazz.getDeclaredConstructor().newInstance();
             if (instance instanceof IPluginBase plugin) {
-                register(plugin);
+                register(PluginDecorators.decorate(plugin));
                 logger.info("Plugin {} registered successfully.", plugin.getInfo().qualifiedName());
             } else
                 throw PluginInstantiationException.forModule(definition, "Class does not implement IPluginBase");
 
-            return plugin;
-        } catch (PluginClassResolutionException | InvocationTargetException | InstantiationException | IllegalAccessException |
+        } catch (PluginClassResolutionException | InvocationTargetException | InstantiationException |
+                 IllegalAccessException |
                  NoSuchMethodException | UnsupportedClassVersionError e) {
             pluginLoader.unload(module.getDefinition()); // cleanup on failure
             throw PluginInstantiationException.forModule(definition, e);
@@ -76,6 +78,10 @@ public class PluginRegistry {
                 .filter(plugin -> plugin.getInfo().equals(def))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public IPluginBase getRaw(ResourceModule module) throws ResourceModuleDefinitionSPIMappingException {
+        return PluginDecorators.strip(getExisting(module));
     }
 
     public void unregister(IPluginBase plugin) throws PluginClassLoaderUnloadingException {
@@ -116,7 +122,7 @@ public class PluginRegistry {
     public void updateWithDependencies(ResourceModule module) {
         IPluginBase plugin = null;
         try {
-            plugin = getExisting(module);
+            plugin = getRaw(module);
         } catch (ResourceModuleDefinitionSPIMappingException e) {
             logger.error("Cannot update plugin dependencies for module {{}}. Cause: {}", module.getDefinition().qualifiedName(), e.getMessage(), e);
         }
@@ -132,8 +138,8 @@ public class PluginRegistry {
 
         var dependencyStatuses = registry.modules
                 .stream().filter(mdl ->
-                    requiredModules.contains(mdl.getDefinition().name())
-                    || requiredCategories.contains(mdl.getDefinition().category())
+                        requiredModules.contains(mdl.getDefinition().name())
+                                || requiredCategories.contains(mdl.getDefinition().category())
                 ).map(ResourceModuleDefinitionHandlerFactory::spiStatus)
                 .toList();
 
@@ -143,26 +149,27 @@ public class PluginRegistry {
     public void updateDependents(ResourceModule module) {
         var status = List.of(ResourceModuleDefinitionHandlerFactory.spiStatus(module));
 
-        plugins.stream().filter(plugin -> {
-            Requires req = plugin.getClass().getAnnotation(Requires.class);
-            if (req == null)
-                return false;
+        plugins.stream().map(PluginDecorators::strip)
+                .filter(plugin -> {
+                    Requires req = plugin.getClass().getAnnotation(Requires.class);
+                    if (req == null)
+                        return false;
 
-            List<String> requiredModules = List.of(req.resourceModules());
-            List<String> requiredCategories = List.of(req.resourceModuleCategories());
+                    List<String> requiredModules = List.of(req.resourceModules());
+                    List<String> requiredCategories = List.of(req.resourceModuleCategories());
 
-            return requiredModules.contains(module.getDefinition().name())
-                    || requiredCategories.contains(module.getDefinition().category());
-        }).forEach(dependentPlugin -> {
-            dependentPlugin.acceptRequiredModuleStatus(status);
-            var pluginModule = findModule(dependentPlugin);
-            if (pluginModule.isEmpty())
-                return;
-            registry.eventPipeline.push(
-                    ResourceModuleEventType.UPDATED_PLUGIN_HEALTH_STATUS,
-                    pluginModule.get()
-            );
-        });
+                    return requiredModules.contains(module.getDefinition().name())
+                            || requiredCategories.contains(module.getDefinition().category());
+                }).forEach(dependentPlugin -> {
+                    dependentPlugin.acceptRequiredModuleStatus(status);
+                    var pluginModule = findModule(dependentPlugin);
+                    if (pluginModule.isEmpty())
+                        return;
+                    registry.eventPipeline.push(
+                            ResourceModuleEventType.UPDATED_PLUGIN_HEALTH_STATUS,
+                            pluginModule.get()
+                    );
+                });
     }
 
     private Optional<ResourceModule> findModule(IPluginBase plugin) {

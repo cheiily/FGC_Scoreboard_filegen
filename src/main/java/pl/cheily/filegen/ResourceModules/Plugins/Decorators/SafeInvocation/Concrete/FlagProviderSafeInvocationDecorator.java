@@ -2,8 +2,10 @@ package pl.cheily.filegen.ResourceModules.Plugins.Decorators.SafeInvocation.Conc
 
 import org.jetbrains.annotations.NotNull;
 import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginCommandInvocationRuntimeException;
+import pl.cheily.filegen.ResourceModules.Plugins.Decorators.IPluginDecorator;
 import pl.cheily.filegen.ResourceModules.Plugins.Decorators.SafeInvocation.PluginCommandSafeInvocationDecorator;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.PluginHealthData;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleDefinitionData;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus;
@@ -12,7 +14,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 
-public class FlagProviderSafeInvocationDecorator implements IFlagProvider {
+public class FlagProviderSafeInvocationDecorator implements IFlagProvider, IPluginDecorator {
     public IFlagProvider flagProvider;
     private final PluginCommandSafeInvocationDecorator commandSafeInvocationDecorator;
 
@@ -56,5 +58,10 @@ public class FlagProviderSafeInvocationDecorator implements IFlagProvider {
             flagProvider.acceptRequiredModuleStatus(modules);
             return null;
         }, "acceptRequiredModuleStatus");
+    }
+
+    @Override
+    public IPluginBase getUnderlying() {
+        return flagProvider;
     }
 }
