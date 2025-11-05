@@ -84,6 +84,15 @@ public class PluginRegistry {
         return PluginDecorators.strip(getExisting(module));
     }
 
+    public <P extends IPluginBase> P getOfType(Class<P> pluginClass) {
+        for (IPluginBase plugin : plugins) {
+            if (pluginClass.isInstance(PluginDecorators.stripSafe(plugin))) {
+                return pluginClass.cast(plugin);
+            }
+        }
+        return null;
+    }
+
     public void unregister(IPluginBase plugin) throws PluginClassLoaderUnloadingException {
         if (plugins.remove(plugin)) {
             logger.info("Plugin {} unregistered successfully", plugin.getInfo().name());
@@ -119,7 +128,7 @@ public class PluginRegistry {
         logger.info("Plugins of module type \"{}\" unregistered successfully", module.getDefinition().qualifiedName());
     }
 
-    public void updateWithDependencies(ResourceModule module) {
+    void updateWithDependencies(ResourceModule module) {
         IPluginBase plugin = null;
         try {
             plugin = getRaw(module);
@@ -146,7 +155,7 @@ public class PluginRegistry {
         plugin.acceptRequiredModuleStatus(dependencyStatuses);
     }
 
-    public void updateDependents(ResourceModule module) {
+    void updateDependents(ResourceModule module) {
         var status = List.of(ResourceModuleDefinitionHandlerFactory.spiStatus(module));
 
         plugins.stream().map(PluginDecorators::strip)
@@ -172,7 +181,7 @@ public class PluginRegistry {
                 });
     }
 
-    private Optional<ResourceModule> findModule(IPluginBase plugin) {
+    Optional<ResourceModule> findModule(IPluginBase plugin) {
         var pluginDef = SafeInvocationUtil.getOrNull(() -> ResourceModuleDefinitionHandlerFactory.fromSpiMapping(plugin.getInfo()));
         if (pluginDef == null)
             return Optional.empty();

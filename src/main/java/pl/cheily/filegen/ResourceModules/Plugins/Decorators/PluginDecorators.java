@@ -21,4 +21,12 @@ public class PluginDecorators {
         }
         return (T) ibase;
     }
+
+    public static <T extends IPluginBase> IPluginBase stripSafe(T plugin) {
+        IPluginBase ibase = plugin;
+        while (ibase instanceof IPluginDecorator) {
+            ibase = ((IPluginDecorator) ibase).getUnderlying();
+        }
+        return ibase;
+    }
 }

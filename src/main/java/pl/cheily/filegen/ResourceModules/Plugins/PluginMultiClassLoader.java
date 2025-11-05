@@ -142,13 +142,4 @@ public class PluginMultiClassLoader extends ClassLoader {
             throw PluginClassResolutionException.forModule(pluginEntry.definition, e);
         }
     }
-
-//    @Override
-//    protected Class<?> findClass(String serviceInterfaceName) throws ClassNotFoundException {
-//        var loaderKey = classLoaders.keySet().stream()
-//                .filter(key -> key.serviceInterface().equals(serviceInterfaceName))
-//                .findFirst()
-//                .orElseThrow(() -> new ClassNotFoundException("No classloader found for service interface: " + serviceInterfaceName));
-//        return findClass(loaderKey);
-//    }
 }

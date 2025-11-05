@@ -26,6 +26,8 @@ import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.DefaultOutpu
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.RawOutputWriter;
+import pl.cheily.filegen.ResourceModules.Plugins.PluginHandle;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
 import pl.cheily.filegen.UI.ControllerUI;
 
 import java.beans.PropertyChangeListener;
@@ -54,6 +56,7 @@ public class DataManager {
     public final Path nullFlag = Path.of(flagsDir + "/null.png");
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
+    private final PluginHandle<IFlagProvider> flagProvider = PluginHandle.ofType(IFlagProvider.class);
 
     public ConfigDAO configDAO;
     public MatchDAO matchDAO;
