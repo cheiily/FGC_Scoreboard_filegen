@@ -19,6 +19,9 @@ import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.RoundSet.RoundLabelDAO;
 import pl.cheily.filegen.LocalData.Player;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Facades.FlagModuleFacade;
+import pl.cheily.filegen.ResourceModules.Plugins.PluginHandle;
+import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.AutocompleteWrapper;
 
@@ -175,28 +178,44 @@ public class ControllerUI implements Initializable {
             combo_round.getItems().addAll(RoundLabelDAO.getDefault());
         else combo_round.getItems().addAll(dataManager.roundLabelDAO.getAllSorted());
 
-        ObservableList<String> f1_opts = combo_p1_nation.getItems();
-        ObservableList<String> f2_opts = combo_p2_nation.getItems();
-        ObservableList<String> cf1_opts = combo_comm1_nat.getItems();
-        ObservableList<String> cf2_opts = combo_comm2_nat.getItems();
-        ObservableList<String> cf3_opts = combo_comm3_nat.getItems();
-        try ( Stream<Path> flags = Files.walk(dataManager.flagsDir) ) {
-            flags.filter(path -> path.toString().endsWith(".png"))
-                    .filter(path ->
-                            !path.getFileName().toString().equals(LocalResourcePath.P1_FLAG.toString())
-                                    && !path.getFileName().toString().equals(LocalResourcePath.P2_FLAG.toString()))
-                    .map(path -> path.getFileName().toString().split("\\.")[ 0 ])
-                    .forEach(path -> {
-                        f1_opts.add(path.toUpperCase());
-                        f2_opts.add(path.toUpperCase());
-                        cf1_opts.add(path.toUpperCase());
-                        cf2_opts.add(path.toUpperCase());
-                        cf3_opts.add(path.toUpperCase());
-                    });
+//        if (FlagModuleFacade.isAvailable()) {
+            ObservableList<String> f1_opts = combo_p1_nation.getItems();
+            ObservableList<String> f2_opts = combo_p2_nation.getItems();
+            ObservableList<String> cf1_opts = combo_comm1_nat.getItems();
+            ObservableList<String> cf2_opts = combo_comm2_nat.getItems();
+            ObservableList<String> cf3_opts = combo_comm3_nat.getItems();
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//            FlagModuleFacade.getAvailableFlags().stream()
+//                    .map(filename -> filename.split("\\.")[0])
+//                    .forEach(name -> {
+//                        f1_opts.add(name.toUpperCase());
+//                        f2_opts.add(name.toUpperCase());
+//                        cf1_opts.add(name.toUpperCase());
+//                        cf2_opts.add(name.toUpperCase());
+//                        cf3_opts.add(name.toUpperCase());
+//                    });
+//
+            // todo this is ok but happens before the plugin is loaded, so flags are not found. Handle refreshes first
+            // todo remove Config.FLAG_EXTENSION to make sure they're handled correctly throughout the app
+
+            try (Stream<Path> flags = Files.walk(dataManager.flagsDir)) { // todo getAllFlagKeys() // todo handle custom flag dir & refreshes
+                flags.filter(path -> path.toString().endsWith(".png"))
+                        .filter(path ->
+                                !path.getFileName().toString().equals(LocalResourcePath.P1_FLAG.toString())
+                                        && !path.getFileName().toString().equals(LocalResourcePath.P2_FLAG.toString()))
+                        .map(path -> path.getFileName().toString().split("\\.")[0])
+                        .forEach(path -> {
+                            f1_opts.add(path.toUpperCase());
+                            f2_opts.add(path.toUpperCase());
+                            cf1_opts.add(path.toUpperCase());
+                            cf2_opts.add(path.toUpperCase());
+                            cf3_opts.add(path.toUpperCase());
+                        });
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+//        }
 
         img_p1_flag.setImage(new Image(dataManager.nullFlag.toString()));
         img_p2_flag.setImage(new Image(dataManager.nullFlag.toString()));
@@ -463,18 +482,22 @@ public class ControllerUI implements Initializable {
 
     /**
      * Tries to load a related flag file into the coupled {@link ImageView}, loads the null flag if no related file is found.
-     * See {@link pl.cheily.filegen.LocalData.DataManager#getFlag(String)}
+     * See {@link pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider#getFlag(String)}
      */
     public void on_p1_nation_selection() {
-        img_p1_flag.setImage(dataManager.getFlag(combo_p1_nation.getValue()));
+        if (FlagModuleFacade.isAvailable()) {
+            img_p1_flag.setImage(FlagModuleFacade.getFlag(combo_p1_nation.getValue()));
+        }
     }
 
     /**
      * Tries to load a related flag file into the coupled {@link ImageView}, loads the null flag if no related file is found.
-     * See {@link pl.cheily.filegen.LocalData.DataManager#getFlag(String)}
+     * See {@link pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider#getFlag(String)}
      */
     public void on_p2_nation_selection() {
-        img_p2_flag.setImage(dataManager.getFlag(combo_p2_nation.getValue()));
+        if (FlagModuleFacade.isAvailable()) {
+            img_p2_flag.setImage(FlagModuleFacade.getFlag(combo_p2_nation.getValue()));
+        }
     }
 
     /**

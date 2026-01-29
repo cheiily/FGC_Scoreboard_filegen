@@ -13,6 +13,7 @@ import pl.cheily.filegen.ResourceModules.Plugins.SPI.Status.ResourceModuleStatus
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 public class FlagProviderSafeInvocationDecorator implements IFlagProvider, IPluginDecorator {
     public IFlagProvider flagProvider;
@@ -38,6 +39,12 @@ public class FlagProviderSafeInvocationDecorator implements IFlagProvider, IPlug
     @Override
     public @NotNull String getFlagBase64(@NotNull String ISO2) throws PluginCommandInvocationRuntimeException {
         return commandSafeInvocationDecorator.invoke(() -> flagProvider.getFlagBase64(ISO2), "getFlagBase64");
+    }
+
+    @NotNull
+    @Override
+    public Set<String> getAvailableFlags() {
+        return commandSafeInvocationDecorator.invoke(() -> flagProvider.getAvailableFlags(), "getAvailableFlags");
     }
 
     @NotNull

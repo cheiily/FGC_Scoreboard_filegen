@@ -1,11 +1,11 @@
 package pl.cheily.filegen.LocalData;
 
 import com.opencsv.CSVReader;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAO;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Config.ConfigDAOIni;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.EventfulCachedIniDAOWrapper;
@@ -32,8 +32,6 @@ import pl.cheily.filegen.UI.ControllerUI;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
@@ -270,42 +268,19 @@ public class DataManager {
      * @param ISO2_code by standard but in actuality - an extension-less string representing the name of the related file within {@link DataManager#flagsDir}.
      * @return {@link Image} with the loaded flag, {@link DataManager#nullFlag} if the corresponding file cannot be found.
      */
-    public Image getFlag(String ISO2_code) {
-        if ( ISO2_code == null ) return new Image(nullFlag.toString());
+//    public Image getFlag(String ISO2_code) {
+//        if ( ISO2_code == null ) return new Image(nullFlag.toString());
+//
+//        ISO2_code = ISO2_code.toLowerCase();
+//        ISO2_code += AppConfig.FLAG_EXTENSION();
+//        if ( !Files.exists(Path.of(flagsDir + "/" + ISO2_code)) )
+//            return new Image(nullFlag.toString());
+//        return new Image(flagsDir + "/" + ISO2_code);
+//    }
 
-        ISO2_code = ISO2_code.toLowerCase();
-        ISO2_code += AppConfig.FLAG_EXTENSION();
-        if ( !Files.exists(Path.of(flagsDir + "/" + ISO2_code)) )
-            return new Image(nullFlag.toString());
-        return new Image(flagsDir + "/" + ISO2_code);
-    }
-
-    /**
-     * A modified version of {@link DataManager#getFlag} that returns a Base64 String instead of an Image.
-     *
-     * @param ISO2_code by standard but in actuality - an extension-less string representing the name of the related file within {@link DataManager#flagsDir}.
-     * @return Base64 String representation of the loaded flag, {@link DataManager#nullFlag} if the corresponding file cannot be found.
-     * @see DataManager#getFlag(String)
-     */
-    public String getFlagBase64String(String ISO2_code) throws IOException {
-
-        byte[] raw_image;
-
-        if (ISO2_code == null) {
-            raw_image = Files.readAllBytes(Path.of(nullFlag.toString()));
-        } else {
-            ISO2_code = ISO2_code.toLowerCase();
-            ISO2_code += AppConfig.FLAG_EXTENSION();
-
-            if (!Files.exists(Path.of(flagsDir + "/" + ISO2_code))) {
-                raw_image = Files.readAllBytes(Path.of(nullFlag.toString()));
-            } else {
-                raw_image = Files.readAllBytes(Path.of(flagsDir + "/" + ISO2_code));
-            }
-        }
-
-        return Base64.getEncoder().encodeToString(raw_image);
-    }
+//    public Image getFlag(String ISO2_code) {
+//        return SwingFXUtils.toFXImage(flagProvider.get().getFlag(ISO2_code), null);
+//    }
 
     /**
      * @return the initialization state of the Manager.

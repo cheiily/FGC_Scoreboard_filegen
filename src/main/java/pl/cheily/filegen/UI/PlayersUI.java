@@ -8,16 +8,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import pl.cheily.filegen.LocalData.DataEventProp;
 import pl.cheily.filegen.LocalData.Player;
+import pl.cheily.filegen.ResourceModules.Facades.FlagModuleFacade;
 import pl.cheily.filegen.ScoreboardApplication;
 import pl.cheily.filegen.Utils.PlayerTableUtil;
 
@@ -124,14 +123,16 @@ public class PlayersUI implements Initializable {
                     super.updateItem(val, emptyRow);
                     if ( emptyRow ) return;
 
-                    setBackground(new Background(
-                            new BackgroundImage(
-                                    dataManager.getFlag(val),
-                                    BackgroundRepeat.NO_REPEAT,
-                                    BackgroundRepeat.NO_REPEAT,
-                                    BackgroundPosition.CENTER,
-                                    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false))
-                    ));
+                    if (FlagModuleFacade.isAvailable()) {
+                        setBackground(new Background(
+                                new BackgroundImage(
+                                        FlagModuleFacade.getFlag(val),
+                                        BackgroundRepeat.NO_REPEAT,
+                                        BackgroundRepeat.NO_REPEAT,
+                                        BackgroundPosition.CENTER,
+                                        new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false))
+                        ));
+                    }
                 }
             };
 

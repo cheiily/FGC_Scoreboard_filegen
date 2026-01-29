@@ -5,8 +5,7 @@ import pl.cheily.filegen.ResourceModules.Plugins.SPI.IPluginBase;
 
 import java.awt.image.BufferedImage;
 import java.net.URL;
-
-//@IPluginBase.Requires(resourceModule = "[flags] Countries")
+import java.util.Set;
 
 /// If a specific resource cannot be reached or the input code is invalid, the provider should always return a fallback image.
 /// What exactly is the fallback image looks like is up to the implementation, but the recommended options are:
@@ -17,4 +16,5 @@ public interface IFlagProvider extends IPluginBase {
     public @NotNull BufferedImage getFlag(@NotNull String ISO2);
     public @NotNull URL getFlagURL(@NotNull String ISO2);
     public @NotNull String getFlagBase64(@NotNull String ISO2);
+    public @NotNull Set<String> getAvailableFlags();
 }

@@ -29,10 +29,11 @@ public class PluginHandle<P extends IPluginBase> {
             ResourceModuleEventType.ENABLED_MODULE
     );
 
+    // TODO: 29.01.2026 handle uninstalls -> clear plugin ref, otherwise it's probably not unloaded properly?
+
     private final PropertyChangeListener stateChangeListener = evt -> {
         if (evt.getNewValue() instanceof ResourceModule module && module.getDefinition().equals(pluginDefinition)) {
             resourceModule = module;
-            System.out.println("isEnabled() = " + isEnabled());
         }
     };
 
@@ -73,7 +74,6 @@ public class PluginHandle<P extends IPluginBase> {
 
         initEvents.forEach(evt -> resourceModuleRegistry.eventPipeline.unsubscribe(evt, this.typeInitListener));
         this.initialized = true;
-        System.out.println("PluginUnit.tryInit");
     }
 
     public boolean isEnabled() {

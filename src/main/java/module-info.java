@@ -14,6 +14,8 @@ module pl.cheily.filegen {
     requires net.harawata.appdirs;
     requires java.logging;
     requires annotations;
+    requires javafx.swing;
+    requires javafx.graphics;
 
     opens pl.cheily.filegen to javafx.fxml;
     exports pl.cheily.filegen;
