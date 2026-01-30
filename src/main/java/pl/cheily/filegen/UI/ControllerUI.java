@@ -178,44 +178,14 @@ public class ControllerUI implements Initializable {
             combo_round.getItems().addAll(RoundLabelDAO.getDefault());
         else combo_round.getItems().addAll(dataManager.roundLabelDAO.getAllSorted());
 
-//        if (FlagModuleFacade.isAvailable()) {
-            ObservableList<String> f1_opts = combo_p1_nation.getItems();
-            ObservableList<String> f2_opts = combo_p2_nation.getItems();
-            ObservableList<String> cf1_opts = combo_comm1_nat.getItems();
-            ObservableList<String> cf2_opts = combo_comm2_nat.getItems();
-            ObservableList<String> cf3_opts = combo_comm3_nat.getItems();
+        FlagModuleFacade.onEnable(this::refreshFlagOptions);
+        FlagModuleFacade.onDisable(this::clearFlagOptions);
 
-//            FlagModuleFacade.getAvailableFlags().stream()
-//                    .map(filename -> filename.split("\\.")[0])
-//                    .forEach(name -> {
-//                        f1_opts.add(name.toUpperCase());
-//                        f2_opts.add(name.toUpperCase());
-//                        cf1_opts.add(name.toUpperCase());
-//                        cf2_opts.add(name.toUpperCase());
-//                        cf3_opts.add(name.toUpperCase());
-//                    });
-//
-            // todo this is ok but happens before the plugin is loaded, so flags are not found. Handle refreshes first
-            // todo remove Config.FLAG_EXTENSION to make sure they're handled correctly throughout the app
+        // todo after moving null flag to resources, clear on module disable
+        FlagModuleFacade.onDisable(() -> dataManager.matchDAO.set(MatchDataKey.P1_NATIONALITY, ""));
 
-            try (Stream<Path> flags = Files.walk(dataManager.flagsDir)) { // todo getAllFlagKeys() // todo handle custom flag dir & refreshes
-                flags.filter(path -> path.toString().endsWith(".png"))
-                        .filter(path ->
-                                !path.getFileName().toString().equals(LocalResourcePath.P1_FLAG.toString())
-                                        && !path.getFileName().toString().equals(LocalResourcePath.P2_FLAG.toString()))
-                        .map(path -> path.getFileName().toString().split("\\.")[0])
-                        .forEach(path -> {
-                            f1_opts.add(path.toUpperCase());
-                            f2_opts.add(path.toUpperCase());
-                            cf1_opts.add(path.toUpperCase());
-                            cf2_opts.add(path.toUpperCase());
-                            cf3_opts.add(path.toUpperCase());
-                        });
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-//        }
+        // todo remove Config.FLAG_EXTENSION to make sure they're handled correctly throughout the app (especially in FMT dao shenanigans)
+        // todo handle custom flag dir & refreshes
 
         img_p1_flag.setImage(new Image(dataManager.nullFlag.toString()));
         img_p2_flag.setImage(new Image(dataManager.nullFlag.toString()));
@@ -243,6 +213,32 @@ public class ControllerUI implements Initializable {
         acWrappers = List.of(ac_p1_name, ac_p2_name, ac_p1_nation, ac_p2_nation, ac_round, ac_comm1, ac_comm2, ac_comm3, ac_comm1_nat, ac_comm2_nat, ac_comm3_nat);
     }
 
+    private void refreshFlagOptions() {
+        var optLists = List.of(
+                combo_p1_nation.getItems(),
+                combo_p2_nation.getItems(),
+                combo_comm1_nat.getItems(),
+                combo_comm2_nat.getItems(),
+                combo_comm3_nat.getItems()
+        );
+
+        var flags = FlagModuleFacade.getAvailableFlags().stream()
+                .map(filename -> filename.split("\\.")[0]).toList();
+
+        optLists.forEach(list -> list.setAll(flags));
+    }
+
+    private void clearFlagOptions() {
+        var optLists = List.of(
+                combo_p1_nation.getItems(),
+                combo_p2_nation.getItems(),
+                combo_comm1_nat.getItems(),
+                combo_comm2_nat.getItems(),
+                combo_comm3_nat.getItems()
+        );
+
+        optLists.forEach(List::clear);
+    }
 
     /**
      * Issues the {@link ScoreboardApplication#dataManager} to save its contained data.

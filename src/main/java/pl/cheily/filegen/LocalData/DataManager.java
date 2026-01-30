@@ -54,7 +54,6 @@ public class DataManager {
     public final Path nullFlag = Path.of(flagsDir + "/null.png");
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
-    private final PluginHandle<IFlagProvider> flagProvider = PluginHandle.ofType(IFlagProvider.class);
 
     public ConfigDAO configDAO;
     public MatchDAO matchDAO;

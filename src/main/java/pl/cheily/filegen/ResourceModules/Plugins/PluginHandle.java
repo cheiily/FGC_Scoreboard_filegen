@@ -7,7 +7,10 @@ import pl.cheily.filegen.ResourceModules.ResourceModule;
 import pl.cheily.filegen.Utils.SafeInvocationUtil;
 
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static pl.cheily.filegen.ScoreboardApplication.resourceModuleRegistry;
 
@@ -17,6 +20,18 @@ public class PluginHandle<P extends IPluginBase> {
     private ResourceModuleDefinition pluginDefinition;
     private ResourceModule resourceModule;
     private boolean initialized = false;
+
+    private enum CallbackEvent {
+        INIT,
+        ENABLE,
+        DISABLE
+    }
+
+    private Map<CallbackEvent, List<Runnable>> callbacks = Map.of(
+            CallbackEvent.INIT, new ArrayList<>(),
+            CallbackEvent.ENABLE, new ArrayList<>(),
+            CallbackEvent.DISABLE, new ArrayList<>()
+    );
 
 
     private PluginHandle(Class<P> pluginClass) {
@@ -34,6 +49,13 @@ public class PluginHandle<P extends IPluginBase> {
     private final PropertyChangeListener stateChangeListener = evt -> {
         if (evt.getNewValue() instanceof ResourceModule module && module.getDefinition().equals(pluginDefinition)) {
             resourceModule = module;
+
+            var evtType = ResourceModuleEventType.valueOf(evt.getPropertyName());
+            if (evtType == ResourceModuleEventType.ENABLED_MODULE) {
+                callbacks.get(CallbackEvent.ENABLE).forEach(Runnable::run);
+            } else if (evtType == ResourceModuleEventType.DISABLED_MODULE) {
+                callbacks.get(CallbackEvent.DISABLE).forEach(Runnable::run);
+            }
         }
     };
 
@@ -74,10 +96,40 @@ public class PluginHandle<P extends IPluginBase> {
 
         initEvents.forEach(evt -> resourceModuleRegistry.eventPipeline.unsubscribe(evt, this.typeInitListener));
         this.initialized = true;
+
+        callbacks.get(CallbackEvent.INIT).forEach(Runnable::run);
+        callbacks.get(CallbackEvent.INIT).clear();
+        if (isEnabled()) {
+            callbacks.get(CallbackEvent.ENABLE).forEach(Runnable::run);
+        }
     }
 
     public boolean isEnabled() {
         return initialized && resourceModule != null && resourceModule.isEnabled();
+    }
+
+    public void onEnable(Runnable callback) {
+        if (isEnabled()) {
+            callback.run();
+        }
+
+        callbacks.get(CallbackEvent.ENABLE).add(callback);
+    }
+
+    public void onDisable(Runnable callback) {
+        if (!isEnabled()) {
+            callback.run();
+        }
+
+        callbacks.get(CallbackEvent.DISABLE).add(callback);
+    }
+
+    public void onInit(Runnable callback) {
+        if (initialized) {
+            callback.run();
+        } else {
+            callbacks.get(CallbackEvent.INIT).add(callback);
+        }
     }
 
     public P get() throws IllegalStateException {

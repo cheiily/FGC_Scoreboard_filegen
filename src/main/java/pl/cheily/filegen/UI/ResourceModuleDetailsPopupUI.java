@@ -210,6 +210,7 @@ public class ResourceModuleDetailsPopupUI implements Initializable {
 
         PluginHealthData healthData = plugin.getHealthStatus();
         table_health.getItems().addAll(healthData.healthRecords());
+        // todo add summary row
     }
 
     private void loadRequirementsList() {
