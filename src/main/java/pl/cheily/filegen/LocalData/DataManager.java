@@ -26,13 +26,13 @@ import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.DefaultOutpu
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriter;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.OutputWriterType;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Writing.RawOutputWriter;
-import pl.cheily.filegen.ResourceModules.Plugins.PluginHandle;
-import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
 import pl.cheily.filegen.UI.ControllerUI;
+import pl.cheily.filegen.Utils.SafeInvocationUtil;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -49,9 +49,11 @@ public class DataManager {
      */
     public Path targetDir;
     public final Path flagsDir = Path.of("flags").toAbsolutePath();
-    //TODO hook this up to AppConfig#Flagsdir via listener
-    // todo move nullflag to resources, make flag module entirely optional
-    public final Path nullFlag = Path.of(flagsDir + "/null.png");
+
+    public final Path nullFlag = Paths.get(Objects.requireNonNull(
+            SafeInvocationUtil.getOrNull(() ->
+                    DataManager.class.getResource("Flags/null.png").toURI())
+    ));
 
     private final List<OutputWriter> writers = new ArrayList<>(2);
 
@@ -259,27 +261,6 @@ public class DataManager {
         matchDAO.set(MatchDataKey.COMM_PRONOUNS_3, ui.txt_comm3_pronouns.getText());
         matchDAO.set(MatchDataKey.COMM_HANDLE_3, ui.txt_comm3_handle.getText());
     }
-
-    // todo move to OPTIONAL flag module
-    /**
-     * Utility method, used for loading the UI elements. Copying of the actual files happens in other ways.<br/>
-     *
-     * @param ISO2_code by standard but in actuality - an extension-less string representing the name of the related file within {@link DataManager#flagsDir}.
-     * @return {@link Image} with the loaded flag, {@link DataManager#nullFlag} if the corresponding file cannot be found.
-     */
-//    public Image getFlag(String ISO2_code) {
-//        if ( ISO2_code == null ) return new Image(nullFlag.toString());
-//
-//        ISO2_code = ISO2_code.toLowerCase();
-//        ISO2_code += AppConfig.FLAG_EXTENSION();
-//        if ( !Files.exists(Path.of(flagsDir + "/" + ISO2_code)) )
-//            return new Image(nullFlag.toString());
-//        return new Image(flagsDir + "/" + ISO2_code);
-//    }
-
-//    public Image getFlag(String ISO2_code) {
-//        return SwingFXUtils.toFXImage(flagProvider.get().getFlag(ISO2_code), null);
-//    }
 
     /**
      * @return the initialization state of the Manager.

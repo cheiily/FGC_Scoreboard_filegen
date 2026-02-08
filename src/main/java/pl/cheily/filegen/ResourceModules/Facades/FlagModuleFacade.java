@@ -21,10 +21,9 @@ public class FlagModuleFacade {
     }
 
     public static Image getFlag(String ISO2_code) {
-        // todo
-//        if (!isAvailable()) return ScoreboardApplication.dataManager.nullFlag;
+        if (ISO2_code == null || ISO2_code.isBlank() || !isAvailable())
+            return new Image(ScoreboardApplication.dataManager.nullFlag.toString());
 
-        if (ISO2_code == null) ISO2_code = "";
         return SwingFXUtils.toFXImage(handle.get().getFlag(ISO2_code), null);
     }
 

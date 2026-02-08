@@ -181,8 +181,16 @@ public class ControllerUI implements Initializable {
         FlagModuleFacade.onEnable(this::refreshFlagOptions);
         FlagModuleFacade.onDisable(this::clearFlagOptions);
 
-        // todo after moving null flag to resources, clear on module disable
-        FlagModuleFacade.onDisable(() -> dataManager.matchDAO.set(MatchDataKey.P1_NATIONALITY, ""));
+        FlagModuleFacade.onDisable(() -> {
+            if (dataManager.matchDAO != null) {
+                dataManager.matchDAO.set(MatchDataKey.P1_NATIONALITY, "");
+                dataManager.matchDAO.set(MatchDataKey.P2_NATIONALITY, "");
+                combo_p1_nation.setValue("");
+                combo_p2_nation.setValue("");
+                on_p1_nation_selection();
+                on_p2_nation_selection();
+            }
+        });
 
         // todo remove Config.FLAG_EXTENSION to make sure they're handled correctly throughout the app (especially in FMT dao shenanigans)
         // todo handle custom flag dir & refreshes
@@ -481,9 +489,7 @@ public class ControllerUI implements Initializable {
      * See {@link pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider#getFlag(String)}
      */
     public void on_p1_nation_selection() {
-        if (FlagModuleFacade.isAvailable()) {
-            img_p1_flag.setImage(FlagModuleFacade.getFlag(combo_p1_nation.getValue()));
-        }
+        img_p1_flag.setImage(FlagModuleFacade.getFlag(combo_p1_nation.getValue()));
     }
 
     /**
@@ -491,9 +497,7 @@ public class ControllerUI implements Initializable {
      * See {@link pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider#getFlag(String)}
      */
     public void on_p2_nation_selection() {
-        if (FlagModuleFacade.isAvailable()) {
-            img_p2_flag.setImage(FlagModuleFacade.getFlag(combo_p2_nation.getValue()));
-        }
+        img_p2_flag.setImage(FlagModuleFacade.getFlag(combo_p2_nation.getValue()));
     }
 
     /**

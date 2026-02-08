@@ -118,21 +118,24 @@ public class PlayersUI implements Initializable {
 
         nat_col.setCellFactory(playerStringTableColumn -> {
             TextFieldTableCell<Player, String> cell = new TextFieldTableCell<>() {
+                {
+                    FlagModuleFacade.onEnable(() -> this.updateItem(this.getItem(), this.isEmpty()));
+                    FlagModuleFacade.onDisable(() -> this.updateItem(this.getItem(), this.isEmpty()));
+                }
+
                 @Override
                 public void updateItem(String val, boolean emptyRow) {
                     super.updateItem(val, emptyRow);
                     if ( emptyRow ) return;
 
-                    if (FlagModuleFacade.isAvailable()) {
-                        setBackground(new Background(
-                                new BackgroundImage(
-                                        FlagModuleFacade.getFlag(val),
-                                        BackgroundRepeat.NO_REPEAT,
-                                        BackgroundRepeat.NO_REPEAT,
-                                        BackgroundPosition.CENTER,
-                                        new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false))
-                        ));
-                    }
+                    setBackground(new Background(
+                            new BackgroundImage(
+                                    FlagModuleFacade.getFlag(val),
+                                    BackgroundRepeat.NO_REPEAT,
+                                    BackgroundRepeat.NO_REPEAT,
+                                    BackgroundPosition.CENTER,
+                                    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false))
+                    ));
                 }
             };
 
