@@ -6,6 +6,8 @@ import pl.cheily.filegen.ResourceModules.Plugins.PluginHandle;
 import pl.cheily.filegen.ResourceModules.Plugins.SPI.Concrete.FlagProvider.IFlagProvider;
 import pl.cheily.filegen.ScoreboardApplication;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Set;
 
 public class FlagModuleFacade {
@@ -25,6 +27,18 @@ public class FlagModuleFacade {
             return new Image(ScoreboardApplication.dataManager.nullFlag.toString());
 
         return SwingFXUtils.toFXImage(handle.get().getFlag(ISO2_code), null);
+    }
+
+    public static URL getFlagURL(String ISO2_code) {
+        if (ISO2_code == null || ISO2_code.isBlank() || !isAvailable())
+            try {
+                // should not happen as long as the default is bundled properly
+                return ScoreboardApplication.dataManager.nullFlag.toUri().toURL();
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+
+        return handle.get().getFlagURL(ISO2_code);
     }
 
     public static Set<String> getAvailableFlags() {

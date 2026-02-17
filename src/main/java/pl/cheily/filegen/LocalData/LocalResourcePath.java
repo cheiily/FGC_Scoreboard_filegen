@@ -150,6 +150,10 @@ public enum LocalResourcePath {
         return null;
     }
 
+    public boolean isFlag() {
+        return this.fileName.endsWith("flag.png");
+    }
+
     public boolean isHTML() {
         return this.fileName.startsWith("html/");
     }

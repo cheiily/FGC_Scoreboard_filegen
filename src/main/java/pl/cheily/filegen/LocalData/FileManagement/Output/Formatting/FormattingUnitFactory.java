@@ -3,9 +3,11 @@ package pl.cheily.filegen.LocalData.FileManagement.Output.Formatting;
 import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.FileManagement.Meta.Match.MatchDataKey;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Facades.FlagModuleFacade;
 import pl.cheily.filegen.Utils.Pair;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,14 +53,12 @@ public class FormattingUnitFactory {
     }
 
     public static String findFlagFileFmt(String... params) {
-        // todo adjust this for bundled flags
-        if (params[0].isEmpty()) return params[0];
-        try {
-            Path flag = Files.find(Path.of(dataManager.flagsDir + "/"), 2, (path, basicFileAttributes) -> path.toFile().getName().startsWith(params[0]), FileVisitOption.FOLLOW_LINKS).findFirst().get();
-            return flag.getFileName().toString();
-        } catch (IOException | NoSuchElementException e) {
-            return params[0] + AppConfig.FLAG_EXTENSION();
-        }
+        // Functions identically to 1-1 pass for two reasons:
+        // 1. As a hint to the end user
+        // 2. As we currently reqiure a String type return, we would have to convert to uri to string and then reconstruct within the writer,
+        //  which only introduces a potential failure point.
+
+        return params[0];
     }
 
 

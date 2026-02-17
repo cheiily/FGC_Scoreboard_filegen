@@ -7,11 +7,15 @@ import pl.cheily.filegen.Configuration.AppConfig;
 import pl.cheily.filegen.LocalData.DataManagerNotInitializedException;
 import pl.cheily.filegen.LocalData.FileManagement.Output.Formatting.OutputFormatter;
 import pl.cheily.filegen.LocalData.LocalResourcePath;
+import pl.cheily.filegen.ResourceModules.Facades.FlagModuleFacade;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
@@ -58,26 +62,11 @@ public class RawOutputWriter extends OutputWriterBase {
                     Files.createFile(filePath);
                 }
 
-                if (entry.getKey() == LocalResourcePath.P1_FLAG || entry.getKey() == LocalResourcePath.P2_FLAG || entry.getKey() == LocalResourcePath.C1_FLAG || entry.getKey() == LocalResourcePath.C2_FLAG || entry.getKey() == LocalResourcePath.C3_FLAG) {
-                    Path sourceFlag = Path.of(dataManager.flagsDir + "/" + entry.getValue());
-
-                    if (sourceFlag.toString().equals(AppConfig.FLAG_EXTENSION()) || entry.getValue().isEmpty()) {
-                        //empty nationality field - assign null flag
-                        sourceFlag = dataManager.nullFlag;
-                    } else if (!Files.exists(sourceFlag)) {
-                        //nationality was a valid string but unable to find such file - message & assign null flag
-                        String t = sourceFlag.getFileName().toString();
-                        if (!t.isEmpty() && !t.equals(AppConfig.FLAG_EXTENSION())) {
-                            logger.error("Unable to find corresponding file image: " + t);
-                            failedResources.add(entry.getKey().toString());
-                        }
-
-
-                        sourceFlag = dataManager.nullFlag;
+                if (entry.getKey().isFlag()) {
+                    try (InputStream in = FlagModuleFacade.getFlagURL(entry.getValue()).openStream()) {
+                        Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
+                        Files.setLastModifiedTime(filePath, FileTime.from(Instant.now()));
                     }
-
-                    Files.copy(sourceFlag, filePath, StandardCopyOption.REPLACE_EXISTING);
-                    Files.setLastModifiedTime(filePath, FileTime.from(Instant.now()));
                 } else {
                     BufferedWriter bw = Files.newBufferedWriter(entry.getKey().toPath());
                     bw.write(entry.getValue());
