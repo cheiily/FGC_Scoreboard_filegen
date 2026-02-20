@@ -30,11 +30,11 @@ public class DataWebSocket extends WebSocketServer {
     public void onOpen(WebSocket conn, ClientHandshake shake) {
 
         // Inform the connection of the flagdir, as indicated by the "flagsDir" type parameter.
-        JSONObject flagJSONObject = new JSONObject();
-        flagJSONObject.put("type", "flagsdir");
-        flagJSONObject.put("data", dataManager.flagsDir.toString());
+//        JSONObject flagJSONObject = new JSONObject();
+//        flagJSONObject.put("type", "flagsdir");
+//        flagJSONObject.put("data", dataManager.flagsDir.toString());
 
-        conn.send(flagJSONObject.toString());
+//        conn.send(flagJSONObject.toString());
 
         // Then give it the relevant information
         conn.send(getMetadataJSON().toString());

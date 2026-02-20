@@ -28,8 +28,6 @@ public class AppConfig {
     private static boolean _gfRadio = Defaults.GF_RADIO_ON_LABEL_MATCH;
     private static boolean _writeComm3 = Defaults.WRITE_COMM_3;
     private static boolean _checkNotifications = Defaults.CHECK_NOTIFICATIONS;
-    private static String _flagExtension = Defaults.FLAG_EXTENSION;
-    private static Path _flagDirectory = Defaults.FLAG_DIRECTORY;
     /*==============================PROPERTIES==============================*/
 
     /**
@@ -41,8 +39,6 @@ public class AppConfig {
         CHALLONGE_API(Defaults.CHALLONGE_API);
         AUTOCOMPLETE_ON(Defaults.AUTOCOMPLETE_ON);
         GF_RADIO_ON_LABEL_MATCH(Defaults.GF_RADIO_ON_LABEL_MATCH);
-        FLAG_EXTENSION(Defaults.FLAG_EXTENSION);
-        FLAG_DIRECTORY(Defaults.FLAG_DIRECTORY);
         // don't reset writeComm3, it's only loaded on init & changed by a separate button
         CHECK_NOTIFICATIONS(Defaults.CHECK_NOTIFICATIONS);
     }
@@ -211,70 +207,6 @@ public class AppConfig {
     }
 
     /**
-     * Getter method for {@link PropKey#FLAG_EXTENSION}.
-     *
-     * @return the declared extension to save flag images with.
-     */
-    public synchronized static String FLAG_EXTENSION() {
-        return _flagExtension;
-    }
-
-    /**
-     * Setter method for {@link PropKey#FLAG_EXTENSION}.
-     * No changes applied if the value is invalid.
-     *
-     * @param newValue
-     * @return true if value was valid & was applied, false otherwise
-     * @see #FLAG_EXTENSION()
-     */
-    public static boolean FLAG_EXTENSION(String newValue) {
-        if ( !FLAG_EXTENSION.validateParam(newValue) ) return false;
-        String old;
-
-        synchronized (FLAG_EXTENSION) {
-            if ( newValue.equals(_flagExtension) ) return true;
-
-            old = _flagExtension;
-            _flagExtension = newValue;
-        }
-        _pcs.firePropertyChange(FLAG_EXTENSION.propName, old, _flagExtension);
-
-        return true;
-    }
-
-    /**
-     * Getter method for {@link PropKey#FLAG_DIRECTORY}.
-     *
-     * @return the declared source directory for flag files.
-     */
-    public synchronized static Path FLAG_DIRECTORY() {
-        return _flagDirectory;
-    }
-
-    /**
-     * Setter method for {@link PropKey#FLAG_DIRECTORY}.
-     * No changes applied if the value is invalid.
-     *
-     * @param newValue
-     * @return true if value was valid & was applied, false otherwise
-     * @see #FLAG_DIRECTORY()
-     */
-    public static boolean FLAG_DIRECTORY(Path newValue) {
-        if ( !FLAG_DIRECTORY.validateParam(newValue) ) return false;
-        Path old;
-
-        synchronized (FLAG_DIRECTORY) {
-            if ( newValue.equals(_flagDirectory) ) return true;
-
-            old = _flagDirectory;
-            _flagDirectory = newValue;
-        }
-        _pcs.firePropertyChange(FLAG_DIRECTORY.propName, old, _flagDirectory);
-
-        return true;
-    }
-    
-    /**
      * Getter method for {@link PropKey#CHECK_NOTIFICATIONS}.
      *
      * @return the declared source directory for flag files.
@@ -325,16 +257,6 @@ public class AppConfig {
     public static void setInternalGfRadio(ConfigDAO accessor, boolean val) {
         Objects.requireNonNull(accessor);
         _gfRadio = val;
-    }
-
-    public static void setInternalFlagExtension(ConfigDAO accessor, String val) {
-        Objects.requireNonNull(accessor);
-        _flagExtension = val;
-    }
-
-    public static void setInternalFlagDirectory(ConfigDAO accessor, Path val) {
-        Objects.requireNonNull(accessor);
-        _flagDirectory = val;
     }
 
     public static void setInternalWriteComm3(ConfigDAO accessor, boolean val) {

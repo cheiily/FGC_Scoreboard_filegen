@@ -48,7 +48,6 @@ public class DataManager {
      * Target directory path
      */
     public Path targetDir;
-    public final Path flagsDir = Path.of("flags").toAbsolutePath();
 
     public final Path nullFlag = Paths.get(Objects.requireNonNull(
             SafeInvocationUtil.getOrNull(() ->

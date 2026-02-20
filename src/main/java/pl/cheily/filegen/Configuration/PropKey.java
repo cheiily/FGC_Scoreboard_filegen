@@ -12,10 +12,6 @@ public enum PropKey {
     AUTOCOMPLETE_ON("AUTOCOMPLETE_ON", Boolean.class, null),
     GF_RADIO_ON_LABEL_MATCH("GF_RADIO_ON_LABEL_MATCH", Boolean.class, null),
     WRITE_COMM_3("WRITE_COMM_3", Boolean.class, null),
-    FLAG_EXTENSION("FLAG_EXTENSION", String.class, null),
-    FLAG_DIRECTORY( "FLAG_DIRECTORY", Path.class, obj ->
-            obj != null && (obj.getClass() == String.class || obj.getClass() == Path.of("").getClass())
-    ),
     CHECK_NOTIFICATIONS("CHECK_NOTIFICATIONS", Boolean.class, null);
 
     /**

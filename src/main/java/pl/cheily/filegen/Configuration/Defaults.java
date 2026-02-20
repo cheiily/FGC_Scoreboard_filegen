@@ -18,9 +18,5 @@ public class Defaults {
 
     public static final boolean WRITE_COMM_3 = false;
 
-    public static final String FLAG_EXTENSION = ".png";
-
-    public static final Path FLAG_DIRECTORY = Path.of("flags").toAbsolutePath();
-
     public static final boolean CHECK_NOTIFICATIONS = true;
 }
