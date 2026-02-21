@@ -14,10 +14,12 @@ import pl.cheily.filegen.ResourceModules.Events.ResourceModuleEventType;
 import pl.cheily.filegen.ResourceModules.Exceptions.Plugins.PluginUninstantiationException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionParseException;
 import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleDefinitionSerializationException;
+import pl.cheily.filegen.ResourceModules.Exceptions.ResourceModuleValidationException;
 import pl.cheily.filegen.ResourceModules.Installation.GitHubFileDetails;
 import pl.cheily.filegen.ResourceModules.Installation.ResourceModuleInstallationManager;
 import pl.cheily.filegen.ResourceModules.Plugins.PluginRegistry;
 import pl.cheily.filegen.ResourceModules.Validation.ResourceModuleValidator;
+import pl.cheily.filegen.ResourceModules.Validation.ValidationEvent;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -106,8 +108,11 @@ public class ResourceModuleRegistry {
 
             modules.addAll(installedModules);
             installedModules.forEach(module -> {
-                if (module.isInstalled())
+                if (module.isInstalled()) {
+                    // need to clear state because installModule doesn't set to false on failure
+                    module.setInstalled(false);
                     installModule(module);
+                }
                 if (module.isEnabled())
                     enableModule(module);
             });
