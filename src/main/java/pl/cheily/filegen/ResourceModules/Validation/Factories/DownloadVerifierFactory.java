@@ -95,22 +95,22 @@ public class DownloadVerifierFactory implements ResourceModuleVerifierFactory {
 
 
     private List<Error> validateStaticFile(ResourceModule module) {
-        logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", STATIC_FILE, module.getDefinition().getInstallFilePath());
+        logger.warn("Resource module download validation is not implemented, because this resource type has not been used before! If you see this, contact the developer. Type: {}, Path: {}", STATIC_FILE, module.getDefinition().getInstallFilePath());
         return List.of();
     }
 
     private List<Error> validatePropertiesJson(ResourceModule module) {
-        logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", PROPERTIES_JSON, module.getDefinition().getInstallFilePath());
+        logger.warn("Resource module download validation is not implemented, because this resource type has not been used before! If you see this, contact the developer. Type: {}, Path: {}", PROPERTIES_JSON, module.getDefinition().getInstallFilePath());
         return List.of();
     }
 
     private List<Error> validateExecutableCommand(ResourceModule module) {
-        logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", EXECUTABLE_COMMAND, module.getDefinition().getInstallFilePath());
+        logger.warn("Resource module download validation is not implemented, because this resource type has not been used before! If you see this, contact the developer. Type: {}, Path: {}", EXECUTABLE_COMMAND, module.getDefinition().getInstallFilePath());
         return List.of();
     }
 
     private List<Error> validatePluginJar(ResourceModule module) {
-        logger.warn("Resource module validation is not implemented. Type: {}, Path: {}", PLUGIN_JAR, module.getDefinition().getInstallFilePath());
+        logger.warn("Resource module download validation is not implemented. Type: {}, Path: {}", PLUGIN_JAR, module.getDefinition().getInstallFilePath());
         return List.of();
     }
     

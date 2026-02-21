@@ -73,22 +73,22 @@ public class InstallationVerifierFactory implements ResourceModuleVerifierFactor
     }
 
     private List<Error> validateStaticsCollection(ResourceModule module) {
-        logger.warn("Resource module installation validation is not implemented. Type: {}, Module: {}", ResourceModuleType.STATICS_COLLECTION, module);
+        // no-op
         return List.of();
     }
 
     private List<Error> validateStaticFile(ResourceModule module) {
-        logger.warn("Resource module installation validation is not implemented. Type: {}, Module: {}", ResourceModuleType.STATIC_FILE, module);
+        logger.warn("Resource module installation validation is not implemented, because this resource type has not been used before! If you see this, contact the developer. Type: {}, Module: {}", ResourceModuleType.STATIC_FILE, module);
         return List.of();
     }
 
     private List<Error> validatePropertiesJson(ResourceModule module) {
-        logger.warn("Resource module installation validation is not implemented. Type: {}, Module: {}", ResourceModuleType.PROPERTIES_JSON, module);
+        logger.warn("Resource module installation validation is not implemented, because this resource type has not been used before! If you see this, contact the developer. Type: {}, Module: {}", ResourceModuleType.PROPERTIES_JSON, module);
         return List.of();
     }
 
     private List<Error> validateExecutableCommand(ResourceModule module) {
-        logger.warn("Resource module installation validation is not implemented. Type: {}, Module: {}", ResourceModuleType.EXECUTABLE_COMMAND, module);
+        logger.warn("Resource module installation validation is not implemented, because this resource type has not been used before! If you see this, contact the developer. Type: {}, Module: {}", ResourceModuleType.EXECUTABLE_COMMAND, module);
         return List.of();
     }
 
